@@ -1,6 +1,5 @@
 <?php
-//$_GET['url'] = 'https://janwillemstegink.nl';
-
+//$_GET['url'] = 'https://hostingtool.nl';
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
 		$domain = str_replace('http://','', trim($_GET['url']));
@@ -158,65 +157,56 @@ if (strlen($DNS_CNAME_www))	{
 else	{
 	$DNS_TXT_www = 'not applicable';	
 }
+		
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+$security_txt_legacy = '';	
+$security_txt_url_legacy = 'not applicable';
+$security_txt_www_legacy = '';
+$security_txt_url_www_legacy = 'not applicable';	
 	
-$security_txt_url_legacy = 'no legacy file';	
-if (strlen($DNS_CNAME))	{
-	$security_txt_url_legacy = 'https://'.$inputdomain.'/security.txt';
-	$security_txt_legacy = nl2br(file_get_contents($security_txt_url_legacy));
-	if (!strlen($security_txt_legacy))	{
-		$security_txt_url_legacy = '<a href="https://'.$inputdomain.'/security.txt" target="_blank">https://'.$inputdomain.'/security.txt</a>';	
-	}
-}
-$security_txt_url_www_legacy = 'no legacy file';	
-if (strlen($DNS_CNAME_www))	{	
-	$security_txt_url_www_legacy = 'https://www.'.$inputdomain.'/security.txt';
-	$security_txt_www_legacy = nl2br(file_get_contents($security_txt_url_www_legacy));
-	if (!strlen($security_txt_www_legacy))	{
-		$security_txt_url_www_legacy = '<a href="https://www.'.$inputdomain.'/security.txt" target="_blank">https://www.'.$inputdomain.'/security.txt</a>';	
-	}	
-}	
+$security_txt_site = '';
+$security_txt_url_site = 'not applicable';	
+$security_txt_www_site = '';
+$security_txt_url_www_site = 'not applicable';	
 	
-$security_txt_url_site = 'not found';	
+$security_txt_effective = '';
+$security_txt_url_effective = 'not applicable';	
+$security_txt_www_effective = '';
+$security_txt_url_www_effective = 'not applicable';	
+	
 if (strlen($DNS_CNAME))	{
-	$security_txt_url_site = 'https://'.$inputdomain.'/.well-known/security.txt';
-	$security_txt_site = nl2br(file_get_contents($security_txt_url_site));
-	if (!strlen($security_txt_site))	{
-		$security_txt_url_site = '<a href="https://'.$inputdomain.'/.well-known/security.txt" target="_blank">https://'.$inputdomain.'/.well-known/security.txt</a>';	
-	}
-}
-$security_txt_url_www_site = 'not found';	
-if (strlen($DNS_CNAME_www))	{	
-	$security_txt_url_www_site = 'https://www.'.$inputdomain.'/.well-known/security.txt';
-	$security_txt_www_site = nl2br(file_get_contents($security_txt_url_www_site));
-	if (!strlen($security_txt_www_site))	{
-		$security_txt_url_www_site = '<a href="https://www.'.$inputdomain.'/.well-known/security.txt" target="_blank">https://www.'.$inputdomain.'/.well-known/security.txt</a>';	
-	}	
-}	
-$ch = curl_init();	
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE); 
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-$security_txt_url_effective = 'not found';
-if (strlen($DNS_CNAME))	{	
+	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain.'/security.txt'); 
+	$security_txt_legacy = nl2br(curl_exec($ch));
+	$security_txt_url_legacy = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain.'/.well-known/security.txt'); 
-	$html = curl_exec($ch);   
+	$security_txt_site = nl2br(curl_exec($ch));
+	$security_txt_url_site = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	$security_txt_effective = nl2br(curl_exec($ch));
 	$security_txt_url_effective = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-	$security_txt_effective = nl2br(file_get_contents($security_txt_url_effective));
-	if (!strlen($security_txt_effective))	{
-		$security_txt_url_effective = '<a href="'.$security_txt_url_effective.'" target="_blank">'.$security_txt_url_effective.'</a>';	
-	}
+	curl_setopt($ch, CURLOPT_URL, $security_txt_url_effective); 
+	$security_txt_effective = nl2br(curl_exec($ch));
+	$security_txt_url_effective = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
 }
-$security_txt_url_www_effective = 'not found';
+	
 if (strlen($DNS_CNAME_www))	{
+	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain.'/security.txt'); 
+	$security_txt_www_legacy = nl2br(curl_exec($ch));
+	$security_txt_url_www_legacy = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain.'/.well-known/security.txt'); 
-	$html = curl_exec($ch); 
+	$security_txt_www_site = nl2br(curl_exec($ch));
+	$security_txt_url_www_site = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	$security_txt_www_effective = nl2br(curl_exec($ch));
 	$security_txt_url_www_effective = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-	$security_txt_www_effective = nl2br(file_get_contents($security_txt_url_www_effective));
-	if (!strlen($security_txt_www_effective))	{
-		$security_txt_url_www_effective = '<a href="'.$security_txt_url_www_effective.'" target="_blank">'.$security_txt_url_www_effective.'</a>';
-	}
+	curl_setopt($ch, CURLOPT_URL, $security_txt_url_www_effective); 
+	$security_txt_www_effective = nl2br(curl_exec($ch));
+	$security_txt_url_www_effective = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
 }
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, FALSE); 	
-curl_setopt($ch, CURLOPT_HEADER, true);
+curl_setopt($ch, CURLOPT_HEADER, 1);
 if (strlen($DNS_CNAME))	{	
 	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);	
 	$curl_server_headers = curl_exec($ch);

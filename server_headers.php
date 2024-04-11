@@ -94,7 +94,7 @@ else	{
 	$viewserver = 'hostingtool.nl';
 }
 
-$server_url = 'https://rdap.hostingtool.nl/compose_server_headers/index.php?url='.$viewserver;
+$server_url = 'https://hostingtool.nl/compose_server_headers/index.php?url='.$viewserver;
 if (@get_headers($server_url))	{ 
 	$xml1 = simplexml_load_file($server_url, "SimpleXMLElement", LIBXML_NOCDATA) or die("An entered url could not be read.");
 }
@@ -104,13 +104,13 @@ $html_text = '<body><div style="border-collapse:collapse; line-height:120%">
 $html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:blue;font-weight:bold">Server Header Information</td>
 <td><form action='.htmlentities($_SERVER['PHP_SELF']).' method="get">    
 	<label for="url">Enter a URL:</label>
-	<input type="text" style="width:90%" id="url" name="url" value='.$viewserver.'></form></td><td> <a style="font-size: 0.9rem" href="https://github.com/janwillemstegink/rdap_view_model/issues" target="_blank">issues on GitHub</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-htaccess/" target="_blank">conditional redirect in .htaccess</a></td></tr>';
+	<input type="text" style="width:90%" id="url" name="url" value='.$viewserver.'></form></td><td> <a style="font-size: 0.9rem" href="https://github.com/janwillemstegink/hostingtool.nl/issues" target="_blank">issues on GitHub</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-htaccess/" target="_blank">conditional redirect in .htaccess</a> - <a style="font-size: 0.9rem" href="https://janwillemstegink.nl/" target="_blank">janwillemstegink.nl</a></td></tr>';
 foreach ($xml1->xpath('//domain') as $item)	{
 	simplexml_load_string($item->asXML());
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.4rem" onclick="SwitchDisplay(11)">URL without www +/-</button></td><td><button style="cursor:pointer;font-size:1.4rem" onclick="SwitchDisplay(11)">URL via www +/-</button></td></tr>';
 	$html_text .= '<tr id="111" style="display:none"><td colspan="2"><i>An apex domain is a root domain that does not contain a subdomain part.</i></td><td><i>The www subdomain was considered unnecessary. There are some useful aspects.</i></td></tr>';
-	$html_text .= '<tr id="112" style="display:none"><td colspan="2"><i>Redirect using CNAME is only allowed from a subdomain.</i></td><td><i>If you host elsewhere using www. before the apex domain, email traffic can remain secure.</i></td></tr>';
+	$html_text .= '<tr id="112" style="display:none"><td colspan="2"><i>Redirect using CNAME is only allowed from a subdomain.</i></td><td><i>If you host elsewhere with www. before the apex domain, then email traffic can remain safe.</i></td></tr>';
 	$html_text .= '<tr id="113" style="display:none"><td colspan="2"><i></i></td><td><i>For a URL with a subdomain such as www, HSTS can be set more precisely.</i></td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">DNS CNAME, A, quad A: rDNS +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">DNS CNAME, A, quad A: rDNS +/-</button></td></tr>';
 	$html_text .= '<tr id="311" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CNAME.'</td><td>'.$item->DNS_CNAME_www.'</td></tr>';
@@ -138,10 +138,10 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(41)">transfer information +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(41)">transfer information +/-</button></td></tr>';
 	$html_text .= '<tr id="411" style="display:none;vertical-align:top"><td colspan="2">'.$item->transfer_information.'</td><td>'.$item->transfer_information_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
-	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(50)">security header basics +/-</button></td><td></td></tr>';
+	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(50)">security header insights +/-</button></td><td></td></tr>';
 	$html_text .= '<tr id="501" style="display:none"><td colspan="3"><i>RFC 6797, 8.1: If a UA receives more than one STS header field in an HTTP response message over secure transport, then the UA MUST process only the first such header field.</i></td></tr>';
 	$html_text .= '<tr id="502" style="display:none"><td colspan="3"><i>Strict Transport Security over secure HTTPS is called HSTS. The server header of just a URL that redirects, can also work safely with an HSTS security header.</i></td></tr>';
-	$html_text .= '<tr id="503" style="display:none"><td colspan="3"><i>Although browsers do not strictly enforce this rule above, the internet.nl testing tool persists that the URL is also the first URL over HTTPS for a security header to work.</i></td></tr>';
+	$html_text .= '<tr id="503" style="display:none"><td colspan="3"><i>Although browsers do not strictly enforce this rule above, the internet.nl tool tests that the URL is also the first URL over HTTPS for a security header to work.</i></td></tr>';
 	$html_text .= '<tr id="504" style="display:none"><td colspan="3"><i>In case of multiple HSTS header values - an application can also set a security header - the first security header applies to the user agent (UA).</i></td></tr>';
 	$html_text .= '<tr id="505" style="display:none"><td colspan="3"><i>First rewrite the URL to HTTPS using the checkbox in the control panel, secondly set security header values, and finally, if applicable, (conditionally) redirect in the 301 or 302 way.</i></td></tr>';
 	$html_text .= '<tr id="506" style="display:none"><td colspan="3"><i>A server header requires sufficient settings before public Internet access can be used safely. And do not set the HSTS preload list without understanding its implications.</i></td></tr>';
