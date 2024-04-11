@@ -1,2 +1,5 @@
-# hostingtool.nl
-Hostingtool for knowledge transfer
+# hostingtool.nl from Stegink Hosting & E-mail
+
+Hostingtool for knowledge transfer:
+
+https://hostingtool.nl/server_headers/
