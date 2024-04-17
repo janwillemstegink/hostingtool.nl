@@ -1,5 +1,5 @@
 # hostingtool.nl from Stegink Hosting & E-mail
 
-This tool is intended for knowledge transfer:
+This tool is for advanced understanding:
 
 https://hostingtool.nl/server_headers/
