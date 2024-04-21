@@ -5,7 +5,7 @@ echo '<!DOCTYPE html><html lang="en" style="font-size: 90%"><head>
 <meta charset="UTF-8" />
 <meta http-equiv="x-ua-compatible" content="ie=edge" />
 <meta name="robots" content="index" />
-<title>Server Header Information</title>';
+<title>Server Header Related Info</title>';
 ?><script>
 	
 function SwitchDisplay(type) {
@@ -44,7 +44,7 @@ function SwitchDisplay(type) {
 	}
 	else if (type == 50)	{ // about server headers
 		var pre = '50';
-		var max = 8
+		var max = 9
 	}
 	else if (type == 51)	{ // server headers
 		var pre = '51';
@@ -101,7 +101,7 @@ if (@get_headers($server_url))	{
 $html_text = '<body><div style="border-collapse:collapse; line-height:120%">
 <table style="font-family:Helvetica, Arial, sans-serif; font-size: 1rem; table-layout: fixed; width:1200px">
 <tr><th style="width:300px"></th><th style="width:300px"></th><th style="width:600px"></th></tr>';
-$html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:blue;font-weight:bold">Server Header Information</td>
+$html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:blue;font-weight:bold">Server Header Related Info</td>
 <td><form action='.htmlentities($_SERVER['PHP_SELF']).' method="get">    
 	<label for="url">Enter a URL:</label>
 	<input type="text" style="width:90%" id="url" name="url" value='.$viewserver.'></form></td><td> <a style="font-size: 0.9rem" href="https://github.com/janwillemstegink/hostingtool.nl/issues" target="_blank">issues on GitHub</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-htaccess/" target="_blank">conditional redirect in .htaccess</a> - <a style="font-size: 0.9rem" href="https://janwillemstegink.nl/" target="_blank">janwillemstegink.nl</a></td></tr>';
@@ -114,7 +114,7 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="211" style="display:table-row;vertical-align:top"><td colspan="2">'.$item->http_code_initial.'</td><td>'.$item->http_code_initial_www.'</td></tr>';
 	$html_text .= '<tr id="212" style="display:table-row;vertical-align:top"><td colspan="2">'.$item->http_code_destination.'</td><td>'.$item->http_code_destination_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
-	$html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:1.05rem;font-style: italic" onclick="SwitchDisplay(22)">About Redirection +/-</button></td></tr>';
+	$html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:1.05rem;font-style: italic" onclick="SwitchDisplay(22)">About how to redirect +/-</button></td></tr>';
 	$html_text .= '<tr id="221" style="display:none;font-style:italic"><td colspan="2">An apex domain is a root domain that does not contain a subdomain part.</td><td>The www subdomain has been considered unnecessary. There are some useful aspects.</td></tr>';
 	$html_text .= '<tr id="222" style="display:none;font-style:italic"><td colspan="2">CNAME redirection is not allowed from the root domain.</td><td>If you host elsewhere with www. before the apex domain, then email traffic can remain safe.</td></tr>';
 	$html_text .= '<tr id="223" style="display:none;font-style:italic"><td colspan="2"></td><td>For a URL with a subdomain such as www, HSTS can be set more precisely.</td></tr>';
@@ -143,13 +143,14 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;font-style: italic" onclick="SwitchDisplay(50)">About Security Header Requirements +/-</button></td><td></td></tr>';
 	$html_text .= '<tr id="501" style="display:none;font-style:italic"><td colspan="3">RFC 6797, 8.1: If a UA receives more than one STS header field in an HTTP response message over secure transport, then the UA MUST process only the first such header field.</td></tr>';
-	$html_text .= '<tr id="502" style="display:none;font-style:italic"><td colspan="3">Strict Transport Security over secure HTTPS is called HSTS. The server header, even of just a redirect URL, must contain an HSTS security header.</td></tr>';
+	$html_text .= '<tr id="502" style="display:none;font-style:italic"><td colspan="3">Strict Transport Security over secure HTTPS is called HSTS. The server header is only compliant, even if it is just a URL redirect, with a functioning HSTS security header.</td></tr>';
 	$html_text .= '<tr id="503" style="display:none;font-style:italic"><td colspan="3">Although browsers do not strictly enforce this rule above, the internet.nl tool tests that the URL is also the first URL over HTTPS for a security header to work.</td></tr>';
 	$html_text .= '<tr id="504" style="display:none;font-style:italic"><td colspan="3">With multiple HSTS header values - an application can also set a security header - strictly speaking, the first security header applies to the user agent (UA).</td></tr>';
-	$html_text .= '<tr id="505" style="display:none;font-style:italic"><td colspan="3">In practice, the last security header is chosen, as in securityheaders.com. Note: The securityheaders.com tool does not test and report correctly on rewrite to HTTPS and redirection.</td></tr>';
-	$html_text .= '<tr id="506" style="display:none;font-style:italic"><td colspan="3"><b>Practical suggestion:</b> Comply with proper initial reading of security headers from the server header(s), and note the interpretation of a subsequent value from an identical security header.</td></tr>';
-	$html_text .= '<tr id="507" style="display:none;font-style:italic"><td colspan="3">First rewrite the URL to HTTPS using the checkbox in the control panel, secondly set security header values, and finally, if applicable, (conditionally) redirect in the 301 or 302 way.</td></tr>';
-	$html_text .= '<tr id="508" style="display:none;font-style:italic"><td colspan="3">A server header requires sufficient settings before public Internet access can be used safely. And do not set the HSTS preload list without understanding its implications.</td></tr>';
+	$html_text .= '<tr id="505" style="display:none;font-style:italic"><td colspan="3">The internet.nl tool does only test for an initial header in the initial server header area.</td></tr>';	
+	$html_text .= '<tr id="506" style="display:none;font-style:italic"><td colspan="3">In practice, the last security header is chosen, as in the securityheaders.com tool. <b>Note:</b> The securityheaders.com tool does not test and report correctly on rewrite to HTTPS and redirection.</td></tr>';
+	$html_text .= '<tr id="507" style="display:none;font-style:italic"><td colspan="3"><b>General approach:</b> Comply with proper initial reading of security headers from the server header(s), and note the interpretation of a subsequent value from an identical security header.</td></tr>';
+	$html_text .= '<tr id="508" style="display:none;font-style:italic"><td colspan="3">First rewrite the URL to HTTPS using the checkbox in the control panel, secondly set security header values, and finally, if applicable, (conditionally) redirect in the 301 or 302 way.</td></tr>';
+	$html_text .= '<tr id="509" style="display:none;font-style:italic"><td colspan="3">A server header requires sufficient settings before public Internet access can be used safely. And avoid the HSTS preload list without understanding its implications.</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(51)">server header +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(51)">server header +/-</button></td></tr>';
 	$html_text .= '<tr id="511" style="display:none;vertical-align:top"><td colspan="2">'.$item->server_header.'</td><td colspan="1">'.$item->server_header_www.'</td></tr>';
