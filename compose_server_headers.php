@@ -1,5 +1,6 @@
 <?php
 //$_GET['url'] = 'hostingtool.nl';
+
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
 		$domain = trim($_GET['url']);
@@ -49,10 +50,12 @@ foreach($array as $key1 => $value1) {
 if (strlen($DNS_CNAME))	{
 	$pre = '(';
 	$post = ')';
+	$limitedDNS = true;
 }
 else	{
 	$pre = '';
 	$post = '';
+	$limitedDNS = false;
 }
 $array = dns_get_record($inputdomain, DNS_A);
 foreach($array as $key1 => $value1) {
@@ -84,10 +87,12 @@ foreach($array as $key1 => $value1) {
 if (strlen($DNS_CNAME_www))	{
 	$pre = '(';
 	$post = ')';
+	$limitedDNS_www = true;
 }
 else	{
 	$pre = '';
 	$post = '';
+	$limitedDNS_www = false;
 }	
 $array = dns_get_record('www.'.$inputdomain, DNS_A);
 foreach($array as $key1 => $value1) {
@@ -120,6 +125,9 @@ foreach($array as $key1 => $value1) {
 		}	
 	}
 }
+if (!$limitedDNS and !strlen($DNS_MX))	{
+	$DNS_MX .= '(Null MX can block email to A/AAAA; except in cPanel)<br />';
+}
 $DNS_MX_www = '';	
 $array = dns_get_record('www.'.$inputdomain, DNS_MX);		
 foreach($array as $key1 => $value1) {
@@ -132,6 +140,9 @@ foreach($array as $key1 => $value1) {
 			$DNS_MX_www .= get_mx_ips($value2);
 		}
 	}
+}
+if (!$limitedDNS_www and !strlen($DNS_MX_www))	{
+	$DNS_MX_www .= '(Null MX can block email to A/AAAA; except in cPanel)<br />';
 }	
 $DNS_TXT = '';	
 $array = dns_get_record($inputdomain, DNS_TXT);
@@ -142,6 +153,9 @@ foreach($array as $key1 => $value1) {
 		}
 	}	
 }
+if (!$limitedDNS and !strlen($DNS_TXT))	{
+	$DNS_TXT .= '("v=spf1 -all" can secure email)<br />';
+}	
 $DNS_TXT_www = '';	
 $array = dns_get_record('www.'.$inputdomain, DNS_TXT);		
 foreach($array as $key1 => $value1) {
@@ -151,6 +165,9 @@ foreach($array as $key1 => $value1) {
 		}	
     }
 }
+if (!$limitedDNS_www and !strlen($DNS_TXT_www))	{
+	$DNS_TXT_www .= '("v=spf1 -all" can secure email)<br />';
+}	
 	
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -172,7 +189,8 @@ if (strlen($DNS_CNAME))	{
 	$curl_server_header = curl_exec($ch);
 	$http_code_initial = 'initial: ';
 	if (!curl_errno($ch)) {
-		$http_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$http_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
+			curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	}
 	else	{
 		$http_code_initial .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
@@ -198,7 +216,8 @@ if (strlen($DNS_CNAME_www))	{
 	$curl_server_header_www = curl_exec($ch);
 	$http_code_initial_www = 'initial: ';
 	if (!curl_errno($ch)) {
-		$http_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$http_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
+			curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	}
 	else	{
 		$http_code_initial_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
@@ -351,7 +370,8 @@ if (strlen($DNS_CNAME))	{
 		curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);		
 		$target = curl_exec($ch);
 		if (!curl_errno($ch)) {	
-			$http_code_destination .= curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			$http_code_destination .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
+				curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		}		
 		else	{
 			$http_code_destination .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
@@ -368,7 +388,8 @@ if (strlen($DNS_CNAME_www))	{
 		curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);		
 		$target = curl_exec($ch);
 		if (!curl_errno($ch)) {	
-			$http_code_destination_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			$http_code_destination_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
+				curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		}		
 		else	{
 			$http_code_destination_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
@@ -508,6 +529,13 @@ function get_mx_ips($inputurl)	{
 			}
 		}
 	}
+	if (mb_strpos($inputurl, 'mail.protection.outlook.com'))	{
+		if (mb_strpos($output, 'AAAA'))	{
+		}
+		else	{	
+			$output .= '(ipv6 on request at protection.outlook.com)<br />';
+		}		
+	}	
 	return $output;
 }
 ?>
