@@ -61,7 +61,7 @@ $array = dns_get_record($inputdomain, DNS_A);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'ip')	{
-			$DNS_CNAME .= $pre.'A: '.$value2.': '.gethostbyaddr($value2).$post.'<br />';
+			$DNS_CNAME .= $pre.'A: '.$value2.' - '.gethostbyaddr($value2).$post.'<br />';
 			if ($value2 == $own_ip)	$same_server = true;	
 		}	
 	}
@@ -70,7 +70,7 @@ $array = dns_get_record($inputdomain, DNS_AAAA);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'ipv6') {
-			$DNS_CNAME .= $pre.'AAAA: '.$value2.': '.gethostbyaddr($value2).$post.'<br />';
+			$DNS_CNAME .= $pre.'AAAA: '.$value2.' - '.gethostbyaddr($value2).$post.'<br />';
 			if ($value2 == $own_ip)	$same_server = true;
 		}	
 	}
@@ -98,7 +98,7 @@ $array = dns_get_record('www.'.$inputdomain, DNS_A);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'ip') {
-			$DNS_CNAME_www .= $pre.'A: '.$value2.': '.gethostbyaddr($value2).$post.'<br />';
+			$DNS_CNAME_www .= $pre.'A: '.$value2.' - '.gethostbyaddr($value2).$post.'<br />';
 			if ($value2 == $own_ip)	$same_server_www = true;
 		}
 	}
@@ -107,7 +107,7 @@ $array = dns_get_record('www.'.$inputdomain, DNS_AAAA);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'ipv6') {
-			$DNS_CNAME_www .= $pre.'AAAA: '.$value2.': '.gethostbyaddr($value2).$post.'<br />';
+			$DNS_CNAME_www .= $pre.'AAAA: '.$value2.' - '.gethostbyaddr($value2).$post.'<br />';
 			if ($value2 == $own_ip)	$same_server_www = true;
 		}
 	}
@@ -125,9 +125,14 @@ foreach($array as $key1 => $value1) {
 		}	
 	}
 }
-if (!$limitedDNS and !strlen($DNS_MX))	{
-	$DNS_MX .= '(Null MX can block email to A/AAAA; except in cPanel)<br />';
-}
+if (!strlen($DNS_MX))	{
+	if ($limitedDNS)	{
+		$DNS_MX .= '(Null MX is not possible with CNAME)<br />';
+	}
+	else	{
+		$DNS_MX .= '(Null MX can block email to A/AAAA; except in cPanel)<br />';
+	}	
+}	
 $DNS_MX_www = '';	
 $array = dns_get_record('www.'.$inputdomain, DNS_MX);		
 foreach($array as $key1 => $value1) {
@@ -141,8 +146,13 @@ foreach($array as $key1 => $value1) {
 		}
 	}
 }
-if (!$limitedDNS_www and !strlen($DNS_MX_www))	{
-	$DNS_MX_www .= '(Null MX can block email to A/AAAA; except in cPanel)<br />';
+if (!strlen($DNS_MX_www))	{
+	if ($limitedDNS_www)	{
+		$DNS_MX_www .= '(Null MX is not possible with CNAME)<br />';
+	}
+	else	{
+		$DNS_MX_www .= '(Null MX can block email to A/AAAA; except in cPanel)<br />';
+	}	
 }	
 $DNS_TXT = '';	
 $array = dns_get_record($inputdomain, DNS_TXT);
@@ -153,9 +163,15 @@ foreach($array as $key1 => $value1) {
 		}
 	}	
 }
-if (!$limitedDNS and !strlen($DNS_TXT))	{
-	$DNS_TXT .= '("v=spf1 -all" can secure email)<br />';
+if (!strlen($DNS_TXT))	{
+	if ($limitedDNS)	{
+		$DNS_TXT .= '("v=spf1 -all" is not possible with CNAME)<br />';
+	}
+	else	{
+		$DNS_TXT .= '("v=spf1 -all" can secure email)<br />';
+	}	
 }	
+	
 $DNS_TXT_www = '';	
 $array = dns_get_record('www.'.$inputdomain, DNS_TXT);		
 foreach($array as $key1 => $value1) {
@@ -167,6 +183,14 @@ foreach($array as $key1 => $value1) {
 }
 if (!$limitedDNS_www and !strlen($DNS_TXT_www))	{
 	$DNS_TXT_www .= '("v=spf1 -all" can secure email)<br />';
+}
+if (!strlen($DNS_TXT_www))	{
+	if ($limitedDNS_www)	{
+		$DNS_TXT_www .= '("v=spf1 -all" is not possible with CNAME)<br />';
+	}
+	else	{
+		$DNS_TXT_www .= '("v=spf1 -all" can secure email)<br />';
+	}	
 }	
 	
 $ch = curl_init();
@@ -378,7 +402,7 @@ if (strlen($DNS_CNAME))	{
 		}
 	}
 	else	{
-		$http_code_destination .= 'No cURL on the same server.';		
+		$http_code_destination .= '(No cURL on the same server)';		
 	}
 }
 if (strlen($DNS_CNAME_www))	{
@@ -396,7 +420,7 @@ if (strlen($DNS_CNAME_www))	{
 		}
 	}
 	else	{
-		$http_code_destination_www .= 'No cURL on the same server.';	
+		$http_code_destination_www .= '(No cURL on the same server)';	
 	}	
 }	
 curl_close($ch);
