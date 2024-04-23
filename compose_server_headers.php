@@ -137,13 +137,13 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_MX))	{
 	if ($cname_limited)	{
-		$DNS_MX .= '(Null MX is not possible with CNAME)<br />';
+		$DNS_MX .= '(Null MX in destination settings works with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME))	{
 		$DNS_MX .= 'not applicable';		
 	}	
 	else	{
-		$DNS_MX .= '("0 ." blocks email to A/AAAA; no Null MX in cPanel)<br />';
+		$DNS_MX .= '("0 ." would block email to A/AAAA; no Null MX in cPanel)<br />';
 	}	
 }	
 $DNS_MX_www = '';	
@@ -161,13 +161,13 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_MX_www))	{
 	if ($cname_limited_www)	{
-		$DNS_MX_www .= '(Null MX is not possible with CNAME)<br />';
+		$DNS_MX_www .= '(Null MX in destination settings works with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME_www))	{
 		$DNS_MX_www .= 'not applicable';		
 	}
 	else	{
-		$DNS_MX_www .= '("0 ." blocks email to A/AAAA; no Null MX in cPanel)<br />';
+		$DNS_MX_www .= '("0 ." would block email to A/AAAA; no Null MX in cPanel)<br />';
 	}	
 }	
 $DNS_TXT = '';	
@@ -181,7 +181,7 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_TXT))	{
 	if ($cname_limited)	{
-		$DNS_TXT .= '("v=spf1 -all" is not possible with CNAME)<br />';
+		$DNS_TXT .= '("v=spf1 -all" in destination settings works with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME))	{
 		$DNS_TXT .= 'not applicable';		
@@ -205,7 +205,7 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_TXT_www))	{
 	if ($cname_limited_www)	{
-		$DNS_TXT_www .= '("v=spf1 -all" is not possible with CNAME)<br />';
+		$DNS_TXT_www .= '("v=spf1 -all" in destination settings works with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME_www))	{
 		$DNS_TXT_www .= 'not applicable';		
@@ -582,7 +582,7 @@ function get_mx_ips($inputurl)	{
 		if (mb_strpos($output, 'AAAA'))	{
 		}
 		else	{	
-			$output .= '(ipv6 on request at protection.outlook.com)<br />';
+			$output .= '(IPv6 after request at protection.outlook.com)<br />';
 		}		
 	}	
 	return $output;
