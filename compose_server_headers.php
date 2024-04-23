@@ -139,6 +139,9 @@ if (!strlen($DNS_MX))	{
 	if ($cname_limited)	{
 		$DNS_MX .= '(Null MX is not possible with CNAME)<br />';
 	}
+	elseif (!strlen($DNS_CNAME))	{
+		$DNS_MX .= 'not applicable';		
+	}	
 	else	{
 		$DNS_MX .= '("0 ." blocks email to A/AAAA; no Null MX in cPanel)<br />';
 	}	
@@ -160,6 +163,9 @@ if (!strlen($DNS_MX_www))	{
 	if ($cname_limited_www)	{
 		$DNS_MX_www .= '(Null MX is not possible with CNAME)<br />';
 	}
+	elseif (!strlen($DNS_CNAME_www))	{
+		$DNS_MX_www .= 'not applicable';		
+	}
 	else	{
 		$DNS_MX_www .= '("0 ." blocks email to A/AAAA; no Null MX in cPanel)<br />';
 	}	
@@ -176,6 +182,9 @@ foreach($array as $key1 => $value1) {
 if (!strlen($DNS_TXT))	{
 	if ($cname_limited)	{
 		$DNS_TXT .= '("v=spf1 -all" is not possible with CNAME)<br />';
+	}
+	elseif (!strlen($DNS_CNAME))	{
+		$DNS_TXT .= 'not applicable';		
 	}
 	elseif ($matches_server)	{
 		$DNS_TXT .= '("v=spf1 +a ~all" would secure email)<br />';
@@ -197,6 +206,9 @@ foreach($array as $key1 => $value1) {
 if (!strlen($DNS_TXT_www))	{
 	if ($cname_limited_www)	{
 		$DNS_TXT_www .= '("v=spf1 -all" is not possible with CNAME)<br />';
+	}
+	elseif (!strlen($DNS_CNAME_www))	{
+		$DNS_TXT_www .= 'not applicable';		
 	}
 	elseif ($matches_server_www)	{
 		$DNS_TXT_www .= '("v=spf1 +a ~all" would secure email)<br />';
