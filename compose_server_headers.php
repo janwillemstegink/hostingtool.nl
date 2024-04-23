@@ -137,7 +137,7 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_MX))	{
 	if ($cname_limited)	{
-		$DNS_MX .= '(Null MX in destination settings works with CNAME)<br />';
+		$DNS_MX .= '(Null MX in destination settings would work with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME))	{
 		$DNS_MX .= 'not applicable';		
@@ -161,7 +161,7 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_MX_www))	{
 	if ($cname_limited_www)	{
-		$DNS_MX_www .= '(Null MX in destination settings works with CNAME)<br />';
+		$DNS_MX_www .= '(Null MX in destination settings would work with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME_www))	{
 		$DNS_MX_www .= 'not applicable';		
@@ -181,7 +181,7 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_TXT))	{
 	if ($cname_limited)	{
-		$DNS_TXT .= '("v=spf1 -all" in destination settings works with CNAME)<br />';
+		$DNS_TXT .= '("v=spf1 -all" in destination settings would work with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME))	{
 		$DNS_TXT .= 'not applicable';		
@@ -205,7 +205,7 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_TXT_www))	{
 	if ($cname_limited_www)	{
-		$DNS_TXT_www .= '("v=spf1 -all" in destination settings works with CNAME)<br />';
+		$DNS_TXT_www .= '("v=spf1 -all" in destination settings would work with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME_www))	{
 		$DNS_TXT_www .= 'not applicable';		
