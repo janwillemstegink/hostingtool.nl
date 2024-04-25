@@ -4,6 +4,7 @@
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
 		$domain = trim($_GET['url']);
+		$domain = mb_strtolower($domain);
 		$domain = str_replace('http://','', $domain);
 		$domain = str_replace('https://','', $domain);
 		$domain = str_replace('www.','', $domain);
@@ -123,6 +124,7 @@ foreach($array as $key1 => $value1) {
 	}
 }
 $DNS_MX = '';
+$DNS_MX_notice = 0;	
 $array = dns_get_record($inputdomain, DNS_MX);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
@@ -135,18 +137,26 @@ foreach($array as $key1 => $value1) {
 		}	
 	}
 }
-if (!strlen($DNS_MX))	{
+if (strlen($DNS_MX))	{
+	if (strpos($DNS_MX, 'IPv6 after request'))	{
+		$DNS_MX_notice = 1;		
+	}	
+}
+else	{	
 	if ($cname_limited)	{
+		$DNS_MX_notice = 1;	
 		$DNS_MX .= '(Null MX in destination settings would work with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME))	{
 		$DNS_MX .= 'not applicable';		
 	}	
 	else	{
-		$DNS_MX .= '("0 ." would block email to A/AAAA; no Null MX in cPanel)<br />';
+		$DNS_MX_notice = 1;
+		$DNS_MX .= '("0 ." would block email to A/AAAA; Null MX not in cPanel)<br />';
 	}	
 }	
-$DNS_MX_www = '';	
+$DNS_MX_www = '';
+$DNS_MX_www_notice = 0;		
 $array = dns_get_record('www.'.$inputdomain, DNS_MX);		
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
@@ -159,18 +169,26 @@ foreach($array as $key1 => $value1) {
 		}
 	}
 }
-if (!strlen($DNS_MX_www))	{
+if (strlen($DNS_MX_www))	{
+	if (strpos($DNS_MX_www, 'IPv6 after request'))	{
+		$DNS_MX_www_notice = 1;
+	}	
+}
+else	{
 	if ($cname_limited_www)	{
+		$DNS_MX_www_notice = 1;
 		$DNS_MX_www .= '(Null MX in destination settings would work with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME_www))	{
 		$DNS_MX_www .= 'not applicable';		
 	}
 	else	{
-		$DNS_MX_www .= '("0 ." would block email to A/AAAA; no Null MX in cPanel)<br />';
+		$DNS_MX_www_notice = 1;
+		$DNS_MX_www .= '("0 ." would block email to A/AAAA; Null MX not in cPanel)<br />';
 	}	
 }	
 $DNS_TXT = '';	
+$DNS_TXT_notice = 0;
 $array = dns_get_record($inputdomain, DNS_TXT);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
@@ -181,20 +199,24 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_TXT))	{
 	if ($cname_limited)	{
+		$DNS_TXT_notice = 1;
 		$DNS_TXT .= '("v=spf1 -all" in destination settings would work with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME))	{
 		$DNS_TXT .= 'not applicable';		
 	}
 	elseif ($matches_server)	{
+		$DNS_TXT_notice = 1;
 		$DNS_TXT .= '("v=spf1 +a ~all" would secure email)<br />';
 	}
 	else	{
+		$DNS_TXT_notice = 1;
 		$DNS_TXT .= '("v=spf1 -all" would secure email)<br />';
 	}	
 }	
 	
-$DNS_TXT_www = '';	
+$DNS_TXT_www = '';
+$DNS_TXT_www_notice = 0;	
 $array = dns_get_record('www.'.$inputdomain, DNS_TXT);		
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
@@ -205,15 +227,18 @@ foreach($array as $key1 => $value1) {
 }
 if (!strlen($DNS_TXT_www))	{
 	if ($cname_limited_www)	{
+		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '("v=spf1 -all" in destination settings would work with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME_www))	{
 		$DNS_TXT_www .= 'not applicable';		
 	}
 	elseif ($matches_server_www)	{
+		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '("v=spf1 +a ~all" would secure email)<br />';
 	}
 	else	{
+		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '("v=spf1 -all" would secure email)<br />';
 	}
 }	
@@ -229,10 +254,10 @@ curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 curl_setopt($ch, CURLOPT_VERBOSE, 1);
 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201');
 
-$http_code_initial = 'not applicable';
+$http_code_initial = 'initial: not applicable';
 $server_header = 'not applicable';	
 $transfer_information = 'not applicable';	
-$http_code_destination = 'not applicable';
+$http_code_destination = 'destination: not applicable';
 if (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);	
 	$curl_server_header = curl_exec($ch);
@@ -256,10 +281,10 @@ if (strlen($DNS_CNAME))	{
 	}
 }
 	
-$http_code_initial_www = 'not applicable';
+$http_code_initial_www = 'initial: not applicable';
 $server_header_www = 'not applicable';	
 $transfer_information_www = 'not applicable';
-$http_code_destination_www = 'not applicable';	
+$http_code_destination_www = 'destination: not applicable';	
 if (strlen($DNS_CNAME_www))	{	
 	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);
 	$curl_server_header_www = curl_exec($ch);
@@ -482,13 +507,29 @@ $domain_DNS_MX_www = $doc->createElement("DNS_MX_www");
 $domain_DNS_MX_www->appendChild($doc->createCDATASection($DNS_MX_www));		
 $domain->appendChild($domain_DNS_MX_www);	
 	
+$domain_DNS_MX_notice = $doc->createElement("DNS_MX_notice");
+$domain_DNS_MX_notice->appendChild($doc->createCDATASection($DNS_MX_notice));		
+$domain->appendChild($domain_DNS_MX_notice);	
+	
+$domain_DNS_MX_www_notice = $doc->createElement("DNS_MX_www_notice");
+$domain_DNS_MX_www_notice->appendChild($doc->createCDATASection($DNS_MX_www_notice));		
+$domain->appendChild($domain_DNS_MX_www_notice);	
+	
 $domain_DNS_TXT = $doc->createElement("DNS_TXT");
 $domain_DNS_TXT->appendChild($doc->createCDATASection($DNS_TXT));		
 $domain->appendChild($domain_DNS_TXT);	
 	
 $domain_DNS_TXT_www = $doc->createElement("DNS_TXT_www");
-$domain_DNS_TXT_www->appendChild($doc->createCDATASection($DNS_TXT_www));		
-$domain->appendChild($domain_DNS_TXT_www);
+$domain_DNS_TXT_www->appendChild($doc->createCDATASection($DNS_TXT_www));
+$domain->appendChild($domain_DNS_TXT_www);	
+	
+$domain_DNS_TXT_notice = $doc->createElement("DNS_TXT_notice");
+$domain_DNS_TXT_notice->appendChild($doc->createCDATASection($DNS_TXT_notice));		
+$domain->appendChild($domain_DNS_TXT_notice);	
+	
+$domain_DNS_TXT_www_notice = $doc->createElement("DNS_TXT_www_notice");
+$domain_DNS_TXT_www_notice->appendChild($doc->createCDATASection($DNS_TXT_www_notice));
+$domain->appendChild($domain_DNS_TXT_www_notice);	
 	
 $domain_security_txt_url_legacy = $doc->createElement("security_txt_url_legacy");
 $domain_security_txt_url_legacy->appendChild($doc->createCDATASection($security_txt_url_legacy));		
