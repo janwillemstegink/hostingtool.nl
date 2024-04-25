@@ -136,10 +136,10 @@ foreach ($xml1->xpath('//domain') as $item)	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
 	}
 	else	{
-		$html_text .= '<td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
 	}
 	if ($item->DNS_TXT_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';		
