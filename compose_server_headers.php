@@ -343,7 +343,7 @@ if (strlen($DNS_CNAME))	{
 				$security_txt_legacy = $effective;	
 			}
 			elseif ($matches_server)	{
-				$security_txt_legacy = 'No HTTP 200 OK expected for the server.';
+				$security_txt_legacy = 'No HTTP 200 OK (the file is not expected for the server).';
 			}
 			else	{
 				$security_txt_legacy = 'No HTTP 200 OK.';
@@ -374,7 +374,7 @@ if (strlen($DNS_CNAME))	{
 				$security_txt_relocated = $effective;	
 			}
 			elseif ($matches_server)	{
-				$security_txt_relocated = 'No HTTP 200 OK expected for the server.';
+				$security_txt_relocated = 'No HTTP 200 OK (the file is not expected for the server).';
 			}	
 			else	{
 				$security_txt_notice = 1;
@@ -410,10 +410,10 @@ if (strlen($DNS_CNAME_www))	{
 				$security_txt_www_legacy = $effective;	
 			}
 			elseif ($matches_server_www)	{
-				$security_txt_legacy_www = 'No HTTP 200 OK expected for the server.';
+				$security_txt_legacy_www = 'No HTTP 200 OK (the file is not expected for the server).';
 			}
 			else	{
-				$security_txt_www_legacy = 'No HTTP 200 OK.';
+				$security_txt_www_legacy = 'No HTTP 200 OK';
 			}
 		}
 		else	{
@@ -441,7 +441,7 @@ if (strlen($DNS_CNAME_www))	{
 				$security_txt_www_relocated = $effective;	
 			}
 			elseif ($matches_server_www)	{
-				$security_txt_www_relocated = 'No HTTP 200 OK expected for the server.';
+				$security_txt_www_relocated = 'No HTTP 200 OK (the file is not expected for the server).';
 			}
 			else	{
 				$security_txt_www_notice = 1;
