@@ -145,7 +145,7 @@ if (strlen($DNS_MX))	{
 else	{	
 	if ($cname_limited)	{
 		$DNS_MX_notice = 1;	
-		$DNS_MX .= '(Null MX in destination settings would work with CNAME)<br />';
+		$DNS_MX .= '(Null MX in destination DNS would combine with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME))	{
 		$DNS_MX .= 'not applicable';		
@@ -177,7 +177,7 @@ if (strlen($DNS_MX_www))	{
 else	{
 	if ($cname_limited_www)	{
 		$DNS_MX_www_notice = 1;
-		$DNS_MX_www .= '(Null MX in destination settings would work with CNAME)<br />';
+		$DNS_MX_www .= '(Null MX in destination DNS would combine with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME_www))	{
 		$DNS_MX_www .= 'not applicable';		
@@ -200,7 +200,7 @@ foreach($array as $key1 => $value1) {
 if (!strlen($DNS_TXT))	{
 	if ($cname_limited)	{
 		$DNS_TXT_notice = 1;
-		$DNS_TXT .= '("v=spf1 -all" in destination settings would work with CNAME)<br />';
+		$DNS_TXT .= '("v=spf1 -all" in destination DNS would combine with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME))	{
 		$DNS_TXT .= 'not applicable';		
@@ -228,7 +228,7 @@ foreach($array as $key1 => $value1) {
 if (!strlen($DNS_TXT_www))	{
 	if ($cname_limited_www)	{
 		$DNS_TXT_www_notice = 1;
-		$DNS_TXT_www .= '("v=spf1 -all" in destination settings would work with CNAME)<br />';
+		$DNS_TXT_www .= '("v=spf1 -all" in destination DNS would combine with CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME_www))	{
 		$DNS_TXT_www .= 'not applicable';		
@@ -316,7 +316,10 @@ $security_txt_url_www_legacy = 'not applicable';
 $security_txt_relocated = '';
 $security_txt_url_relocated = 'not applicable';	
 $security_txt_www_relocated = '';
-$security_txt_url_www_relocated = 'not applicable';	
+$security_txt_url_www_relocated = 'not applicable';
+	
+$security_txt_notice = 0;	
+$security_txt_www_notice = 0;	
 	
 curl_setopt($ch, CURLOPT_HEADER, 0);		
 curl_setopt($ch, CURLOPT_NOBODY, 0);	
@@ -339,6 +342,9 @@ if (strlen($DNS_CNAME))	{
 			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
 				$security_txt_legacy = $effective;	
 			}
+			elseif ($matches_server)	{
+				$security_txt_legacy = 'No HTTP 200 OK expected for the server.';
+			}
 			else	{
 				$security_txt_legacy = 'No HTTP 200 OK.';
 			}
@@ -357,7 +363,7 @@ if (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	$effective = curl_exec($ch);
 	$effective_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-		if (mb_strpos($effective_url, '/security.txt'))	{
+	if (mb_strpos($effective_url, '/security.txt'))	{
 		if ($effective_url == $security_txt_url_relocated)	{
 		}
 		else	{
@@ -367,15 +373,21 @@ if (strlen($DNS_CNAME))	{
 			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
 				$security_txt_relocated = $effective;	
 			}
+			elseif ($matches_server)	{
+				$security_txt_relocated = 'No HTTP 200 OK expected for the server.';
+			}	
 			else	{
+				$security_txt_notice = 1;
 				$security_txt_relocated = 'No HTTP 200 OK.';
 			}
 		}
 		else	{
+			$security_txt_notice = 1;
 			$security_txt_relocated = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 		}
 	}
 	else	{
+		$security_txt_notice = 1;
 		$security_txt_relocated = 'No security.txt';		
 	}
 }	
@@ -396,6 +408,9 @@ if (strlen($DNS_CNAME_www))	{
 		if (!curl_errno($ch)) {
 			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
 				$security_txt_www_legacy = $effective;	
+			}
+			elseif ($matches_server_www)	{
+				$security_txt_legacy_www = 'No HTTP 200 OK expected for the server.';
 			}
 			else	{
 				$security_txt_www_legacy = 'No HTTP 200 OK.';
@@ -425,15 +440,21 @@ if (strlen($DNS_CNAME_www))	{
 			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
 				$security_txt_www_relocated = $effective;	
 			}
+			elseif ($matches_server_www)	{
+				$security_txt_www_relocated = 'No HTTP 200 OK expected for the server.';
+			}
 			else	{
+				$security_txt_www_notice = 1;
 				$security_txt_www_relocated = 'No HTTP 200 OK.';
 			}
 		}
 		else	{
+			$security_txt_www_notice = 1;
 			$security_txt_www_relocated = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 		}
 	}
 	else	{
+		$security_txt_www_notice = 1;
 		$security_txt_www_relocated = 'No security.txt';		
 	}
 }
@@ -562,6 +583,14 @@ $domain->appendChild($domain_security_txt_relocated);
 $domain_security_txt_www_relocated = $doc->createElement("security_txt_www_relocated");
 $domain_security_txt_www_relocated->appendChild($doc->createCDATASection(nl2br(htmlentities($security_txt_www_relocated))));
 $domain->appendChild($domain_security_txt_www_relocated);
+	
+$domain_security_txt_notice = $doc->createElement("security_txt_notice");
+$domain_security_txt_notice->appendChild($doc->createCDATASection($security_txt_notice));
+$domain->appendChild($domain_security_txt_notice);	
+	
+$domain_security_txt_www_notice = $doc->createElement("security_txt_www_notice");
+$domain_security_txt_www_notice->appendChild($doc->createCDATASection($security_txt_www_notice));
+$domain->appendChild($domain_security_txt_www_notice);	
 	
 $domain_http_code_initial = $doc->createElement("http_code_initial");
 $domain_http_code_initial->appendChild($doc->createCDATASection($http_code_initial));
