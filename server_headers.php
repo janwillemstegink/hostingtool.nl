@@ -30,16 +30,20 @@ function SwitchDisplay(type) {
 		var pre = '33';
 		var max = 1
 	}
-	else if (type == 34)	{ // regulation
+	else if (type == 34)	{ // DMARC
 		var pre = '34';
+		var max = 1
+	}
+	else if (type == 40)	{ // regulation
+		var pre = '40';
 		var max = 5
 	}
-	else if (type == 35)	{ // security.txt legacy
-		var pre = '35';
+	else if (type == 41)	{ // security.txt legacy
+		var pre = '41';
 		var max = 2
 	}
-	else if (type == 36)	{ // security.txt
-		var pre = '36';
+	else if (type == 42)	{ // security.txt .well-known
+		var pre = '42';
 		var max = 2
 	}
 	else if (type == 50)	{ // about server headers
@@ -99,7 +103,7 @@ if (@get_headers($server_url))	{
 	$xml1 = simplexml_load_file($server_url, "SimpleXMLElement", LIBXML_NOCDATA) or die("An entered url could not be read.");
 }
 $html_text = '<body><div style="border-collapse:collapse; line-height:120%">
-<table style="font-family:Helvetica, Arial, sans-serif; font-size: 1rem; table-layout: fixed; width:1200px">
+<table style="font-family:Helvetica, Arial, sans-serif; font-size: 1rem; table-layout: fixed; width:1200px; overflow-wrap: break-word">
 <tr><th style="width:300px"></th><th style="width:300px"></th><th style="width:600px"></th></tr>';
 $html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:blue;font-weight:bold">Server Header Related Info</td>
 <td><form action='.htmlentities($_SERVER['PHP_SELF']).' method="get"><label for="url">Paste a URL and press Enter</label><input type="text" style="width:90%;font-size: 1.2rem" id="url" name="url" value='.$viewserver.'></form></td><td> <a style="font-size: 0.9rem" href="https://github.com/janwillemstegink/hostingtool.nl/issues" target="_blank">issues on GitHub</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-htaccess/" target="_blank">conditional redirect in .htaccess</a> - <a style="font-size: 0.9rem" href="https://janwillemstegink.nl/" target="_blank">janwillemstegink.nl</a></td></tr>';
@@ -147,34 +151,47 @@ foreach ($xml1->xpath('//domain') as $item)	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';		
 	}
 	$html_text .= '<tr id="331" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_TXT.'</td><td>'.$item->DNS_TXT_www.'</td></tr>';
+	if ($item->DNS_DMARC_notice == "1" )	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(34)">DMARC +/-</button></td>';
+	}
+	else	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td>';
+	}
+	if ($item->DNS_DMARC_www_notice == "1" )	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';
+	}
+	else	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';		
+	}
+	$html_text .= '<tr id="341" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_DMARC.'</td><td>'.$item->DNS_DMARC_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
-	$html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:1.05rem;font-style:italic" onclick="SwitchDisplay(34)">About security.txt Content Expiry +/-</button></td></tr>';
-	$html_text .= '<tr id="341" style="display:none;font-style:italic"><td colspan="3">RFC 9116: The "Expires" field indicates the date and time after which the data contained in the "security.txt" file is considered stale and should not be used (as per Section 5.3).</td></tr>';
-	$html_text .= '<tr id="342" style="display:none;font-style:italic"><td colspan="3">RFC 9116: It is RECOMMENDED that the value of this field be less than a year into the future to avoid staleness.</td></tr>';
-	$html_text .= '<tr id="343" style="display:none;font-style:italic;font-style:italic"><td colspan="3">Suggestion 1: The data contained in the "security.txt" file MUST expire on the date and time as in the "Expires" field, due to the desirability of an annual audit cycle.</td></tr>';
-	$html_text .= '<tr id="344" style="display:none;font-style:italic"><td colspan="3">Suggestion 2: For the one-off annual cycle check to work, the "Expires" field date and time is maximally 398 (366+31+1) days into the future, equal to the TLS Certificate Lifespan.</td></tr>';
-	$html_text .= '<tr id="345" style="display:none;font-style:italic"><td colspan="3">Suggestion 3: Annual audit requires a scheduled date on an office calendar; and customer requests cannot be dealt with if concentrated in one part of the year.</td></tr>';
+	$html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:1.05rem;font-style:italic" onclick="SwitchDisplay(40)">About security.txt Content Expiry +/-</button></td></tr>';
+	$html_text .= '<tr id="401" style="display:none;font-style:italic"><td colspan="3">RFC 9116: The "Expires" field indicates the date and time after which the data contained in the "security.txt" file is considered stale and should not be used (as per Section 5.3).</td></tr>';
+	$html_text .= '<tr id="402" style="display:none;font-style:italic"><td colspan="3">RFC 9116: It is RECOMMENDED that the value of this field be less than a year into the future to avoid staleness.</td></tr>';
+	$html_text .= '<tr id="403" style="display:none;font-style:italic;font-style:italic"><td colspan="3">Suggestion 1: The data contained in the "security.txt" file MUST expire on the date and time as in the "Expires" field, due to the desirability of an annual audit cycle.</td></tr>';
+	$html_text .= '<tr id="404" style="display:none;font-style:italic"><td colspan="3">Suggestion 2: For the one-off annual cycle check to work, the "Expires" field date and time is maximally 398 (366+31+1) days into the future, equal to the TLS Certificate Lifespan.</td></tr>';
+	$html_text .= '<tr id="405" style="display:none;font-style:italic"><td colspan="3">Suggestion 3: Annual audit requires a scheduled date on an office calendar; and customer requests cannot be dealt with if concentrated in one part of the year.</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
-	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">legacy security.txt +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">legacy security.txt +/-</button></td></tr>';
-	$html_text .= '<tr id="351" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->security_txt_url_legacy.'</em></td><td><em>'.$item->security_txt_url_www_legacy.'</em></td></tr>';
-	$html_text .= '<tr id="352" style="display:none;vertical-align:top"><td colspan="2">'.$item->security_txt_legacy.'</td><td>'.$item->security_txt_www_legacy.'</td></tr>';
+	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(41)">legacy security.txt +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(41)">legacy security.txt +/-</button></td></tr>';
+	$html_text .= '<tr id="411" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->security_txt_url_legacy.'</em></td><td><em>'.$item->security_txt_url_www_legacy.'</em></td></tr>';
+	$html_text .= '<tr id="412" style="display:none;vertical-align:top"><td colspan="2">'.$item->security_txt_legacy.'</td><td>'.$item->security_txt_www_legacy.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	if ($item->security_txt_notice == "1")	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(36)">
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(42)">
 		.well-known/security.txt +/-</button></td>';
 	}
 	else	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(36)">.well-known/security.txt +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(42)">.well-known/security.txt +/-</button></td>';
 	}
 	if ($item->security_txt_www_notice == "1")	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(36)">
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(42)">
 		.well-known/security.txt +/-</button></td></tr>';
 	}
 	else	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(36)">.well-known/security.txt +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(42)">.well-known/security.txt +/-</button></td></tr>';
 	}
-	$html_text .= '<tr id="361" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->security_txt_url_relocated.'</em></td><td><em>'.$item->security_txt_url_www_relocated.'</em></td></tr>';
-	$html_text .= '<tr id="362" style="display:none;vertical-align:top"><td colspan="2">'.$item->security_txt_relocated.'</td><td>'.$item->security_txt_www_relocated.'</td></tr>';
+	$html_text .= '<tr id="421" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->security_txt_url_relocated.'</em></td><td><em>'.$item->security_txt_url_www_relocated.'</em></td></tr>';
+	$html_text .= '<tr id="422" style="display:none;vertical-align:top"><td colspan="2">'.$item->security_txt_relocated.'</td><td>'.$item->security_txt_www_relocated.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;font-style: italic" onclick="SwitchDisplay(50)">About Security Header Requirements +/-</button></td><td></td></tr>';
 	$html_text .= '<tr id="501" style="display:none;font-style:italic"><td colspan="3">RFC 6797, 8.1: "If a UA receives more than one STS header field in an HTTP response message over secure transport, then the UA MUST process only the first such header field."</td></tr>';

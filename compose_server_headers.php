@@ -1,6 +1,5 @@
 <?php
 //$_GET['url'] = 'hostingtool.nl';
-
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
 		$domain = trim($_GET['url']);
@@ -39,16 +38,9 @@ $same_server = false;
 $same_server_www = false;
 //$php_version = (float)phpversion();
 	
-$DNS_CNAME = '';
-$array = dns_get_record($inputdomain, DNS_CNAME);
-foreach($array as $key1 => $value1) {
-	foreach($value1 as $key2 => $value2) {
-		if ($key2 == 'target') {
-			$DNS_CNAME .= 'CNAME: '.$value2 . '.<br />';
-		}
-	}
-}
+$DNS_CNAME = get_cname_target($inputdomain);
 if (strlen($DNS_CNAME))	{
+	$DNS_CNAME = $DNS_CNAME.'<br />';
 	$pre = '(';
 	$post = ')';
 	$cname_limited = true;
@@ -81,16 +73,9 @@ foreach($array as $key1 => $value1) {
 		}	
 	}
 }
-$DNS_CNAME_www = '';	
-$array = dns_get_record('www.'.$inputdomain, DNS_CNAME);
-foreach($array as $key1 => $value1) {
-	foreach($value1 as $key2 => $value2) {
-		if ($key2 == 'target') {
-			$DNS_CNAME_www .= 'CNAME: '.$value2 . '.<br />';
-		}
-	}
-}
+$DNS_CNAME_www = get_cname_target('www.'.$inputdomain);
 if (strlen($DNS_CNAME_www))	{
+	$DNS_CNAME_www = $DNS_CNAME_www.'<br />';
 	$pre = '(';
 	$post = ')';
 	$cname_limited_www = true;
@@ -241,7 +226,29 @@ if (!strlen($DNS_TXT_www))	{
 		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '("v=spf1 -all" would secure email)<br />';
 	}
-}	
+}
+$DNS_DMARC = dmarc_list($inputdomain);
+$DNS_DMARC_notice = 0;	
+if (!strlen($DNS_DMARC))	{
+	if (!strlen($DNS_CNAME))	{
+		$DNS_DMARC .= 'not applicable';		
+	}
+	else	{
+		$DNS_DMARC_notice = 1;
+		$DNS_DMARC .= '(DMARC misses email settings)<br />';	
+	}	
+}
+$DNS_DMARC_www = dmarc_list('www.'.$inputdomain);
+$DNS_DMARC_www_notice = 0;	
+if (!strlen($DNS_DMARC_www))	{
+	if (!strlen($DNS_CNAME_www))	{
+		$DNS_DMARC_www .= 'not applicable';		
+	}
+	else	{
+		$DNS_DMARC_www_notice = 1;
+		$DNS_DMARC_www .= '(DMARC misses in email settings)<br />';
+	}	
+}
 	
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -550,7 +557,23 @@ $domain->appendChild($domain_DNS_TXT_notice);
 	
 $domain_DNS_TXT_www_notice = $doc->createElement("DNS_TXT_www_notice");
 $domain_DNS_TXT_www_notice->appendChild($doc->createCDATASection($DNS_TXT_www_notice));
-$domain->appendChild($domain_DNS_TXT_www_notice);	
+$domain->appendChild($domain_DNS_TXT_www_notice);
+	
+$domain_DNS_DMARC = $doc->createElement("DNS_DMARC");
+$domain_DNS_DMARC->appendChild($doc->createCDATASection($DNS_DMARC));		
+$domain->appendChild($domain_DNS_DMARC);	
+	
+$domain_DNS_DMARC_www = $doc->createElement("DNS_DMARC_www");
+$domain_DNS_DMARC_www->appendChild($doc->createCDATASection($DNS_DMARC_www));
+$domain->appendChild($domain_DNS_DMARC_www);	
+	
+$domain_DNS_DMARC_notice = $doc->createElement("DNS_DMARC_notice");
+$domain_DNS_DMARC_notice->appendChild($doc->createCDATASection($DNS_DMARC_notice));		
+$domain->appendChild($domain_DNS_DMARC_notice);	
+	
+$domain_DNS_DMARC_www_notice = $doc->createElement("DNS_DMARC_www_notice");
+$domain_DNS_DMARC_www_notice->appendChild($doc->createCDATASection($DNS_DMARC_www_notice));
+$domain->appendChild($domain_DNS_DMARC_www_notice);	
 	
 $domain_security_txt_url_legacy = $doc->createElement("security_txt_url_legacy");
 $domain_security_txt_url_legacy->appendChild($doc->createCDATASection($security_txt_url_legacy));		
@@ -630,6 +653,19 @@ $doc->appendChild($domains);
 return $doc->saveXML();
 }
 
+function get_cname_target($inputdomain)	{	
+	$output = '';
+	$array = dns_get_record($inputdomain, DNS_CNAME);
+	foreach($array as $key1 => $value1) {
+		foreach($value1 as $key2 => $value2) {
+			if ($key2 == 'target') {
+				$output .= $value2;
+			}	
+		}
+	}
+	return $output;
+}
+
 function get_mx_ips($inputurl)	{
 	$output = '';
 	$array = dns_get_record($inputurl, DNS_A);
@@ -640,7 +676,7 @@ function get_mx_ips($inputurl)	{
 			}
 		}	
 	}
-	$array = dns_get_record($inputurl, DNS_AAAA);
+	$array = dns_get_record($inputurl, DNS_AAAA); 
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ipv6')	{
@@ -655,6 +691,70 @@ function get_mx_ips($inputurl)	{
 			$output .= '(IPv6 after request at protection.outlook.com)<br />';
 		}		
 	}	
+	return $output;
+}
+
+function remove_subdomain($inputurl)	{
+	$strpos = mb_strpos($inputurl, '.');
+	$inputurl = mb_substr($inputurl, $strpos + 1);
+	return $inputurl;
+}
+
+function dmarc_list($inputurl)	{ //ACEACE //ACEIACEIb6a.nl   _dmarc.b6a.nl                 ACEDACEDb6a.nl: v=spf1 -all  _dmarc.b6a.nl: v=DMARC1;p=reject;
+	$output = '';
+	$strpos = 1;
+	while ($strpos)	{
+		$array = dns_get_record('_dmarc.'.$inputurl, DNS_TXT);
+		$cname_value = get_cname_target('_dmarc.'.$inputurl);
+		foreach($cname_value as $key1 => $value1) {
+			foreach($cname_value as $key2 => $value2) {
+				$inputurl = $cname_value;
+				$array = dns_get_record($inputurl, DNS_TXT);							
+			}
+		}
+		$temp1 = '';
+		$temp2 = '';
+		foreach($array as $key1 => $value1) {
+			foreach($value1 as $key2 => $value2) {
+				if ($key2 == 'host') {
+					$temp1 = $value2;
+				}
+				if ($key2 == 'txt') {
+					$temp2 = $value2;
+				}				
+			}
+		}
+		if	(!stristr($temp2, 'v=DMARC1;'))	{
+			$cname_value = get_cname_target($inputurl);
+			foreach($cname_value as $key1 => $value1) {
+				foreach($cname_value as $key2 => $value2) {
+					foreach($array as $key1 => $value1) {
+						foreach($value1 as $key2 => $value2) {
+							if ($key2 == 'host') {
+								$temp1 = $value2;
+							}
+							if ($key2 == 'txt') { 
+								$temp2 = $value2;
+							}				
+						}
+					}
+				}	
+			}
+		}
+		if (strlen($temp1) and stristr(str_replace(' ', '', $temp2), 'v=DMARC1;'))	{
+			$output .= $temp1 . ': ' . $temp2 . '<br />';
+		}
+		elseif (strlen($temp1))	{
+			$output .= $temp1 . '<br />';
+		}
+		if (mb_strpos($output, 'v=DMARC1;'))	{
+			break;
+		}		
+		$inputurl = remove_subdomain($inputurl);
+		if (!strpos($inputurl, '.'))	{
+			break;	
+		}		
+	}
 	return $output;
 }
 ?>
