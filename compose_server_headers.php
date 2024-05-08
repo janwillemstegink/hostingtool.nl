@@ -235,7 +235,7 @@ if (!strlen($DNS_DMARC))	{
 	}
 	else	{
 		$DNS_DMARC_notice = 1;
-		$DNS_DMARC .= '(DMARC misses email settings)<br />';	
+		$DNS_DMARC .= '(DMARC misses in email settings)<br />';	
 	}	
 }
 $DNS_DMARC_www = dmarc_list('www.'.$inputdomain);
@@ -700,7 +700,7 @@ function remove_subdomain($inputurl)	{
 	return $inputurl;
 }
 
-function dmarc_list($inputurl)	{ //ACEACE //ACEIACEIb6a.nl   _dmarc.b6a.nl                 ACEDACEDb6a.nl: v=spf1 -all  _dmarc.b6a.nl: v=DMARC1;p=reject;
+function dmarc_list($inputurl)	{
 	$output = '';
 	$strpos = 1;
 	while ($strpos)	{
@@ -733,7 +733,7 @@ function dmarc_list($inputurl)	{ //ACEACE //ACEIACEIb6a.nl   _dmarc.b6a.nl      
 							if ($key2 == 'host') {
 								$temp1 = $value2;
 							}
-							if ($key2 == 'txt') { 
+							if ($key2 == 'txt') {
 								$temp2 = $value2;
 							}				
 						}
@@ -744,12 +744,9 @@ function dmarc_list($inputurl)	{ //ACEACE //ACEIACEIb6a.nl   _dmarc.b6a.nl      
 		if (strlen($temp1) and stristr(str_replace(' ', '', $temp2), 'v=DMARC1;'))	{
 			$output .= $temp1 . ': ' . $temp2 . '<br />';
 		}
-		elseif (strlen($temp1))	{
-			$output .= $temp1 . '<br />';
-		}
 		if (mb_strpos($output, 'v=DMARC1;'))	{
 			break;
-		}		
+		}
 		$inputurl = remove_subdomain($inputurl);
 		if (!strpos($inputurl, '.'))	{
 			break;	
