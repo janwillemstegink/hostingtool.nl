@@ -250,6 +250,17 @@ if (!strlen($DNS_DMARC_www))	{
 	}	
 }
 	
+$DNSSEC_A = 0;
+$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' A');
+if (strpos($output,'RRSIG'))	{
+	$DNSSEC_A = 1;
+}
+$DNSSEC_AAAA = 0;
+$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' AAAA');
+if (strpos($output,'RRSIG'))	{
+	$DNSSEC_AAAA = 1;
+}
+	
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_HEADER, 1);	
@@ -573,7 +584,15 @@ $domain->appendChild($domain_DNS_DMARC_notice);
 	
 $domain_DNS_DMARC_www_notice = $doc->createElement("DNS_DMARC_www_notice");
 $domain_DNS_DMARC_www_notice->appendChild($doc->createCDATASection($DNS_DMARC_www_notice));
-$domain->appendChild($domain_DNS_DMARC_www_notice);	
+$domain->appendChild($domain_DNS_DMARC_www_notice);
+
+$domain_DNSSEC_A = $doc->createElement("DNSSEC_A");
+$domain_DNSSEC_A->appendChild($doc->createCDATASection($DNSSEC_A));		
+$domain->appendChild($domain_DNSSEC_A);	
+		
+$domain_DNSSEC_AAAA = $doc->createElement("DNSSEC_AAAA");
+$domain_DNSSEC_AAAA->appendChild($doc->createCDATASection($DNSSEC_AAAA));		
+$domain->appendChild($domain_DNSSEC_AAAA);
 	
 $domain_security_txt_url_legacy = $doc->createElement("security_txt_url_legacy");
 $domain_security_txt_url_legacy->appendChild($doc->createCDATASection($security_txt_url_legacy));		
@@ -688,7 +707,7 @@ function get_mx_ips($inputurl)	{
 		if (mb_strpos($output, 'AAAA'))	{
 		}
 		else	{	
-			$output .= '(IPv6 after request at protection.outlook.com)<br />';
+			$output .= '(IPv6 after request to Microsoft)<br />';
 		}		
 	}	
 	return $output;

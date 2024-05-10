@@ -34,6 +34,10 @@ function SwitchDisplay(type) {
 		var pre = '34';
 		var max = 1
 	}
+	else if (type == 35)	{ // DNSSEC
+		var pre = '35';
+		var max = 1
+	}
 	else if (type == 40)	{ // regulation
 		var pre = '40';
 		var max = 5
@@ -117,11 +121,11 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="212" style="display:table-row;vertical-align:top"><td colspan="2">'.$item->http_code_destination.'</td><td>'.$item->http_code_destination_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:1.05rem;font-style: italic" onclick="SwitchDisplay(22)">About redirection from an alias +/-</button></td></tr>';
-	$html_text .= '<tr id="221" style="display:none;font-style:italic"><td colspan="2">RFC 1033: "The CNAME record is used for nicknames. The name associated with the RR</td><td>It is common practice for websites to publish content at their registered domain name.</td></tr>';
-	$html_text .= '<tr id="222" style="display:none;font-style:italic"><td colspan="2">is the nickname. The data portion is the official name. There must not be any other RRs</td><td>The www subdomain has been considered unnecessary. There are some useful aspects.</td></tr>';
-	$html_text .= '<tr id="223" style="display:none;font-style:italic"><td colspan="2">associated with a nickname of the same class." (RR does mean resource record)</td><td>If you host elsewhere, such as with www.microsoft.com, email traffic can remain secure.</td></tr>';
-	$html_text .= '<tr id="224" style="display:none;font-style:italic"><td colspan="2">RFC 1033 forbids the use of CNAME records at the same node as any other record type.</td><td>For a URL with a subdomain such as www, HSTS can be set more precisely.</td></tr>';
-	$html_text .= '<tr id="225" style="display:none;font-style:italic"><td colspan="2">Apex refers to the root/bare/naked domain, or the zone apex, so without a subdomain part.</td><td>See RFC draft for Address-specific DNS Name Redirection: <a style="font-size: 0.9rem" href="https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-aname-01" target="_blank">draft-ietf-dnsop-aname-01</a></td></tr>';
+	$html_text .= '<tr id="221" style="display:none;font-style:italic"><td colspan="3">RFC 1033: "The CNAME record is used for nicknames. The name associated with the RR is the nickname. The data portion is the official name. There must not be any other RRs</td></tr>';
+	$html_text .= '<tr id="222" style="display:none;font-style:italic"><td colspan="3">associated with a nickname of the same class." RR does mean resource record. RFC 1033 forbids the use of CNAME records at the same node as any other record type.</td></tr>';
+	$html_text .= '<tr id="223" style="display:none;font-style:italic"><td colspan="3">Apex refers to the root/bare/naked domain, or the zone apex, so without a subdomain part. It is common practice for websites to publish content at their registered domain name.</td></tr>';
+	$html_text .= '<tr id="224" style="display:none;font-style:italic"><td colspan="3">The <b>www</b> subdomain has been considered unnecessary. There are some useful aspects. If you host elsewhere, such as with www.microsoft.com, email traffic can remain secure.</td></tr>';
+	$html_text .= '<tr id="225" style="display:none;font-style:italic"><td colspan="3">For a URL with a subdomain such as www, HSTS can be set more precisely. See also this RFC draft for Address-specific DNS Name Redirection: <a style="font-size: 0.9rem" href="https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-aname-01" target="_blank">draft-ietf-dnsop-aname-01</a></td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
 	$html_text .= '<tr id="311" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CNAME.'</td><td>'.$item->DNS_CNAME_www.'</td></tr>';
@@ -164,7 +168,14 @@ foreach ($xml1->xpath('//domain') as $item)	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';		
 	}
 	$html_text .= '<tr id="341" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_DMARC.'</td><td>'.$item->DNS_DMARC_www.'</td></tr>';
-	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
+	if ($item->DNSSEC_A == "0" )	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(35)">No DNSSEC +/-</button></td>';
+	}
+	else	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">DNSSEC exists (not yet validated)  +/-</button></td></tr>';
+	}
+	$html_text .= '<tr id="351" style="display:none;vertical-align:top"><td colspan="2">DNSSEC A: '.$item->DNSSEC_A.' (AAAA: '.$item->DNSSEC_AAAA.')</td><td></td></tr>';
+	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	$html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:1.05rem;font-style:italic" onclick="SwitchDisplay(40)">About security.txt Content Expiry +/-</button></td></tr>';
 	$html_text .= '<tr id="401" style="display:none;font-style:italic"><td colspan="3">RFC 9116: "The "Expires" field indicates the date and time after which the data contained in the "security.txt" file is considered stale and should not be used (as per Section 5.3)".</td></tr>';
 	$html_text .= '<tr id="402" style="display:none;font-style:italic"><td colspan="3">RFC 9116: "It is RECOMMENDED that the value of this field be less than a year into the future to avoid staleness."</td></tr>';
