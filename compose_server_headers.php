@@ -40,60 +40,125 @@ $same_server_www = false;
 	
 $DNS_CNAME = get_cname_target($inputdomain);
 if (strlen($DNS_CNAME))	{
-	$DNS_CNAME = $DNS_CNAME.'<br />';
-	$pre = '(';
-	$post = ')';
+	$DNS_CNAME = 'CNAME: '.$DNS_CNAME.' -><br />';
 	$cname_limited = true;
 }
 else	{
-	$pre = '';
-	$post = '';
 	$cname_limited = false;
 }
-$matches_server = false;	
+$matches_server = false;
+$DNS_CNAME_notice = 0;
+$AS_A = '';	
+$AS_AAAA = '';
+$AS_A_www = '';	
+$AS_AAAA_www = '';	
 $array = dns_get_record($inputdomain, DNS_A);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'ip')	{
 			$rDNS = gethostbyaddr($value2);
-			$DNS_CNAME .= $pre.'A: '.$value2.' - '.$rDNS.$post.'<br />';
+			$rDNS_FC = '';
+			if ($rDNS != $value2)	{
+				$array2 = dns_get_record($rDNS, DNS_A);
+				foreach($array2 as $k1 => $v1) {
+					foreach($v1 as $k2 => $v2) {
+						if ($k2 == 'ip')	{
+							$rDNS_FC = $v2;
+						}
+					}		
+				}
+			}	
+			$DNS_CNAME .= '<b>IPv4:</b> '.$value2.'<br />';
+			$DNS_CNAME .= '-> rDNS: '.$rDNS.' -> FCrDNS: '.$rDNS_FC.'<br />';
+			$AS_A .= get_as_info($value2);
 			if ($value2 == $own_ip)	$same_server = true;
 			if ($rDNS == $inputdomain) $matches_server = true;
+			if ($rDNS_FC == $value2)	{
+			}
+			elseif ($rDNS == $value2)	{
+				$DNS_CNAME .= '(Reverse DNS does not exist)<br />';
+			}
+			else	{
+				$DNS_CNAME_notice = 1;
+				$DNS_CNAME .= '(The reverse DNS is not forward-confirmed)<br />';
+			}	
 		}	
 	}
-}
+}	
 $array = dns_get_record($inputdomain, DNS_AAAA);	
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'ipv6') {
 			$rDNS = gethostbyaddr($value2);
-			$DNS_CNAME .= $pre.'AAAA: '.$value2.' - '.$rDNS.$post.'<br />';
+			$rDNS_FC = '';
+			if ($rDNS != $value2)	{
+				$array2 = dns_get_record($rDNS, DNS_AAAA);
+				foreach($array2 as $k1 => $v1) {
+					foreach($v1 as $k2 => $v2) {
+						if ($k2 == 'ipv6')	{
+							$rDNS_FC = $v2;
+						}	
+					}
+				}		
+			}
+			$DNS_CNAME .= '<b>IPv6:</b> '.$value2.'<br />';
+			$DNS_CNAME .= '-> rDNS: '.$rDNS.' -> FCrDNS: '.$rDNS_FC.'<br />';
+			$AS_AAAA .= get_as_info($value2);
 			if ($value2 == $own_ip)	$same_server = true;
 			if ($rDNS == $inputdomain) $matches_server = true;
+			if ($rDNS_FC == $value2)	{
+			}
+			elseif ($rDNS == $value2)	{
+				$DNS_CNAME .= '(Reverse DNS does not exist)<br />';
+			}
+			else	{
+				$DNS_CNAME_notice = 1;
+				$DNS_CNAME .= '(The reverse DNS is not forward-confirmed)<br />';
+			}	
 		}	
 	}
 }
 $DNS_CNAME_www = get_cname_target('www.'.$inputdomain);
 if (strlen($DNS_CNAME_www))	{
-	$DNS_CNAME_www = $DNS_CNAME_www.'<br />';
-	$pre = '(';
-	$post = ')';
+	$DNS_CNAME_www = 'CNAME: '.$DNS_CNAME_www.' -><br />';
 	$cname_limited_www = true;
 }
 else	{
-	$pre = '';
-	$post = '';
 	$cname_limited_www = false;
 }
 $matches_server_www = false;
+$DNS_CNAME_www_notice = 0;	
 $array = dns_get_record('www.'.$inputdomain, DNS_A);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'ip') {
 			$rDNS = gethostbyaddr($value2);
-			$DNS_CNAME_www .= $pre.'A: '.$value2.' - '.$rDNS.$post.'<br />';
+			$rDNS_FC = '';
+			if ($rDNS != $value2)	{
+				$array2 = dns_get_record($rDNS, DNS_A);
+				foreach($array2 as $k1 => $v1) {
+					foreach($v1 as $k2 => $v2) {
+						if ($k2 == 'ip')	{
+							
+							$rDNS_FC = $v2;
+						}	
+					}
+				}		
+			}
+			$DNS_CNAME_www .= '<b>IPv4:</b> '.$value2.'<br />';
+			$DNS_CNAME_www .= '-> rDNS: '.$rDNS.' -> FCrDNS: '.$rDNS_FC.'<br />';
+			$AS_A_www .= get_as_info($value2);
 			if ($value2 == $own_ip)	$same_server_www = true;
 			if ($rDNS == 'www'.$inputdomain) $matches_server_www = true;
+			if ($rDNS_FC == $value2)	{
+			}
+			elseif ($rDNS == $value2)	{
+				$DNS_CNAME_www .= '(Reverse DNS does not exist)<br />';
+			}
+			else	{
+				$DNS_CNAME_www_notice = 1;
+				$DNS_CNAME_www .= '(The reverse DNS is not forward-confirmed)<br />';
+			}
 		}
 	}
 }	
@@ -102,9 +167,31 @@ foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'ipv6') {
 			$rDNS = gethostbyaddr($value2);
-			$DNS_CNAME_www .= $pre.'AAAA: '.$value2.' - '.$rDNS.$post.'<br />';
+			$rDNS_FC = '';
+			if ($rDNS != $value2)	{
+				$array2 = dns_get_record($rDNS, DNS_AAAA);
+				foreach($array2 as $k1 => $v1) {
+					foreach($v1 as $k2 => $v2) {
+						if ($k2 == 'ipv6')	{
+							$rDNS_FC = $v2;
+						}	
+					}
+				}		
+			}
+			$DNS_CNAME_www .= '<b>IPv6:</b> '.$value2.'<br />';
+			$DNS_CNAME_www .= '-> rDNS: '.$rDNS.' -> FCrDNS: '.$rDNS_FC.'<br />';
+			$AS_AAAA_www .= get_as_info($value2);
 			if ($value2 == $own_ip)	$same_server_www = true;
 			if ($rDNS == 'www'.$inputdomain) $matches_server_www = true;
+			if ($rDNS_FC == $value2)	{
+			}
+			elseif ($rDNS == $value2)	{
+				$DNS_CNAME_www .= '(Reverse DNS does not exist)<br />';
+			}
+			else	{
+				$DNS_CNAME_www_notice = 1;
+				$DNS_CNAME_www .= '(The reverse DNS is not forward-confirmed)<br />';
+			}
 		}
 	}
 }
@@ -196,7 +283,7 @@ if (!strlen($DNS_TXT))	{
 	}
 	else	{
 		$DNS_TXT_notice = 1;
-		$DNS_TXT .= '("v=spf1 -all" would secure email)<br />';
+		$DNS_TXT .= '("v=spf1 -all" would block email)<br />';
 	}	
 }	
 	
@@ -224,7 +311,7 @@ if (!strlen($DNS_TXT_www))	{
 	}
 	else	{
 		$DNS_TXT_www_notice = 1;
-		$DNS_TXT_www .= '("v=spf1 -all" would secure email)<br />';
+		$DNS_TXT_www .= '("v=spf1 -all" plus "sp=reject" would block email)<br />';
 	}
 }
 $DNS_DMARC = dmarc_list($inputdomain);
@@ -250,16 +337,16 @@ if (!strlen($DNS_DMARC_www))	{
 	}	
 }
 	
-$DNSSEC_A = 0;
-$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' A');
-if (strpos($output,'RRSIG'))	{
-	$DNSSEC_A = 1;
-}
-$DNSSEC_AAAA = 0;
-$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' AAAA');
-if (strpos($output,'RRSIG'))	{
-	$DNSSEC_AAAA = 1;
-}
+//$DNSSEC_A = 0;
+//$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' A');
+//if (strpos($output,'RRSIG'))	{
+//	$DNSSEC_A = 1;
+//}
+//$DNSSEC_AAAA = 0;
+//$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' AAAA');
+//if (strpos($output,'RRSIG'))	{
+//	$DNSSEC_AAAA = 1;
+//}
 	
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -537,6 +624,14 @@ $domain->appendChild($domain_DNS_CNAME);
 $domain_DNS_CNAME_www = $doc->createElement("DNS_CNAME_www");
 $domain_DNS_CNAME_www->appendChild($doc->createCDATASection($DNS_CNAME_www));		
 $domain->appendChild($domain_DNS_CNAME_www);
+
+$domain_DNS_CNAME_notice = $doc->createElement("DNS_CNAME_notice");
+$domain_DNS_CNAME_notice->appendChild($doc->createCDATASection($DNS_CNAME_notice));		
+$domain->appendChild($domain_DNS_CNAME_notice);	
+	
+$domain_DNS_CNAME_www_notice = $doc->createElement("DNS_CNAME_www_notice");
+$domain_DNS_CNAME_www_notice->appendChild($doc->createCDATASection($DNS_CNAME_www_notice));		
+$domain->appendChild($domain_DNS_CNAME_www_notice);	
 	
 $domain_DNS_MX = $doc->createElement("DNS_MX");
 $domain_DNS_MX->appendChild($doc->createCDATASection($DNS_MX));		
@@ -585,14 +680,22 @@ $domain->appendChild($domain_DNS_DMARC_notice);
 $domain_DNS_DMARC_www_notice = $doc->createElement("DNS_DMARC_www_notice");
 $domain_DNS_DMARC_www_notice->appendChild($doc->createCDATASection($DNS_DMARC_www_notice));
 $domain->appendChild($domain_DNS_DMARC_www_notice);
-
-$domain_DNSSEC_A = $doc->createElement("DNSSEC_A");
-$domain_DNSSEC_A->appendChild($doc->createCDATASection($DNSSEC_A));		
-$domain->appendChild($domain_DNSSEC_A);	
+	
+$domain_AS_A = $doc->createElement("AS_A");
+$domain_AS_A->appendChild($doc->createCDATASection($AS_A));		
+$domain->appendChild($domain_AS_A);	
 		
-$domain_DNSSEC_AAAA = $doc->createElement("DNSSEC_AAAA");
-$domain_DNSSEC_AAAA->appendChild($doc->createCDATASection($DNSSEC_AAAA));		
-$domain->appendChild($domain_DNSSEC_AAAA);
+$domain_AS_AAAA = $doc->createElement("AS_AAAA");
+$domain_AS_AAAA->appendChild($doc->createCDATASection($AS_AAAA));		
+$domain->appendChild($domain_AS_AAAA);
+		
+$domain_AS_A_www = $doc->createElement("AS_A_www");
+$domain_AS_A_www->appendChild($doc->createCDATASection($AS_A_www));		
+$domain->appendChild($domain_AS_A_www);	
+		
+$domain_AS_AAAA_www = $doc->createElement("AS_AAAA_www");
+$domain_AS_AAAA_www->appendChild($doc->createCDATASection($AS_AAAA_www));		
+$domain->appendChild($domain_AS_AAAA_www);	
 	
 $domain_security_txt_url_legacy = $doc->createElement("security_txt_url_legacy");
 $domain_security_txt_url_legacy->appendChild($doc->createCDATASection($security_txt_url_legacy));		
@@ -772,5 +875,31 @@ function dmarc_list($inputurl)	{
 		}		
 	}
 	return $output;
+}
+
+function get_ip_info($inputip)	{
+	//$inputip = '2a01:4f8:161:520a::2';
+	$url = 'https://ipinfo.io/'.$inputip.'/json';
+	$details = json_decode(file_get_contents($url));
+	//die(print_r($details));
+	return('IP block: '.$details->org.' ('.$details->country.')');
+}
+
+function get_as_info($inputip)	{
+	//$inputip = '2a01:4f8:161:520a::2';
+	//$inputip = '136.144.238.43';
+	$url = 'http://ip-api.com/json/'.$inputip.'?fields=countryCode,regionName,city,isp,org,as,asname,reverse,query';
+	$as = json_decode(file_get_contents($url), true);
+	if (strpos($inputip, '.'))	{	
+		$output = '<b>Autonomous system IPv4:</b><br>';
+	}
+	elseif (strpos($inputip, ':'))	{
+		$output = '<b>Autonomous system IPv6:</b><br>';
+	}	
+	foreach($as as $key1 => $value1) {
+		$output .= $key1 . ': ' . $value1 . '<br>';
+	}
+	//die($output);	
+	return($output);
 }
 ?>

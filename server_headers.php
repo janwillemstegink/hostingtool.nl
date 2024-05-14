@@ -34,9 +34,9 @@ function SwitchDisplay(type) {
 		var pre = '34';
 		var max = 1
 	}
-	else if (type == 35)	{ // DNSSEC
+	else if (type == 35)	{ // AS
 		var pre = '35';
-		var max = 1
+		var max = 3
 	}
 	else if (type == 40)	{ // regulation
 		var pre = '40';
@@ -126,8 +126,19 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="223" style="display:none;font-style:italic"><td colspan="3">Apex refers to the root/bare/naked domain, or the zone apex, so without a subdomain part. It is common practice for websites to publish content at their registered domain name.</td></tr>';
 	$html_text .= '<tr id="224" style="display:none;font-style:italic"><td colspan="3">The <b>www</b> subdomain has been considered unnecessary. There are some useful aspects. If you host elsewhere, such as with www.microsoft.com, email traffic can remain secure.</td></tr>';
 	$html_text .= '<tr id="225" style="display:none;font-style:italic"><td colspan="3">For a URL with a subdomain such as www, HSTS can be set more precisely. See also this RFC draft for Address-specific DNS Name Redirection: <a style="font-size: 0.9rem" href="https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-aname-01" target="_blank">draft-ietf-dnsop-aname-01</a></td></tr>';
-	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
-	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
+	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
+	if ($item->DNS_CNAME_notice == "1" )	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td>';
+	}
+	else	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td>';
+	}
+	if ($item->DNS_CNAME_www_notice == "1" )	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
+	}
+	else	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
+	}	
 	$html_text .= '<tr id="311" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CNAME.'</td><td>'.$item->DNS_CNAME_www.'</td></tr>';
 	if ($item->DNS_MX_notice == "1" )	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(32)">MX +/-</button></td>';
@@ -168,14 +179,11 @@ foreach ($xml1->xpath('//domain') as $item)	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';		
 	}
 	$html_text .= '<tr id="341" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_DMARC.'</td><td>'.$item->DNS_DMARC_www.'</td></tr>';
-	if ($item->DNSSEC_A == "0" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:khaki;border-color:khaki" onclick="SwitchDisplay(35)">No DNSSEC +/-</button></td>';
-	}
-	else	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">DNSSEC exists (not yet validated)  +/-</button></td></tr>';
-	}
-	$html_text .= '<tr id="351" style="display:none;vertical-align:top"><td colspan="2">DNSSEC A: '.$item->DNSSEC_A.' (AAAA: '.$item->DNSSEC_AAAA.')</td><td></td></tr>';
-	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
+	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">AS +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">AS +/-</button></td></tr>';
+	$html_text .= '<tr id="351" style="display:none;vertical-align:top"><td colspan="2">'.$item->AS_A.'</td><td>'.$item->AS_A_www.'</td></tr>';
+	$html_text .= '<tr id="352" style="display:none"><td><hr></td><td><hr></td><td><hr></td></tr>';
+	$html_text .= '<tr id="353" style="display:none;vertical-align:top"><td colspan="2">'.$item->AS_AAAA.'</td><td>'.$item->AS_AAAA_www.'</td></tr>';
+	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:1.05rem;font-style:italic" onclick="SwitchDisplay(40)">About security.txt Content Expiry +/-</button></td></tr>';
 	$html_text .= '<tr id="401" style="display:none;font-style:italic"><td colspan="3">RFC 9116: "The "Expires" field indicates the date and time after which the data contained in the "security.txt" file is considered stale and should not be used (as per Section 5.3)".</td></tr>';
 	$html_text .= '<tr id="402" style="display:none;font-style:italic"><td colspan="3">RFC 9116: "It is RECOMMENDED that the value of this field be less than a year into the future to avoid staleness."</td></tr>';
