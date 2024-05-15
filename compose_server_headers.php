@@ -1,5 +1,6 @@
 <?php
-//$_GET['url'] = 'hostingtool.nl';
+//$_GET['url'] = 'lifeinmotion.nl';
+
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
 		$domain = trim($_GET['url']);
@@ -357,14 +358,14 @@ curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 curl_setopt($ch, CURLOPT_VERBOSE, 1);
-curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201');
+//curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201');
+curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36');
 
 $http_code_initial = 'initial: not applicable';
-$server_header = 'not applicable';	
-$transfer_information = 'not applicable';	
 $http_code_destination = 'destination: not applicable';
+$http_code_notice = 0;	
 if (strlen($DNS_CNAME))	{
-	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);	
+	curl_setopt($ch, CURLOPT_URL, 'http://'.$inputdomain);	
 	$curl_server_header = curl_exec($ch);
 	$http_code_initial = 'initial: ';
 	if (!curl_errno($ch)) {
@@ -374,10 +375,28 @@ if (strlen($DNS_CNAME))	{
 	else	{
 		$http_code_initial .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
+}	
+	
+$https_code_initial = 'initial: not applicable';
+$server_header = 'not applicable';	
+$transfer_information = 'not applicable';	
+$https_code_destination = 'destination: not applicable';
+$https_code_notice = 0;	
+if (strlen($DNS_CNAME))	{
+	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);	
+	$curl_server_header = curl_exec($ch);
+	$https_code_initial = 'initial: ';
+	if (!curl_errno($ch)) {
+		$https_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
+			curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	}
+	else	{
+		$https_code_initial .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
+	}
 	$arr_server_header = explode (",", $curl_server_header);
 	$server_header = '';
 	foreach($arr_server_header as $key1 => $value1) {
-		$server_header .= $key1 . ':' . $value1 . '<br />';
+		$server_header .= $key1 . "\n" . $value1 . "\n";
 	}
 	$arr_transfer_information = curl_getinfo($ch);
 	$transfer_information = '';	
@@ -387,11 +406,10 @@ if (strlen($DNS_CNAME))	{
 }
 	
 $http_code_initial_www = 'initial: not applicable';
-$server_header_www = 'not applicable';	
-$transfer_information_www = 'not applicable';
-$http_code_destination_www = 'destination: not applicable';	
+$http_code_destination_www = 'destination: not applicable';
+$http_code_www_notice = 0;	
 if (strlen($DNS_CNAME_www))	{	
-	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);
+	curl_setopt($ch, CURLOPT_URL, 'http://www.'.$inputdomain);
 	$curl_server_header_www = curl_exec($ch);
 	$http_code_initial_www = 'initial: ';
 	if (!curl_errno($ch)) {
@@ -400,11 +418,29 @@ if (strlen($DNS_CNAME_www))	{
 	}
 	else	{
 		$http_code_initial_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
+	}
+}	
+	
+$https_code_initial_www = 'initial: not applicable';
+$server_header_www = 'not applicable';	
+$transfer_information_www = 'not applicable';
+$https_code_destination_www = 'destination: not applicable';
+$https_code_www_notice = 0;
+if (strlen($DNS_CNAME_www))	{	
+	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);
+	$curl_server_header_www = curl_exec($ch);
+	$https_code_initial_www = 'initial: ';
+	if (!curl_errno($ch)) {
+		$https_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
+			curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	}
+	else	{
+		$https_code_initial_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}	
 	$arr_server_header_www = explode (",", $curl_server_header_www);
 	$server_header_www = '';	
 	foreach($arr_server_header_www as $key1 => $value1) {
-		$server_header_www .= $key1 . ': ' . $value1 . '<br />';		
+		$server_header_www .= $key1 . "\n" . $value1 . "\n";
 	}
 	$arr_transfer_information_www = curl_getinfo($ch);
 	$transfer_information_www = '';	
@@ -412,7 +448,6 @@ if (strlen($DNS_CNAME_www))	{
 		$transfer_information_www .= $key1 . ': ' . $value1 . '<br />';
 	}
 }
-
 $security_txt_legacy = '';	
 $security_txt_url_legacy = 'not applicable';
 $security_txt_www_legacy = '';
@@ -437,29 +472,29 @@ if (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	$effective = curl_exec($ch);
 	$effective_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-	if (mb_strpos($effective_url, '/security.txt'))	{
+	if (!curl_errno($ch)) {
 		if ($effective_url == $security_txt_url_legacy)	{
 		}
 		else	{
 			$security_txt_url_legacy .= '<br />'.$effective_url;
 		}
-		if (!curl_errno($ch)) {
-			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
-				$security_txt_legacy = $effective;	
-			}
-			elseif ($matches_server)	{
-				$security_txt_legacy = 'No HTTP 200 OK ('. $inputdomain. ' is the server name).';
-			}
+		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
+			if (mb_strpos($effective_url, '/security.txt'))	{
+				$security_txt_legacy = $effective;
+			}	
 			else	{
-				$security_txt_legacy = 'No HTTP 200 OK.';
+				$security_txt_legacy = 'HTTP 200 OK without a security.txt file';
 			}
+		}
+		elseif ($matches_server)	{
+			$security_txt_legacy = 'No HTTP 200 OK received ('. $inputdomain. ' is the server name).';
 		}
 		else	{
-			$security_txt_legacy = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
-		}
-	}
+			$security_txt_legacy = 'No HTTP 200 OK received.';
+		}	
+	}	
 	else	{
-		$security_txt_legacy = 'No security.txt';		
+		$security_txt_legacy = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
 	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain.'/.well-known/security.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);		
@@ -468,33 +503,33 @@ if (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	$effective = curl_exec($ch);
 	$effective_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-	if (mb_strpos($effective_url, '/security.txt'))	{
+	if (!curl_errno($ch)) {
 		if ($effective_url == $security_txt_url_relocated)	{
 		}
 		else	{
 			$security_txt_url_relocated .= '<br />'.$effective_url;
 		}
-		if (!curl_errno($ch)) {
-			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
-				$security_txt_relocated = $effective;	
-			}
-			elseif ($matches_server)	{
-				$security_txt_notice = 1;
-				$security_txt_relocated = 'No HTTP 200 OK ('. $inputdomain. ' is the server name).';
+		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
+			if (mb_strpos($effective_url, '/security.txt'))	{
+				$security_txt_relocated = $effective;
 			}	
 			else	{
 				$security_txt_notice = 1;
-				$security_txt_relocated = 'No HTTP 200 OK.';
+				$security_txt_relocated = 'HTTP 200 OK without a security.txt file';
 			}
+		}
+		elseif ($matches_server)	{
+			$security_txt_notice = 1;
+			$security_txt_relocated = 'No HTTP 200 OK received ('. $inputdomain. ' is the server name).';
 		}
 		else	{
 			$security_txt_notice = 1;
-			$security_txt_relocated = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
-		}
-	}
+			$security_txt_relocated = 'No HTTP 200 OK received.';
+		}	
+	}	
 	else	{
 		$security_txt_notice = 1;
-		$security_txt_relocated = 'No security.txt';		
+		$security_txt_relocated = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
 }
 if (strlen($DNS_CNAME_www))	{
@@ -505,30 +540,30 @@ if (strlen($DNS_CNAME_www))	{
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	$effective = curl_exec($ch);
 	$effective_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-	if (mb_strpos($effective_url, '/security.txt'))	{
+	if (!curl_errno($ch)) {
 		if ($effective_url == $security_txt_url_www_legacy)	{
 		}
 		else	{
 			$security_txt_url_www_legacy .= '<br />'.$effective_url;
 		}
-		if (!curl_errno($ch)) {
-			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
-				$security_txt_www_legacy = $effective;	
-			}
-			elseif ($matches_server_www)	{
-				$security_txt_www_legacy = 'No HTTP 200 OK (www.'. $inputdomain. ' is the server name).';
-			}
+		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
+			if (mb_strpos($effective_url, '/security.txt'))	{
+				$security_txt_www_legacy = $effective;
+			}	
 			else	{
-				$security_txt_www_legacy = 'No HTTP 200 OK';
+				$security_txt_www_legacy = 'HTTP 200 OK without a security.txt file';
 			}
+		}
+		elseif ($matches_server)	{
+			$security_txt_www_legacy = 'No HTTP 200 OK received ('. $inputdomain. ' is the server name).';
 		}
 		else	{
-			$security_txt_www_legacy = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
-		}
-	}
-	else	{
-		$security_txt_www_legacy = 'No security.txt';		
+			$security_txt_www_legacy = 'No HTTP 200 OK received.';
+		}	
 	}	
+	else	{
+		$security_txt_www_legacy = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
+	}
 	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain.'/.well-known/security.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);	
 	$security_txt_www_relocated = curl_exec($ch);
@@ -536,40 +571,40 @@ if (strlen($DNS_CNAME_www))	{
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	$effective = curl_exec($ch);
 	$effective_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-	if (mb_strpos($effective_url, '/security.txt'))	{
+	if (!curl_errno($ch)) {
 		if ($effective_url == $security_txt_url_www_relocated)	{
 		}
 		else	{
 			$security_txt_url_www_relocated .= '<br />'.$effective_url;
 		}
-		if (!curl_errno($ch)) {
-			if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
-				$security_txt_www_relocated = $effective;	
-			}
-			elseif ($matches_server_www)	{
-				$security_txt_www_notice = 1;
-				$security_txt_www_relocated = 'No HTTP 200 OK (www.'. $inputdomain. ' is the server name).';
-			}
+		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
+			if (mb_strpos($effective_url, '/security.txt'))	{
+				$security_txt_www_relocated = $effective;
+			}	
 			else	{
 				$security_txt_www_notice = 1;
-				$security_txt_www_relocated = 'No HTTP 200 OK.';
+				$security_txt_www_relocated = 'HTTP 200 OK without a security.txt file';
 			}
+		}
+		elseif ($matches_server)	{
+			$security_txt_www_notice = 1;
+			$security_txt_www_relocated = 'No HTTP 200 OK received ('. $inputdomain. ' is the server name).';
 		}
 		else	{
 			$security_txt_www_notice = 1;
-			$security_txt_www_relocated = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
-		}
-	}
+			$security_txt_www_relocated = 'No HTTP 200 OK received.';
+		}	
+	}	
 	else	{
 		$security_txt_www_notice = 1;
-		$security_txt_www_relocated = 'No security.txt';		
+		$security_txt_www_relocated = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
 }
 if (strlen($DNS_CNAME))	{
 	$http_code_destination = 'destination: ';
 	if (!$same_server)	{
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);		
-		curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);		
+		curl_setopt($ch, CURLOPT_URL, 'http://'.$inputdomain);		
 		$target = curl_exec($ch);
 		if (!curl_errno($ch)) {	
 			$http_code_destination .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
@@ -580,14 +615,36 @@ if (strlen($DNS_CNAME))	{
 		}
 	}
 	else	{
-		$http_code_destination .= '(No cURL on the same server)';		
+		$http_code_destination .= '(No cURL on the same server)';
+	}
+	if (!stristr($http_code_destination, 'https://'))	{
+		$http_code_notice = 1;
+	}	
+	$https_code_destination = 'destination: ';
+	if (!$same_server)	{
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);		
+		curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);		
+		$target = curl_exec($ch);
+		if (!curl_errno($ch)) {	
+			$https_code_destination .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
+				curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+		}		
+		else	{
+			$https_code_destination .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
+		}
+	}
+	else	{
+		$https_code_destination .= '(No cURL on the same server)';		
+	}
+	if (!stristr($https_code_destination, 'https://'))	{
+		$https_code_notice = 1;
 	}
 }
 if (strlen($DNS_CNAME_www))	{
 	$http_code_destination_www = 'destination: ';
 	if (!$same_server_www)	{
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);		
+		curl_setopt($ch, CURLOPT_URL, 'http://www.'.$inputdomain);		
 		$target = curl_exec($ch);
 		if (!curl_errno($ch)) {	
 			$http_code_destination_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
@@ -599,6 +656,28 @@ if (strlen($DNS_CNAME_www))	{
 	}
 	else	{
 		$http_code_destination_www .= '(No cURL on the same server)';	
+	}
+	if (!stristr($http_code_destination_www, 'https://'))	{
+		$http_code_www_notice = 1;
+	}
+	$https_code_destination_www = 'destination: ';
+	if (!$same_server_www)	{
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);		
+		$target = curl_exec($ch);
+		if (!curl_errno($ch)) {	
+			$https_code_destination_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. 
+				curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+		}		
+		else	{
+			$https_code_destination_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
+		}
+	}
+	else	{
+		$https_code_destination_www .= '(No cURL on the same server)';	
+	}
+	if (!stristr($https_code_destination_www, 'https://'))	{
+		$https_code_www_notice = 1;
 	}	
 }	
 curl_close($ch);
@@ -745,10 +824,34 @@ $domain->appendChild($domain_http_code_initial);
 
 $domain_http_code_destination = $doc->createElement("http_code_destination");
 $domain_http_code_destination->appendChild($doc->createCDATASection($http_code_destination));
-$domain->appendChild($domain_http_code_destination);	
+$domain->appendChild($domain_http_code_destination);
+	
+$domain_https_code_initial = $doc->createElement("https_code_initial");
+$domain_https_code_initial->appendChild($doc->createCDATASection($https_code_initial));
+$domain->appendChild($domain_https_code_initial);
+
+$domain_https_code_destination = $doc->createElement("https_code_destination");
+$domain_https_code_destination->appendChild($doc->createCDATASection($https_code_destination));
+$domain->appendChild($domain_https_code_destination);
+	
+$domain_http_code_notice = $doc->createElement("http_code_notice");
+$domain_http_code_notice->appendChild($doc->createCDATASection($http_code_notice));
+$domain->appendChild($domain_http_code_notice);
+
+$domain_http_code_www_notice = $doc->createElement("http_code_www_notice");
+$domain_http_code_www_notice->appendChild($doc->createCDATASection($http_code_www_notice));
+$domain->appendChild($domain_http_code_www_notice);
+	
+$domain_https_code_notice = $doc->createElement("https_code_notice");
+$domain_https_code_notice->appendChild($doc->createCDATASection($https_code_notice));
+$domain->appendChild($domain_https_code_notice);
+
+$domain_https_code_www_notice = $doc->createElement("https_code_www_notice");
+$domain_https_code_www_notice->appendChild($doc->createCDATASection($https_code_www_notice));
+$domain->appendChild($domain_https_code_www_notice);	
 	
 $domain_server_header = $doc->createElement("server_header");
-$domain_server_header->appendChild($doc->createCDATASection(nl2br(htmlentities($server_header))));		
+$domain_server_header->appendChild($doc->createCDATASection(nl2br(htmlentities($server_header),1)));		
 $domain->appendChild($domain_server_header);
 	
 $domain_transfer_information = $doc->createElement("transfer_information");
@@ -761,10 +864,18 @@ $domain->appendChild($domain_http_code_initial_www);
 	
 $domain_http_code_destination_www = $doc->createElement("http_code_destination_www");
 $domain_http_code_destination_www->appendChild($doc->createCDATASection($http_code_destination_www));
-$domain->appendChild($domain_http_code_destination_www);	
+$domain->appendChild($domain_http_code_destination_www);
+
+$domain_https_code_initial_www = $doc->createElement("https_code_initial_www");
+$domain_https_code_initial_www->appendChild($doc->createCDATASection($https_code_initial_www));
+$domain->appendChild($domain_https_code_initial_www);
+	
+$domain_https_code_destination_www = $doc->createElement("https_code_destination_www");
+$domain_https_code_destination_www->appendChild($doc->createCDATASection($https_code_destination_www));
+$domain->appendChild($domain_https_code_destination_www);	
 
 $domain_server_header_www = $doc->createElement("server_header_www");
-$domain_server_header_www->appendChild($doc->createCDATASection(nl2br(htmlentities($server_header_www))));		
+$domain_server_header_www->appendChild($doc->createCDATASection(nl2br(htmlentities($server_header_www),1)));		
 $domain->appendChild($domain_server_header_www);
 	
 $domain_transfer_information_www = $doc->createElement("transfer_information_www");
@@ -883,7 +994,6 @@ function get_ip_info($inputip)	{
 	//$inputip = '2a01:4f8:161:520a::2';
 	$url = 'https://ipinfo.io/'.$inputip.'/json';
 	$details = json_decode(file_get_contents($url));
-	//die(print_r($details));
 	return('IP block: '.$details->org.' ('.$details->country.')');
 }
 
@@ -901,7 +1011,6 @@ function get_as_info($inputip)	{
 	foreach($as as $key1 => $value1) {
 		$output .= $key1 . ': ' . $value1 . '<br>';
 	}
-	//die($output);	
 	return($output);
 }
 ?>
