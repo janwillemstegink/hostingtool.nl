@@ -664,6 +664,7 @@ if (strlen($DNS_CNAME))	{
 			}	
 		}		
 		else	{
+			$http_code_notice = 1;
 			$http_code_destination .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 		}	
 	}
@@ -696,6 +697,7 @@ if (strlen($DNS_CNAME_www))	{
 			}
 		}		
 		else	{
+			$http_code_www_notice = 1;
 			$http_code_destination_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 		}
 	}
@@ -725,6 +727,10 @@ if (strlen($DNS_CNAME))	{
 				$https_code_notice = 1;
 				$https_code_destination .= '<br />(No destination url)';				
 			}
+		}
+		else	{
+			$https_code_notice = 1;
+			$https_code_destination .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);	
 		}	
 	}
 	else	{
@@ -753,7 +759,11 @@ if (strlen($DNS_CNAME_www))	{
 				$https_code_notice_www = 1;
 				$https_code_destination_www .= '<br />(No destination url)';				
 			}
-		}	
+		}
+		else	{
+			$https_code_www_notice = 1;
+			$https_code_destination_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);	
+		}
 	}
 	else	{
 		$https_code_destination_www .= '(No cURL on the same server)';	

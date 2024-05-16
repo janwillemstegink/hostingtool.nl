@@ -195,13 +195,13 @@ foreach ($xml1->xpath('//domain') as $item)	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td>';
 	}
 	else	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A, FCrDNS +/-</button></td>';
 	}
 	if ($item->DNS_CNAME_www_notice == "1" )	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
 	}
 	else	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A, FCrDNS +/-</button></td></tr>';
 	}	
 	$html_text .= '<tr id="311" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CNAME.'</td><td>'.$item->DNS_CNAME_www.'</td></tr>';
 	if ($item->DNS_MX_notice == "1" )	{
@@ -278,5 +278,5 @@ foreach ($xml1->xpath('//domain') as $item)	{
 }
 $html_text .= '</table></div></body></html>';
 echo $html_text;
-}		
+}			
 ?>
