@@ -82,7 +82,7 @@ foreach($array as $key1 => $value1) {
 			else	{
 				$DNS_CNAME_notice = 1;
 				$DNS_CNAME .= '(The reverse DNS is not forward-confirmed)<br />';
-			}	
+			}
 		}	
 	}
 }	
@@ -115,8 +115,17 @@ foreach($array as $key1 => $value1) {
 			else	{
 				$DNS_CNAME_notice = 1;
 				$DNS_CNAME .= '(The reverse DNS is not forward-confirmed)<br />';
-			}	
+			}
 		}	
+	}
+}
+if (strlen($DNS_CNAME))	{
+	if (!str_contains($DNS_CNAME, 'IPv4'))	{
+		$DNS_CNAME .= '(IPv4 is not supported)<br />';
+	}	
+	elseif (!str_contains($DNS_CNAME, 'IPv6'))	{
+		$DNS_CNAME_notice = 1;
+		$DNS_CNAME .= '(IPv6 is not supported)<br />';
 	}
 }
 $DNS_CNAME_www = get_cname_target('www.'.$inputdomain);
@@ -194,6 +203,15 @@ foreach($array as $key1 => $value1) {
 				$DNS_CNAME_www .= '(The reverse DNS is not forward-confirmed)<br />';
 			}
 		}
+	}
+}
+if (strlen($DNS_CNAME_www))	{
+	if (!str_contains($DNS_CNAME_www, 'IPv4'))	{
+		$DNS_CNAME_www .= '(IPv4 is not supported)<br />';
+	}	
+	elseif (!str_contains($DNS_CNAME_www, 'IPv6'))	{
+		$DNS_CNAME_www_notice = 1;
+		$DNS_CNAME_www .= '(IPv6 is not supported)<br />';
 	}
 }
 $DNS_MX = '';
@@ -1178,5 +1196,5 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 . '<br>';
 	}
 	return($output);
-}	
+}		
 ?>
