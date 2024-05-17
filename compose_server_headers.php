@@ -369,26 +369,32 @@ if (strlen($DNS_CNAME))	{
 	$http_code_initial = 'initial: ';
 	if (!curl_errno($ch)) {
 		$initial_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
+		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);		
 		$http_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
-		if	($redirect_url == str_replace('http://', 'https://', $initial_url))	{
-		}	
-		elseif (strlen($redirect_url))	{
-			if (stristr($redirect_url, 'https://'))	{
+		if (strlen($redirect_url))	{
+			if	($redirect_url == str_replace('http://', 'https://', $initial_url))	{
+				$http_code_initial .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+			}	
+			elseif ($redirect_url . '/' == str_replace('http://', 'https://', $initial_url))	{
+				$http_code_initial .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+			}
+			elseif ($redirect_url == str_replace('http://', 'https://', $initial_url . '/'))	{
+				$http_code_initial .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+			}
+			elseif (str_contains($redirect_url, 'https://'))	{
 				$http_code_notice = 1;	
 				$http_code_initial .= '<br />(from ' . $initial_url . ' not safe to HTTPS ' . $redirect_url . ')';
 			}
 			else	{
 				$http_code_notice = 1;
 				$http_code_initial .= '<br />(from ' . $initial_url . ' not safe to HTTP ' . $redirect_url . ')';
-			}	
-		}
+			}
+		}	
 	}
 	else	{
 		$http_code_initial .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
-}
-	
+}	
 $http_code_initial_www = 'initial: not applicable';
 $http_code_www_notice = 0;
 if (strlen($DNS_CNAME_www))	{	
@@ -399,17 +405,24 @@ if (strlen($DNS_CNAME_www))	{
 		$initial_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
 		$http_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
-		if	($redirect_url == str_replace('http://', 'https://', $initial_url))	{
-		}	
-		elseif (strlen($redirect_url))	{
-			if (stristr($redirect_url, 'https://'))	{
-				$http_code_www_notice = 1;	
+		if (strlen($redirect_url))	{
+			if	($redirect_url == str_replace('http://', 'https://', $initial_url))	{
+				$http_code_initial_www .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+			}	
+			elseif ($redirect_url . '/' == str_replace('http://', 'https://', $initial_url))	{
+				$http_code_initial_www .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+			}
+			elseif ($redirect_url == str_replace('http://', 'https://', $initial_url . '/'))	{
+				$http_code_initial_www .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+			}
+			elseif (str_contains($redirect_url, 'https://'))	{
+				$http_code_notice = 1;	
 				$http_code_initial_www .= '<br />(from ' . $initial_url . ' not safe to HTTPS ' . $redirect_url . ')';
 			}
 			else	{
-				$http_code_www_notice = 1;
+				$http_code_notice = 1;
 				$http_code_initial_www .= '<br />(from ' . $initial_url . ' not safe to HTTP ' . $redirect_url . ')';
-			}	
+			}
 		}
 	}
 	else	{
@@ -430,7 +443,7 @@ if (strlen($DNS_CNAME))	{
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
 		$https_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
-			if (stristr($redirect_url, 'https://'))	{
+			if (str_contains($redirect_url, 'https://'))	{
 			}
 			else	{
 				$https_code_notice = 1;
@@ -466,7 +479,7 @@ if (strlen($DNS_CNAME_www))	{
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
 		$https_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
-			if (stristr($redirect_url, 'https://'))	{
+			if (str_contains($redirect_url, 'https://'))	{
 			}
 			else	{
 				$https_code_www_notice = 1;
@@ -523,7 +536,7 @@ if (strlen($DNS_CNAME))	{
 				$security_txt_legacy = $effective;
 			}	
 			else	{
-				$security_txt_legacy = 'HTTP 200 OK without a security.txt file';
+				$security_txt_legacy = 'HTTP 200 OK without received a security.txt file';
 			}
 		}
 		elseif ($matches_server)	{
@@ -555,7 +568,7 @@ if (strlen($DNS_CNAME))	{
 			}	
 			else	{
 				$security_txt_notice = 1;
-				$security_txt_relocated = 'HTTP 200 OK without a security.txt file';
+				$security_txt_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
 		elseif ($matches_server)	{
@@ -591,7 +604,7 @@ if (strlen($DNS_CNAME_www))	{
 				$security_txt_www_legacy = $effective;
 			}	
 			else	{
-				$security_txt_www_legacy = 'HTTP 200 OK without a security.txt file';
+				$security_txt_www_legacy = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
 		elseif ($matches_server)	{
@@ -623,7 +636,7 @@ if (strlen($DNS_CNAME_www))	{
 			}	
 			else	{
 				$security_txt_www_notice = 1;
-				$security_txt_www_relocated = 'HTTP 200 OK without a security.txt file';
+				$security_txt_www_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
 		elseif ($matches_server)	{
@@ -651,7 +664,7 @@ if (strlen($DNS_CNAME))	{
 			$destination_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 			$http_code_destination .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $destination_url;
 			if (strlen($destination_url))	{
-				if (stristr($destination_url, 'https://'))	{
+				if (str_contains($destination_url, 'https://'))	{
 				}
 				else	{
 					$http_code_notice = 1;
@@ -684,7 +697,7 @@ if (strlen($DNS_CNAME_www))	{
 			$destination_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 			$http_code_destination_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $destination_url;
 			if (strlen($destination_url))	{
-				if (stristr($destination_url, 'https://'))	{
+				if (str_contains($destination_url, 'https://'))	{
 				}
 				else	{
 					$http_code_notice_www = 1;
@@ -716,7 +729,7 @@ if (strlen($DNS_CNAME))	{
 			$destination_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 			$https_code_destination .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $destination_url;
 			if (strlen($destination_url))	{
-				if (stristr($destination_url, 'https://'))	{
+				if (str_contains($destination_url, 'https://'))	{
 				}
 				else	{
 					$https_code_notice = 1;
@@ -748,7 +761,7 @@ if (strlen($DNS_CNAME_www))	{
 			$destination_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 			$https_code_destination_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $destination_url;
 			if (strlen($destination_url))	{
-				if (stristr($destination_url, 'https://'))	{
+				if (str_contains($destination_url, 'https://'))	{
 				}
 				else	{
 					$https_code_notice_www = 1;
@@ -1048,7 +1061,7 @@ function dmarc_list($inputurl)	{
 				}				
 			}
 		}
-		if	(!stristr($temp2, 'v=DMARC1;'))	{
+		if	(!str_contains($temp2, 'v=DMARC1;'))	{
 			$cname_value = get_cname_target($inputurl);
 			foreach($cname_value as $key1 => $value1) {
 				foreach($cname_value as $key2 => $value2) {
@@ -1065,7 +1078,7 @@ function dmarc_list($inputurl)	{
 				}	
 			}
 		}
-		if (strlen($temp1) and stristr(str_replace(' ', '', $temp2), 'v=DMARC1;'))	{
+		if (strlen($temp1) and str_contains(str_replace(' ', '', $temp2), 'v=DMARC1;'))	{
 			$output .= $temp1 . ': ' . $temp2 . '<br />';
 		}
 		if (mb_strpos($output, 'v=DMARC1;'))	{

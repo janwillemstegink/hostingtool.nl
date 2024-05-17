@@ -120,7 +120,7 @@ $html_text .= '<tr id="201" style="display:'.$defaultdisplay.';font-style:italic
 $html_text .= '<tr id="202" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">associated with a nickname of the same class." RR does mean resource record. RFC 1033 forbids the use of CNAME records at the same node as any other record type.</td></tr>';
 $html_text .= '<tr id="203" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">Apex refers to the root/bare/naked domain, or the zone apex, so without a subdomain part. It is common practice for websites to publish content at their registered domain name.</td></tr>';
 $html_text .= '<tr id="204" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">The <b>www</b> subdomain has been considered unnecessary. There are some useful aspects. If you host elsewhere, such as with www.microsoft.com, email traffic can remain secure.</td></tr>';
-$html_text .= '<tr id="205" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">For a URL with a subdomain such as www, HSTS can be set more precisely. See also the RFC draft for Address-specific DNS Name Redirection: <a style="font-size: 0.9rem" href="https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-aname-01" target="_blank">draft ANAME</a> - <a style="font-size: 0.9rem" href="https://blog.cloudflare.com/introducing-cname-flattening-rfc-compliant-cnames-at-a-domains-root/" target="_blank">blog by Cloudflare</a></td></tr>';
+$html_text .= '<tr id="205" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">For a URL with a subdomain such as www, HSTS can be set more precisely. See also an RFC draft for ANAME (CNAME limited to A/AAAA): <a style="font-size: 0.9rem" href="https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-aname-01" target="_blank">RFC draft ANAME</a> - <a style="font-size: 0.9rem" href="https://blog.cloudflare.com/introducing-cname-flattening-rfc-compliant-cnames-at-a-domains-root/" target="_blank">blog by Cloudflare</a></td></tr>';
 $html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 $html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:0.9rem" onclick="SwitchDisplay(40)">About security.txt Content Expiry +/-</button></td></tr>';
 $html_text .= '<tr id="401" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">RFC 9116: "The "Expires" field indicates the date and time after which the data contained in the "security.txt" file is considered stale and should not be used (as per Section 5.3)".</td></tr>';
@@ -163,13 +163,13 @@ foreach ($xml1->xpath('//domain') as $item)	{
 
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	if ($item->http_code_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(21)">HTTP response +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(21)">HTTP response +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(21)">HTTP response +/-</button></td>';
 	}
 	if ($item->http_code_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(21)">HTTP response +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(21)">HTTP response +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(21)">HTTP response +/-</button></td></tr>';
@@ -177,13 +177,13 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="211" style="display:none;vertical-align:top"><td colspan="2">'.$item->http_code_initial.'</td><td>'.$item->http_code_initial_www.'</td></tr>';
 	$html_text .= '<tr id="212" style="display:none;vertical-align:top"><td colspan="2">'.$item->http_code_destination.'</td><td>'.$item->http_code_destination_www.'</td></tr>';
 	if ($item->https_code_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td>';
 	}
 	if ($item->https_code_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td></tr>';
@@ -192,52 +192,52 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="222" style="display:none;vertical-align:top"><td colspan="2">'.$item->https_code_destination.'</td><td>'.$item->https_code_destination_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	if ($item->DNS_CNAME_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A, FCrDNS +/-</button></td>';
 	}
 	if ($item->DNS_CNAME_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A, FCrDNS +/-</button></td></tr>';
 	}	
 	$html_text .= '<tr id="311" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CNAME.'</td><td>'.$item->DNS_CNAME_www.'</td></tr>';
 	if ($item->DNS_MX_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(32)">MX +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(32)">MX +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(32)">MX +/-</button></td>';		
 	}
 	if ($item->DNS_MX_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(32)">MX +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(32)">MX +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(32)">MX +/-</button></td></tr>';		
 	}
 	$html_text .= '<tr id="321" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_MX.'</td><td>'.$item->DNS_MX_www.'</td></tr>';
 	if ($item->DNS_TXT_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
 	}
 	if ($item->DNS_TXT_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';		
 	}
 	$html_text .= '<tr id="331" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_TXT.'</td><td>'.$item->DNS_TXT_www.'</td></tr>';
 	if ($item->DNS_DMARC_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(34)">DMARC +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(34)">DMARC +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td>';
 	}
 	if ($item->DNS_DMARC_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';		
@@ -253,14 +253,14 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="412" style="display:none;vertical-align:top"><td colspan="2">'.$item->security_txt_legacy.'</td><td>'.$item->security_txt_www_legacy.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	if ($item->security_txt_notice == "1")	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(42)">
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(42)">
 		.well-known/security.txt +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(42)">.well-known/security.txt +/-</button></td>';
 	}
 	if ($item->security_txt_www_notice == "1")	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:orange;border-color:orange" onclick="SwitchDisplay(42)">
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(42)">
 		.well-known/security.txt +/-</button></td></tr>';
 	}
 	else	{
@@ -278,5 +278,5 @@ foreach ($xml1->xpath('//domain') as $item)	{
 }
 $html_text .= '</table></div></body></html>';
 echo $html_text;
-}			
+}				
 ?>
