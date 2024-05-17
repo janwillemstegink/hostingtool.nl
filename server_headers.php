@@ -58,8 +58,12 @@ function SwitchDisplay(type) {
 		var pre = '50';
 		var max = 10
 	}
-	else if (type == 51)	{ // server headers
+	else if (type == 51)	{ // hsts headers
 		var pre = '51';
+		var max = 1
+	}
+	else if (type == 52)	{ // server headers
+		var pre = '52';
 		var max = 1
 	}
 	else if (type == 61)	{ // transfer information
@@ -268,9 +272,25 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	}
 	$html_text .= '<tr id="421" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->security_txt_url_relocated.'</em></td><td><em>'.$item->security_txt_url_www_relocated.'</em></td></tr>';
 	$html_text .= '<tr id="422" style="display:none;vertical-align:top"><td colspan="2">'.$item->security_txt_relocated.'</td><td>'.$item->security_txt_www_relocated.'</td></tr>';
+	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
+	if ($item->hsts_header_notice == "1")	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(51)">
+		HSTS +/-</button></td>';
+	}
+	else	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(51)">HSTS +/-</button></td>';
+	}
+	if ($item->hsts_header_www_notice == "1")	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(51)">
+		HSTS +/-</button></td></tr>';
+	}
+	else	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(51)">HSTS +/-</button></td></tr>';
+	}	
+	$html_text .= '<tr id="511" style="display:none;vertical-align:top"><td colspan="2">'.$item->hsts_header.'</td><td colspan="1">'.$item->hsts_header_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
-	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(51)">server header +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(51)">server header +/-</button></td></tr>';
-	$html_text .= '<tr id="511" style="display:none;vertical-align:top"><td colspan="2">'.$item->server_header.'</td><td colspan="1">'.$item->server_header_www.'</td></tr>';
+	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">server header +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">server header +/-</button></td></tr>';
+	$html_text .= '<tr id="521" style="display:none;vertical-align:top"><td colspan="2">'.$item->server_header.'</td><td colspan="1">'.$item->server_header_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(61)">transfer information +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(61)">transfer information +/-</button></td></tr>';
 	$html_text .= '<tr id="611" style="display:none;vertical-align:top"><td colspan="2">'.$item->transfer_information.'</td><td>'.$item->transfer_information_www.'</td></tr>';
@@ -278,5 +298,5 @@ foreach ($xml1->xpath('//domain') as $item)	{
 }
 $html_text .= '</table></div></body></html>';
 echo $html_text;
-}				
+}					
 ?>

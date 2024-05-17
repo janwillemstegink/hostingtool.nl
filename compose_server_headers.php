@@ -433,6 +433,8 @@ if (strlen($DNS_CNAME_www))	{
 $https_code_initial = 'initial: not applicable';
 $https_code_notice = 0;		
 $server_header = 'not applicable';	
+$hsts_header = 'not applicable';
+$hsts_header_notice = 0;
 $transfer_information = 'not applicable';	
 if (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);	
@@ -456,9 +458,31 @@ if (strlen($DNS_CNAME))	{
 	}
 	$arr_server_header = explode (",", $curl_server_header);
 	$server_header = '';
+	$hsts_header = 'The server header';
 	foreach($arr_server_header as $key1 => $value1) {
-		$server_header .= $key1 . "\n" . $value1 . "\n";
+		$server_header .= $key1 . "\n" . $value1 . "\n";	
+		if (str_contains(strtolower($value1), 'strict-transport-security'))	{
+			$hsts_header .= ' contains HSTS';
+			if (str_contains($value1, 'includeSubDomains'))	{
+				$hsts_header .= ', and for its subdomains';
+			}
+			else	{
+				$hsts_header .= ', not for its subdomains';
+			}
+			if (str_contains($value1, 'preload'))	{
+				$hsts_header .= ', with preload.' . "\n";
+			}
+			else	{
+				$hsts_header .= ', without preload.' . "\n";
+			}													 
+		}	
 	}
+	if (str_contains($hsts_header, 'HSTS'))	{
+	}
+	else	{
+		$hsts_header_notice = 1;
+		$hsts_header .= ' does not contain HSTS.';	
+	}	
 	$arr_transfer_information = curl_getinfo($ch);
 	$transfer_information = '';	
 	foreach($arr_transfer_information as $key1 => $value1) {
@@ -468,7 +492,9 @@ if (strlen($DNS_CNAME))	{
 	
 $https_code_initial_www = 'initial: not applicable';
 $https_code_www_notice = 0;	
-$server_header_www = 'not applicable';	
+$server_header_www = 'not applicable';
+$hsts_header_www = 'not applicable';
+$hsts_header_www_notice = 0;	
 $transfer_information_www = 'not applicable';
 if (strlen($DNS_CNAME_www))	{	
 	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);
@@ -491,9 +517,31 @@ if (strlen($DNS_CNAME_www))	{
 		$https_code_initial_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}	
 	$arr_server_header_www = explode (",", $curl_server_header_www);
-	$server_header_www = '';	
+	$server_header_www = '';
+	$hsts_header_www = 'The server header';
 	foreach($arr_server_header_www as $key1 => $value1) {
 		$server_header_www .= $key1 . "\n" . $value1 . "\n";
+		if (str_contains(strtolower($value1), 'strict-transport-security'))	{				
+			$hsts_header_www .= ' contains HSTS';
+			if (str_contains($value1, 'includeSubDomains'))	{
+				$hsts_header_www .= ', and for its subdomains';
+			}
+			else	{
+				$hsts_header_www .= ', not for its subdomains';
+			}
+			if (str_contains($value1, 'preload'))	{
+				$hsts_header_www .= ', with preload.' . "\n";
+			}
+			else	{
+				$hsts_header_www .= ', without preload.' . "\n";
+			}
+		}	
+	}
+	if (str_contains($hsts_header_www, 'HSTS'))	{
+	}
+	else	{
+		$hsts_header_www_notice = 1;
+		$hsts_header_www .= ' does not contain HSTS.';
 	}
 	$arr_transfer_information_www = curl_getinfo($ch);
 	$transfer_information_www = '';	
@@ -956,6 +1004,14 @@ $domain_server_header = $doc->createElement("server_header");
 $domain_server_header->appendChild($doc->createCDATASection(nl2br(htmlentities($server_header))));		
 $domain->appendChild($domain_server_header);
 	
+$domain_hsts_header = $doc->createElement("hsts_header");
+$domain_hsts_header->appendChild($doc->createCDATASection(nl2br(htmlentities($hsts_header))));
+$domain->appendChild($domain_hsts_header);
+	
+$domain_hsts_header_notice = $doc->createElement("hsts_header_notice");
+$domain_hsts_header_notice->appendChild($doc->createCDATASection(nl2br(htmlentities($hsts_header_notice))));
+$domain->appendChild($domain_hsts_header_notice);		
+	
 $domain_transfer_information = $doc->createElement("transfer_information");
 $domain_transfer_information->appendChild($doc->createCDATASection($transfer_information));
 $domain->appendChild($domain_transfer_information);	
@@ -979,6 +1035,14 @@ $domain->appendChild($domain_https_code_destination_www);
 $domain_server_header_www = $doc->createElement("server_header_www");
 $domain_server_header_www->appendChild($doc->createCDATASection(nl2br(htmlentities($server_header_www))));		
 $domain->appendChild($domain_server_header_www);
+
+$domain_hsts_header_www = $doc->createElement("hsts_header_www");
+$domain_hsts_header_www->appendChild($doc->createCDATASection(nl2br(htmlentities($hsts_header_www))));
+$domain->appendChild($domain_hsts_header_www);
+	
+$domain_hsts_header_www_notice = $doc->createElement("hsts_header_www_notice");
+$domain_hsts_header_www_notice->appendChild($doc->createCDATASection(nl2br(htmlentities($hsts_header_www_notice))));
+$domain->appendChild($domain_hsts_header_www_notice);	
 	
 $domain_transfer_information_www = $doc->createElement("transfer_information_www");
 $domain_transfer_information_www->appendChild($doc->createCDATASection($transfer_information_www));
@@ -1114,5 +1178,5 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 . '<br>';
 	}
 	return($output);
-}
+}	
 ?>
