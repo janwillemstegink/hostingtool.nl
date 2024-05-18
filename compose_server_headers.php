@@ -288,7 +288,15 @@ foreach($array as $key1 => $value1) {
 		}
 	}	
 }
-if (!str_contains(strtolower($DNS_TXT), 'v=spf1'))	{
+	
+if (str_contains(strtolower($DNS_TXT), 'v=spf1'))	{
+	$counter = substr_count(strtolower($DNS_TXT), 'v=spf1');
+	if ($counter > 1)	{
+		$DNS_TXT_notice = 1;
+		$DNS_TXT .= '(invalid, because more than once "v=spf1": '.  $counter . 'x)<br />';
+	}
+}
+else	{	
 	if ($cname_limited)	{
 		$DNS_TXT_notice = 1;
 		$DNS_TXT .= '("v=spf1 -all" in destination DNS would combine with CNAME)<br />';
@@ -312,7 +320,7 @@ if (!str_contains(strtolower($DNS_TXT), 'v=spf1'))	{
 		$DNS_TXT_notice = 1;
 		$DNS_TXT .= '("v=spf1 -all" plus "reject" in DMARC would block email)<br />';
 	}
-}	
+}
 $DNS_TXT_www = '';
 $DNS_TXT_www_notice = 0;	
 $array = dns_get_record('www.'.$inputdomain, DNS_TXT);		
@@ -323,7 +331,14 @@ foreach($array as $key1 => $value1) {
 		}	
     }
 }
-if (!str_contains(strtolower($DNS_TXT_www), 'v=spf1'))	{
+if (str_contains(strtolower($DNS_TXT_www), 'v=spf1'))	{
+	$counter = substr_count(strtolower($DNS_TXT_www), 'v=spf1');
+	if ($counter > 1)	{
+		$DNS_TXT_www_notice = 1;
+		$DNS_TXT_www .= '(invalid, because more than once "v=spf1": '.  $counter . 'x)<br />';
+	}
+}
+else	{
 	if ($cname_limited_www)	{
 		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '("v=spf1 -all" in destination DNS would combine with CNAME)<br />';
@@ -946,19 +961,19 @@ $domain_DNS_DMARC_www_notice->appendChild($doc->createCDATASection($DNS_DMARC_ww
 $domain->appendChild($domain_DNS_DMARC_www_notice);
 	
 $domain_AS_A = $doc->createElement("AS_A");
-$domain_AS_A->appendChild($doc->createCDATASection($AS_A));		
+$domain_AS_A->appendChild($doc->createCDATASection(nl2br(htmlentities($AS_A))));
 $domain->appendChild($domain_AS_A);	
 		
 $domain_AS_AAAA = $doc->createElement("AS_AAAA");
-$domain_AS_AAAA->appendChild($doc->createCDATASection($AS_AAAA));		
+$domain_AS_AAAA->appendChild($doc->createCDATASection(nl2br(htmlentities($AS_AAAA))));
 $domain->appendChild($domain_AS_AAAA);
 		
 $domain_AS_A_www = $doc->createElement("AS_A_www");
-$domain_AS_A_www->appendChild($doc->createCDATASection($AS_A_www));		
+$domain_AS_A_www->appendChild($doc->createCDATASection(nl2br(htmlentities($AS_A_www))));
 $domain->appendChild($domain_AS_A_www);	
 		
 $domain_AS_AAAA_www = $doc->createElement("AS_AAAA_www");
-$domain_AS_AAAA_www->appendChild($doc->createCDATASection($AS_AAAA_www));		
+$domain_AS_AAAA_www->appendChild($doc->createCDATASection(nl2br(htmlentities($AS_AAAA_www))));
 $domain->appendChild($domain_AS_AAAA_www);	
 	
 $domain_security_txt_url_legacy = $doc->createElement("security_txt_url_legacy");
@@ -1201,14 +1216,9 @@ function get_as_info($inputip)	{
 	//$inputip = '136.144.238.43';
 	$url = 'http://ip-api.com/json/'.$inputip.'?fields=countryCode,regionName,city,isp,org,as,asname,reverse,query';
 	$as = json_decode(file_get_contents($url), true);
-	if (strpos($inputip, '.'))	{	
-		$output = '<b>Autonomous system IPv4:</b><br>';
-	}
-	elseif (strpos($inputip, ':'))	{
-		$output = '<b>Autonomous system IPv6:</b><br>';
-	}	
+	$output = '';
 	foreach($as as $key1 => $value1) {
-		$output .= $key1 . ': ' . $value1 . '<br>';
+		$output .= $key1 . ': ' . $value1 .  "\n";
 	}
 	return($output);
 }			

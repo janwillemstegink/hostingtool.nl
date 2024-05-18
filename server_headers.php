@@ -248,9 +248,9 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	}
 	$html_text .= '<tr id="341" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_DMARC.'</td><td>'.$item->DNS_DMARC_www.'</td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">AS +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">AS +/-</button></td></tr>';
-	$html_text .= '<tr id="351" style="display:none;vertical-align:top"><td colspan="2">'.$item->AS_A.'</td><td>'.$item->AS_A_www.'</td></tr>';
+	$html_text .= '<tr id="351" style="display:none;vertical-align:top"><td colspan="2"><b>Autonomous system IPv4:</b><br />'.$item->AS_A.'</td><td><b>Autonomous system IPv4:</b><br />'.$item->AS_A_www.'</td></tr>';
 	$html_text .= '<tr id="352" style="display:none"><td><hr></td><td><hr></td><td><hr></td></tr>';
-	$html_text .= '<tr id="353" style="display:none;vertical-align:top"><td colspan="2">'.$item->AS_AAAA.'</td><td>'.$item->AS_AAAA_www.'</td></tr>';
+	$html_text .= '<tr id="353" style="display:none;vertical-align:top"><td colspan="2"><b>Autonomous system IPv6:</b><br />'.$item->AS_AAAA.'</td><td><b>Autonomous system IPv6:</b><br />'.$item->AS_AAAA_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(41)">legacy security.txt +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(41)">legacy security.txt +/-</button></td></tr>';
 	$html_text .= '<tr id="411" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->security_txt_url_legacy.'</em></td><td><em>'.$item->security_txt_url_www_legacy.'</em></td></tr>';
@@ -298,5 +298,5 @@ foreach ($xml1->xpath('//domain') as $item)	{
 }
 $html_text .= '</table></div></body></html>';
 echo $html_text;
-}					
+}						
 ?>
