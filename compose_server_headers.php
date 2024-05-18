@@ -421,21 +421,21 @@ if (strlen($DNS_CNAME))	{
 		$http_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
 			if	($redirect_url == str_replace('http://', 'https://', $initial_url))	{
-				$http_code_initial .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}	
 			elseif ($redirect_url . '/' == str_replace('http://', 'https://', $initial_url))	{
-				$http_code_initial .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			elseif ($redirect_url == str_replace('http://', 'https://', $initial_url . '/'))	{
-				$http_code_initial .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			elseif (str_contains($redirect_url, 'https://'))	{
 				$http_code_notice = 1;	
-				$http_code_initial .= '<br />(from ' . $initial_url . ' not safe to HTTPS ' . $redirect_url . ')';
+				$http_code_initial .= '<br />(unsafe from ' . $initial_url . ' to HTTPS ' . $redirect_url . ')';
 			}
 			else	{
 				$http_code_notice = 1;
-				$http_code_initial .= '<br />(from ' . $initial_url . ' not safe to HTTP ' . $redirect_url . ')';
+				$http_code_initial .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
 			}
 		}	
 	}
@@ -455,21 +455,21 @@ if (strlen($DNS_CNAME_www))	{
 		$http_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
 			if	($redirect_url == str_replace('http://', 'https://', $initial_url))	{
-				$http_code_initial_www .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}	
 			elseif ($redirect_url . '/' == str_replace('http://', 'https://', $initial_url))	{
-				$http_code_initial_www .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			elseif ($redirect_url == str_replace('http://', 'https://', $initial_url . '/'))	{
-				$http_code_initial_www .= '<br />(from ' . $initial_url . ' safe to ' . $redirect_url . ')';
+				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			elseif (str_contains($redirect_url, 'https://'))	{
-				$http_code_notice = 1;	
-				$http_code_initial_www .= '<br />(from ' . $initial_url . ' not safe to HTTPS ' . $redirect_url . ')';
+				$http_code_www_notice = 1;	
+				$http_code_initial_www .= '<br />(unsafe from ' . $initial_url . ' to HTTPS ' . $redirect_url . ')';
 			}
 			else	{
-				$http_code_notice = 1;
-				$http_code_initial_www .= '<br />(from ' . $initial_url . ' not safe to HTTP ' . $redirect_url . ')';
+				$http_code_www_notice = 1;
+				$http_code_initial_www .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
 			}
 		}
 	}
@@ -477,7 +477,6 @@ if (strlen($DNS_CNAME_www))	{
 		$http_code_initial_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
 }	
-	
 $https_code_initial = 'initial: not applicable';
 $https_code_notice = 0;		
 $server_header = 'not applicable';	
@@ -497,7 +496,7 @@ if (strlen($DNS_CNAME))	{
 			}
 			else	{
 				$https_code_notice = 1;
-				$https_code_initial .= '<br />(from ' . $initial_url . ' not safe to HTTP ' . $redirect_url . ')';
+				$https_code_initial .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
 			}	
 		}
 	}
@@ -557,7 +556,7 @@ if (strlen($DNS_CNAME_www))	{
 			}
 			else	{
 				$https_code_www_notice = 1;
-				$https_code_initial_www .= '<br />(from ' . $initial_url . ' not safe to HTTP ' . $redirect_url . ')';
+				$https_code_initial_www .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
 			}	
 		}
 	}
@@ -1221,5 +1220,5 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 .  "\n";
 	}
 	return($output);
-}				
+}					
 ?>
