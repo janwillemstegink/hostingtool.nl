@@ -288,7 +288,7 @@ foreach($array as $key1 => $value1) {
 		}
 	}	
 }
-if (!strlen($DNS_TXT))	{
+if (!str_contains(strtolower($DNS_TXT), 'v=spf1'))	{
 	if ($cname_limited)	{
 		$DNS_TXT_notice = 1;
 		$DNS_TXT .= '("v=spf1 -all" in destination DNS would combine with CNAME)<br />';
@@ -300,12 +300,19 @@ if (!strlen($DNS_TXT))	{
 		$DNS_TXT_notice = 1;
 		$DNS_TXT .= '("v=spf1 +a ~all" would secure email)<br />';
 	}
+	elseif (str_contains($DNS_MX, '0 .'))	{
+		$DNS_TXT_notice = 1;
+		$DNS_TXT .= '("v=spf1 -all" plus "reject" in DMARC would block email)<br />';
+	}
+	elseif (strlen($DNS_MX))	{
+		$DNS_TXT_notice = 1;
+		$DNS_TXT .= '("some "v=spf1" setting might be applicable)<br />';
+	}
 	else	{
 		$DNS_TXT_notice = 1;
-		$DNS_TXT .= '("v=spf1 -all" would block email)<br />';
-	}	
+		$DNS_TXT .= '("v=spf1 -all" plus "reject" in DMARC would block email)<br />';
+	}
 }	
-	
 $DNS_TXT_www = '';
 $DNS_TXT_www_notice = 0;	
 $array = dns_get_record('www.'.$inputdomain, DNS_TXT);		
@@ -316,7 +323,7 @@ foreach($array as $key1 => $value1) {
 		}	
     }
 }
-if (!strlen($DNS_TXT_www))	{
+if (!str_contains(strtolower($DNS_TXT_www), 'v=spf1'))	{
 	if ($cname_limited_www)	{
 		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '("v=spf1 -all" in destination DNS would combine with CNAME)<br />';
@@ -328,11 +335,19 @@ if (!strlen($DNS_TXT_www))	{
 		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '("v=spf1 +a ~all" would secure email)<br />';
 	}
+	elseif (str_contains($DNS_MX_www, '0 .'))	{
+		$DNS_TXT_www_notice = 1;
+		$DNS_TXT_www .= '("v=spf1 -all" plus "reject" in DMARC would block email)<br />';
+	}
+	elseif (strlen($DNS_MX_www))	{
+		$DNS_TXT_www_notice = 1;
+		$DNS_TXT_www .= '("some "v=spf1" setting might be applicable)<br />';
+	}
 	else	{
 		$DNS_TXT_www_notice = 1;
-		$DNS_TXT_www .= '("v=spf1 -all" plus "sp=reject" would block email)<br />';
+		$DNS_TXT_www .= '("v=spf1 -all" plus "reject" in DMARC would block email)<br />';
 	}
-}
+}	
 $DNS_DMARC = dmarc_list($inputdomain);
 $DNS_DMARC_notice = 0;	
 if (!strlen($DNS_DMARC))	{
@@ -1196,5 +1211,5 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 . '<br>';
 	}
 	return($output);
-}		
+}			
 ?>
