@@ -124,7 +124,6 @@ if (strlen($DNS_CNAME))	{
 		$DNS_CNAME .= '(IPv4 is not supported)<br />';
 	}	
 	elseif (!str_contains($DNS_CNAME, 'IPv6'))	{
-		$DNS_CNAME_notice = 1;
 		$DNS_CNAME .= '(IPv6 is not supported)<br />';
 	}
 }
@@ -210,7 +209,6 @@ if (strlen($DNS_CNAME_www))	{
 		$DNS_CNAME_www .= '(IPv4 is not supported)<br />';
 	}	
 	elseif (!str_contains($DNS_CNAME_www, 'IPv6'))	{
-		$DNS_CNAME_www_notice = 1;
 		$DNS_CNAME_www .= '(IPv6 is not supported)<br />';
 	}
 }
@@ -1346,5 +1344,5 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 .  "\n";
 	}
 	return($output);
-}						
+}							
 ?>

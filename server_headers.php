@@ -154,24 +154,29 @@ $html_text .= '<tr id="137" style="display:'.$defaultdisplay.';font-style:italic
 $html_text .= '<tr id="138" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3"><b>General approach:</b> Comply with proper initial reading of security headers from the server header(s), and note the interpretation of a subsequent value from an identical security header.</td></tr>';
 $html_text .= '<tr id="139" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">First rewrite the URL to HTTPS using the checkbox in the control panel, secondly set security header values, and finally, if applicable, (conditionally) redirect in the 301 or 302 way.</td></tr>';
 $html_text .= '<tr id="1310" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">A server header requires sufficient settings before public Internet access can be used safely. And avoid the HSTS preload list without understanding its implications.</td></tr>';
-$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:0.9rem" onclick="SwitchDisplay(14)">About Cleaning Search Engine Results +/-</button></td><td></td></tr>';
-$html_text .= '<tr id="141" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">For search engines in general, a no-indexing statement is then necessary to clean up. For deletion in the Google Search application, even re-registration of the domain may be necessary.</td></tr>';
-$html_text .= '<tr id="142" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">Be aware that an unfortunate robots.txt file can block any processing by a search engine, such as the desired removal of search results.</td></tr>';
+$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:0.9rem" onclick="SwitchDisplay(14)">About Clean Up of Search Engine Results +/-</button></td><td></td></tr>';
+$html_text .= '<tr id="141" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">For search engines in general, a no-indexing statement is necessary to clean up. For deletion in Google Search, even re-registration of the domain may be necessary.</td></tr>';
+$html_text .= '<tr id="142" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">Note that unfortunate robots.txt content - for more control over crawling - can block any processing by a search engine, such as the desired removal of search results.</td></tr>';
+$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
+$html_text .= '<tr><td colspan="3" style="cursor:pointer;font-size:1.2rem">Analysis:</td></tr>';
 $html_text .= '</table>';
 echo $html_text;
 $html_text = '';
 if (strlen($viewserver) and $viewserver != 'url')	{	
 $html_text .= '<table style="font-family:Helvetica, Arial, sans-serif; font-size: 1rem; table-layout: fixed; width:1200px; overflow-wrap: break-word">
 <tr><th style="width:300px"></th><th style="width:300px"></th><th style="width:600px"></th></tr>';
-$server_url = 'https://hostingtool.nl/compose_server_headers/index.php?url='.$viewserver;
+//$server_url = 'https://hostingtool.nl/compose_server_headers/index.php?url='.$viewserver;	
+$server_url = isset($_SERVER['HTTPS']) && strcasecmp('off', $_SERVER['HTTPS']) !== 0 ? "https" : "http";
+$server_url .= '://'. $_SERVER['HTTP_HOST'];
+$server_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);	
+$server_url = dirname($server_url).'/compose_server_headers/index.php?url='.$viewserver;
 if (@get_headers($server_url))	{	
 	$xml1 = simplexml_load_file($server_url, "SimpleXMLElement", LIBXML_NOCDATA) or die("An entered url could not be read.");
 }	
 foreach ($xml1->xpath('//domain') as $item)	{
 	simplexml_load_string($item->asXML());
-	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
+	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="2" style="cursor:pointer;font-size:1.6rem">'.$item->url.'</td><td style="cursor:pointer;font-size:1.6rem">www.'.$item->url.'</td></tr>';
-
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	if ($item->http_code_notice == "1" )	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(21)">HTTP response +/-</button></td>';
@@ -273,10 +278,10 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(41)">robots.txt +/-</button></td></tr>';
 	}	
-	$html_text .= '<tr id="411" style="display:none;vertical-align:top"><td colspan="2">'.$item->robots_txt_url.'</td><td colspan="1">'.$item->robots_txt_url_www.'</td></tr>';
+	$html_text .= '<tr id="411" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->robots_txt_url.'</em></td><td colspan="1"><em>'.$item->robots_txt_url_www.'</em></td></tr>';
 	$html_text .= '<tr id="412" style="display:none;vertical-align:top"><td colspan="2">'.$item->robots_txt.'</td><td colspan="1">'.$item->robots_txt_www.'</td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(42)">meta tags +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(42)">meta tags +/-</button></td></tr>';
-	$html_text .= '<tr id="421" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->meta_tags.'</em></td><td><em>'.$item->meta_tags_www.'</em></td></tr>';
+	$html_text .= '<tr id="421" style="display:none;vertical-align:top"><td colspan="2">'.$item->meta_tags.'</td><td>'.$item->meta_tags_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td></tr>';
 	$html_text .= '<tr id="431" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->security_txt_url_legacy.'</em></td><td><em>'.$item->security_txt_url_www_legacy.'</em></td></tr>';
@@ -315,7 +320,6 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="511" style="display:none;vertical-align:top"><td colspan="2">'.$item->hsts_header.'</td><td colspan="1">'.$item->hsts_header_www.'</td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">server header +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">server header +/-</button></td></tr>';
 	$html_text .= '<tr id="521" style="display:none;vertical-align:top"><td colspan="2">'.$item->server_header.'</td><td colspan="1">'.$item->server_header_www.'</td></tr>';
-	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(61)">transfer information +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(61)">transfer information +/-</button></td></tr>';
 	$html_text .= '<tr id="611" style="display:none;vertical-align:top"><td colspan="2">'.$item->transfer_information.'</td><td>'.$item->transfer_information_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
@@ -323,5 +327,5 @@ foreach ($xml1->xpath('//domain') as $item)	{
 }
 }	
 $html_text .= '</div></body></html>';	
-echo $html_text;
+echo $html_text;	
 ?>
