@@ -1,5 +1,5 @@
 <?php
-//$_GET['url'] = 'hostingtool.nl';
+//$_GET['url'] = 'ing.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -410,7 +410,7 @@ curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) A
 $http_code_initial = 'initial: not applicable';
 $http_code_notice = 0;	
 if (strlen($DNS_CNAME))	{
-	curl_setopt($ch, CURLOPT_URL, 'http://'.$inputdomain);	
+	curl_setopt($ch, CURLOPT_URL, 'http://'.$inputdomain);
 	$curl_server_header = curl_exec($ch);
 	$http_code_initial = 'initial: ';
 	if (!curl_errno($ch)) {
@@ -534,7 +534,6 @@ if (strlen($DNS_CNAME))	{
 		$transfer_information .= $key1 . ': ' . $value1 . '<br />';	
 	}
 }
-	
 $https_code_initial_www = 'initial: not applicable';
 $https_code_www_notice = 0;	
 $server_header_www = 'not applicable';
@@ -624,19 +623,25 @@ if (strlen($DNS_CNAME))	{
 		else	{
 			$security_txt_url_legacy .= '<br />'.$effective_url;
 		}
-		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
+		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if ($received_http_code == 200)	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
-				$security_txt_legacy = $effective;
+				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
+					$security_txt_legacy = $effective;
+				}
+				else	{
+					$security_txt_legacy = 'No text/plain content type received.';
+				}
 			}	
 			else	{
-				$security_txt_legacy = 'HTTP 200 OK without received a security.txt file';
+				$security_txt_legacy = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
 		elseif ($matches_server)	{
-			$security_txt_legacy = 'No HTTP 200 OK received ('. $inputdomain. ' is the server name).';
+			$security_txt_legacy = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
 		}
 		else	{
-			$security_txt_legacy = 'No HTTP 200 OK received.';
+			$security_txt_legacy = 'HTTP code '. $received_http_code . ' received.';
 		}	
 	}	
 	else	{
@@ -654,24 +659,27 @@ if (strlen($DNS_CNAME))	{
 		}
 		else	{
 			$security_txt_url_relocated .= '<br />'.$effective_url;
-		}
-		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
+		}		
+		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if ($received_http_code == 200)	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
-				$security_txt_relocated = $effective;
+				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
+					$security_txt_relocated = $effective;
+				}
+				else	{
+					$security_txt_relocated = 'No text/plain content type received.';
+				}
 			}	
 			else	{
-				$security_txt_notice = 1;
 				$security_txt_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
 		elseif ($matches_server)	{
-			$security_txt_notice = 1;
-			$security_txt_relocated = 'No HTTP 200 OK received ('. $inputdomain. ' is the server name).';
+			$security_txt_relocated = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
 		}
 		else	{
-			$security_txt_notice = 1;
-			$security_txt_relocated = 'No HTTP 200 OK received.';
-		}	
+			$security_txt_relocated = 'HTTP code '. $received_http_code . ' received.';
+		}		
 	}	
 	else	{
 		$security_txt_notice = 1;
@@ -692,19 +700,25 @@ if (strlen($DNS_CNAME_www))	{
 		else	{
 			$security_txt_url_www_legacy .= '<br />'.$effective_url;
 		}
-		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
+		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if ($received_http_code == 200)	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
-				$security_txt_www_legacy = $effective;
+				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
+					$security_txt_www_legacy = $effective;
+				}
+				else	{
+					$security_txt_www_legacy = 'No text/plain content type received.';
+				}
 			}	
 			else	{
 				$security_txt_www_legacy = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
-		elseif ($matches_server)	{
-			$security_txt_www_legacy = 'No HTTP 200 OK received (www.'. $inputdomain. ' is the server name).';
+		elseif ($matches_server_www)	{
+			$security_txt_www_legacy = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
 		}
 		else	{
-			$security_txt_www_legacy = 'No HTTP 200 OK received.';
+			$security_txt_www_legacy = 'HTTP code '. $received_http_code . ' received.';
 		}	
 	}	
 	else	{
@@ -723,23 +737,26 @@ if (strlen($DNS_CNAME_www))	{
 		else	{
 			$security_txt_url_www_relocated .= '<br />'.$effective_url;
 		}
-		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
+		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if ($received_http_code == 200)	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
-				$security_txt_www_relocated = $effective;
+				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
+					$security_txt_www_relocated = $effective;
+				}
+				else	{
+					$security_txt_www_relocated = 'No text/plain content type received.';
+				}
 			}	
 			else	{
-				$security_txt_www_notice = 1;
 				$security_txt_www_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
-		elseif ($matches_server)	{
-			$security_txt_www_notice = 1;
-			$security_txt_www_relocated = 'No HTTP 200 OK received (www.'. $inputdomain. ' is the server name).';
+		elseif ($matches_server_www)	{
+			$security_txt_www_relocated = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
 		}
 		else	{
-			$security_txt_www_notice = 1;
-			$security_txt_www_relocated = 'No HTTP 200 OK received.';
-		}	
+			$security_txt_www_relocated = 'HTTP code '. $received_http_code . ' received.';
+		}
 	}	
 	else	{
 		$security_txt_www_notice = 1;
@@ -810,7 +827,7 @@ if (strlen($DNS_CNAME_www))	{
 				$robots_txt_www = 'HTTP 200 OK received without a robots.txt file';
 			}
 		}
-		elseif ($matches_server)	{
+		elseif ($matches_server_www)	{
 			$robots_txt_www_notice = 1;
 			$robots_txt_www = 'No HTTP 200 OK received (www.'. $inputdomain. ' is the server name).';
 		}
@@ -969,7 +986,7 @@ if (strlen($DNS_CNAME_www))	{
 		$https_code_destination_www .= '(No cURL on the same server)';	
 	}
 }	
-curl_close($ch);
+//curl_close($ch); //not from PHP 8
 
 $doc = new DOMDocument("1.0", "UTF-8");
 $doc->xmlStandalone = true;	
@@ -1344,5 +1361,5 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 .  "\n";
 	}
 	return($output);
-}							
+}								
 ?>
