@@ -420,13 +420,13 @@ if (strlen($DNS_CNAME))	{
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);		
 		$http_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
-			if	($redirect_url == str_replace('http://', 'https://', $initial_url))	{
+			if	(str_replace(':443','', $redirect_url) == str_replace('http://', 'https://', $initial_url))	{
 				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}	
-			elseif ($redirect_url . '/' == str_replace('http://', 'https://', $initial_url))	{
+			elseif (str_replace(':443','', $redirect_url) . '/' == str_replace('http://', 'https://', $initial_url))	{
 				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
-			elseif ($redirect_url == str_replace('http://', 'https://', $initial_url . '/'))	{
+			elseif (str_replace(':443','', $redirect_url) == str_replace('http://', 'https://', $initial_url . '/'))	{
 				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			elseif (str_contains($redirect_url, 'https://'))	{
@@ -457,13 +457,13 @@ if (strlen($DNS_CNAME))	{
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
 		$http_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
-			if	($redirect_url == str_replace('http://', 'https://', $initial_url))	{
+			if	(str_replace(':443','', $redirect_url) == str_replace('http://', 'https://', $initial_url))	{
 				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}	
-			elseif ($redirect_url . '/' == str_replace('http://', 'https://', $initial_url))	{
+			elseif (str_replace(':443','', $redirect_url) . '/' == str_replace('http://', 'https://', $initial_url))	{
 				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
-			elseif ($redirect_url == str_replace('http://', 'https://', $initial_url . '/'))	{
+			elseif (str_replace(':443','', $redirect_url) == str_replace('http://', 'https://', $initial_url . '/'))	{
 				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			elseif (str_contains($redirect_url, 'https://'))	{
@@ -958,12 +958,12 @@ elseif (strlen($DNS_CNAME_www))	{
 				if (str_contains($destination_url, 'https://'))	{
 				}
 				else	{
-					$http_code_notice_www = 1;
+					$http_code_www_notice = 1;
 					$http_code_destination_www .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';					
 				}
 			}	
 			else	{
-				$http_code_notice_www = 1;
+				$http_code__wwwnotice = 1;
 				$http_code_destination_www .= '<br />(No destination url)';				
 			}
 		}		
@@ -1321,7 +1321,7 @@ function get_mx_ips($inputurl)	{
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ip')	{
-				$output .= 'A: '.$value2.'<br />';	
+				$output .= 'IPv4: '.$value2.'<br />';	
 			}
 		}	
 	}
@@ -1329,12 +1329,12 @@ function get_mx_ips($inputurl)	{
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ipv6')	{
-				$output .= 'AAAA: '.$value2.'<br />';	
+				$output .= 'IPv6: '.$value2.'<br />';	
 			}
 		}
 	}
 	if (mb_strpos($inputurl, 'mail.protection.outlook.com'))	{
-		if (mb_strpos($output, 'AAAA'))	{
+		if (str_contains($output, 'IPv6'))	{
 		}
 		else	{	
 			$output .= '(IPv6 after request to Microsoft)<br />';
@@ -1421,5 +1421,5 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 .  "\n";
 	}
 	return($output);
-}									
+}										
 ?>
