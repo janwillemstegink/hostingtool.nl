@@ -1,5 +1,5 @@
 <?php
-//$_GET['url'] = 'ing.nl';
+//$_GET['url'] = 'hostingtool.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -394,21 +394,23 @@ if (!strlen($DNS_DMARC_www))	{
 //if (strpos($output,'RRSIG'))	{
 //	$DNSSEC_AAAA = 1;
 //}
-	
+
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_HEADER, 1);	
 curl_setopt($ch, CURLOPT_NOBODY, 1);
 curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
 curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
 curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 curl_setopt($ch, CURLOPT_VERBOSE, 1);
+	
 //curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201');
 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36');
-
+	
+$curl_error = '';	
 $http_code_initial = 'initial: not applicable';
-$http_code_notice = 0;	
+$http_code_notice = 0;
 if (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_URL, 'http://'.$inputdomain);
 	$curl_server_header = curl_exec($ch);
@@ -438,12 +440,15 @@ if (strlen($DNS_CNAME))	{
 		}	
 	}
 	else	{
+		$http_code_notice = 1;
 		$http_code_initial .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
+		$curl_error = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
-}	
+}
+$curl_error_www = '';	
 $http_code_initial_www = 'initial: not applicable';
 $http_code_www_notice = 0;
-if (strlen($DNS_CNAME_www))	{	
+if (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_URL, 'http://www.'.$inputdomain);
 	$curl_server_header_www = curl_exec($ch);
 	$http_code_initial_www = 'initial: ';
@@ -472,8 +477,32 @@ if (strlen($DNS_CNAME_www))	{
 		}
 	}
 	else	{
+		$http_code_www_notice = 1;
 		$http_code_initial_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
+		$curl_error_www = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
+}
+$meta_tags = 'not applicable';
+if (strlen($DNS_CNAME) and strlen($curl_error))	{
+	$meta_tags = $curl_error;
+}
+elseif (strlen($DNS_CNAME))	{
+	$meta_tags = '';
+	$array = get_meta_tags('https://'.$inputdomain);
+	foreach($array as $key1 => $value1) {
+		$meta_tags .= $key1 . ': ' . $value1 . "\n";
+    }
+}
+$meta_tags_www = 'not applicable';	
+if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
+	$meta_tags_www = $curl_error_www;	
+}
+elseif (strlen($DNS_CNAME_www))	{
+	$meta_tags_www = '';
+	$array = get_meta_tags('https://www.'.$inputdomain);
+	foreach($array as $key1 => $value1) {
+		$meta_tags_www .= $key1 . ': ' . $value1 . "\n";
+    }
 }	
 $https_code_initial = 'initial: not applicable';
 $https_code_notice = 0;		
@@ -481,7 +510,13 @@ $server_header = 'not applicable';
 $hsts_header = 'not applicable';
 $hsts_header_notice = 0;
 $transfer_information = 'not applicable';	
-if (strlen($DNS_CNAME))	{
+if (strlen($DNS_CNAME) and strlen($curl_error))	{
+	$https_code_initial = 'initial: '. $curl_error;
+	$server_header = $curl_error;	
+	$hsts_header = $curl_error;
+	$transfer_information = $curl_error;	
+}
+elseif (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);	
 	$curl_server_header = curl_exec($ch);
 	$https_code_initial = 'initial: ';
@@ -533,14 +568,20 @@ if (strlen($DNS_CNAME))	{
 	foreach($arr_transfer_information as $key1 => $value1) {
 		$transfer_information .= $key1 . ': ' . $value1 . '<br />';	
 	}
-}
+}	
 $https_code_initial_www = 'initial: not applicable';
 $https_code_www_notice = 0;	
 $server_header_www = 'not applicable';
 $hsts_header_www = 'not applicable';
 $hsts_header_www_notice = 0;	
 $transfer_information_www = 'not applicable';
-if (strlen($DNS_CNAME_www))	{	
+if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
+	$https_code_initial_www = 'initial: ' . $curl_error_www;
+	$server_header_www = $curl_error_www;
+	$hsts_header_www = $curl_error_www;
+	$transfer_information_www = $curl_error_www;	
+}
+elseif (strlen($DNS_CNAME_www))	{	
 	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);
 	$curl_server_header_www = curl_exec($ch);
 	$https_code_initial_www = 'initial: ';
@@ -594,22 +635,21 @@ if (strlen($DNS_CNAME_www))	{
 	}
 }
 $security_txt_legacy = '';	
-$security_txt_url_legacy = 'not applicable';
-$security_txt_www_legacy = '';
-$security_txt_url_www_legacy = 'not applicable';	
-	
+$security_txt_url_legacy = 'not applicable';	
 $security_txt_relocated = '';
-$security_txt_url_relocated = 'not applicable';	
-$security_txt_www_relocated = '';
-$security_txt_url_www_relocated = 'not applicable';
-	
-$security_txt_notice = 0;	
-$security_txt_www_notice = 0;	
+$security_txt_url_relocated = 'not applicable';		
+$security_txt_notice = 0;
 	
 curl_setopt($ch, CURLOPT_HEADER, 0);		
 curl_setopt($ch, CURLOPT_NOBODY, 0);	
 	
-if (strlen($DNS_CNAME))	{
+if (strlen($DNS_CNAME) and strlen($curl_error))	{
+	$security_txt_legacy = '';	
+	$security_txt_url_legacy = $curl_error;	
+	$security_txt_relocated = '';
+	$security_txt_url_relocated = $curl_error;		
+}	
+elseif (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain.'/security.txt');	
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
 	$security_txt_legacy = curl_exec($ch);
@@ -667,17 +707,21 @@ if (strlen($DNS_CNAME))	{
 					$security_txt_relocated = $effective;
 				}
 				else	{
+					$security_txt_notice = 1;
 					$security_txt_relocated = 'No text/plain content type received.';
 				}
 			}	
 			else	{
+				$security_txt_notice = 1;
 				$security_txt_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
 		elseif ($matches_server)	{
+			$security_txt_notice = 1;
 			$security_txt_relocated = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
 		}
 		else	{
+			$security_txt_notice = 1;
 			$security_txt_relocated = 'HTTP code '. $received_http_code . ' received.';
 		}		
 	}	
@@ -686,7 +730,18 @@ if (strlen($DNS_CNAME))	{
 		$security_txt_relocated = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
 }
-if (strlen($DNS_CNAME_www))	{
+$security_txt_www_legacy = '';
+$security_txt_url_www_legacy = 'not applicable';	
+$security_txt_www_relocated = '';
+$security_txt_url_www_relocated = 'not applicable';
+$security_txt_www_notice = 0;
+if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
+	$security_txt_www_legacy = '';
+	$security_txt_url_www_legacy = $curl_error_www;	
+	$security_txt_www_relocated = '';
+	$security_txt_url_www_relocated = $curl_error_www;
+}	
+elseif (strlen($DNS_CNAME_www))	{
 	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain.'/security.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
 	$security_txt_www_legacy = curl_exec($ch);
@@ -744,17 +799,21 @@ if (strlen($DNS_CNAME_www))	{
 					$security_txt_www_relocated = $effective;
 				}
 				else	{
+					$security_txt_www_notice = 1;
 					$security_txt_www_relocated = 'No text/plain content type received.';
 				}
 			}	
 			else	{
+				$security_txt_www_notice = 1;
 				$security_txt_www_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
 		elseif ($matches_server_www)	{
+			$security_txt_www_notice = 1;
 			$security_txt_www_relocated = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
 		}
 		else	{
+			$security_txt_www_notice = 1;
 			$security_txt_www_relocated = 'HTTP code '. $received_http_code . ' received.';
 		}
 	}	
@@ -765,7 +824,10 @@ if (strlen($DNS_CNAME_www))	{
 }
 $robots_txt = 'not applicable';
 $robots_txt_notice = 0;
-if (strlen($DNS_CNAME))	{
+if (strlen($DNS_CNAME) and strlen($curl_error))	{
+	$robots_txt = $curl_error;
+}	
+elseif (strlen($DNS_CNAME))	{
 	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain.'/robots.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);	
 	$robots_txt = curl_exec($ch);
@@ -804,7 +866,10 @@ if (strlen($DNS_CNAME))	{
 }
 $robots_txt_www = 'not applicable';
 $robots_txt_www_notice = 0;
-if (strlen($DNS_CNAME_www))	{
+if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
+	$robots_txt_www = $curl_error_www;
+}	
+elseif (strlen($DNS_CNAME_www))	{
 	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain.'/robots.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);	
 	$robots_txt_www = curl_exec($ch);
@@ -841,24 +906,11 @@ if (strlen($DNS_CNAME_www))	{
 		$robots_txt_www = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
 }
-$meta_tags = 'not applicable';
-if (strlen($DNS_CNAME))	{
-	$meta_tags = '';
-	$array = get_meta_tags('https://'.$inputdomain);
-	foreach($array as $key1 => $value1) {
-		$meta_tags .= $key1 . ': ' . $value1 . "\n";	
-    }
-}
-$meta_tags_www = 'not applicable';	
-if (strlen($DNS_CNAME_www))	{	
-	$meta_tags_www = '';
-	$array = get_meta_tags('https://www.'.$inputdomain);
-	foreach($array as $key1 => $value1) {
-		$meta_tags_www .= $key1 . ': ' . $value1 . "\n";
-    }
-}
 $http_code_destination = 'destination: not applicable';
-if (strlen($DNS_CNAME))	{
+if (strlen($DNS_CNAME) and strlen($curl_error))	{
+	$http_code_destination = 'destination: ' . $curl_error;
+}	
+elseif (strlen($DNS_CNAME))	{
 	$http_code_destination = 'destination: ';
 	if (!$same_server)	{
 		curl_setopt($ch, CURLOPT_URL, 'http://'.$inputdomain);
@@ -888,10 +940,12 @@ if (strlen($DNS_CNAME))	{
 	else	{
 		$http_code_destination .= '(No cURL on the same server)';
 	}	
-}
-	
+}	
 $http_code_destination_www = 'destination: not applicable';	
-if (strlen($DNS_CNAME_www))	{
+if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
+	$http_code_destination_www = 'destination: ' . $curl_error_www;	
+}	
+elseif (strlen($DNS_CNAME_www))	{
 	$http_code_destination_www = 'destination: ';
 	if (!$same_server_www)	{
 		curl_setopt($ch, CURLOPT_URL, 'http://www.'.$inputdomain);	
@@ -923,7 +977,10 @@ if (strlen($DNS_CNAME_www))	{
 	}
 }	
 $https_code_destination = 'destination: not applicable';	
-if (strlen($DNS_CNAME))	{
+if (strlen($DNS_CNAME) and strlen($curl_error))	{
+	$https_code_destination = 'destination: ' . $curl_error;
+}	
+elseif (strlen($DNS_CNAME))	{
 	$https_code_destination = 'destination: ';
 	if (!$same_server)	{
 		curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);	
@@ -955,7 +1012,10 @@ if (strlen($DNS_CNAME))	{
 	}
 }
 $https_code_destination_www = 'destination: not applicable';
-if (strlen($DNS_CNAME_www))	{	
+if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
+	$https_code_destination_www = 'destination: ' . $curl_error_www;
+}	
+elseif (strlen($DNS_CNAME_www))	{
 	$https_code_destination_www = 'destination: ';
 	if (!$same_server_www)	{
 		curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);
@@ -968,12 +1028,12 @@ if (strlen($DNS_CNAME_www))	{
 				if (str_contains($destination_url, 'https://'))	{
 				}
 				else	{
-					$https_code_notice_www = 1;
-					$https_code_destination_www .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';					
+					$https_code_www_notice = 1;
+					$https_code_destination_www .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';			
 				}
 			}	
 			else	{
-				$https_code_notice_www = 1;
+				$https_code_www_notice = 1;
 				$https_code_destination_www .= '<br />(No destination url)';				
 			}
 		}
@@ -986,7 +1046,7 @@ if (strlen($DNS_CNAME_www))	{
 		$https_code_destination_www .= '(No cURL on the same server)';	
 	}
 }	
-//curl_close($ch); //not from PHP 8
+//curl_close($ch); //not necessary from PHP 8
 
 $doc = new DOMDocument("1.0", "UTF-8");
 $doc->xmlStandalone = true;	
@@ -1361,5 +1421,5 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 .  "\n";
 	}
 	return($output);
-}								
+}									
 ?>
