@@ -1,5 +1,5 @@
 <?php
-//$_GET['url'] = 'hostingtool.nl';
+//$_GET['url'] = 'hostnet.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -40,8 +40,10 @@ $same_server_www = false;
 //$php_version = (float)phpversion();
 	
 $DNS_CNAME = get_cname_target($inputdomain);
+$CNAMED = '';	
 if (strlen($DNS_CNAME))	{
-	$DNS_CNAME = 'CNAME: '.$DNS_CNAME.' -><br />';
+	$CNAMED = $DNS_CNAME;
+	$DNS_CNAME = $inputdomain.' CNAME '.$DNS_CNAME.' -><br />';
 	$cname_limited = true;
 }
 else	{
@@ -128,8 +130,10 @@ if (strlen($DNS_CNAME))	{
 	}
 }
 $DNS_CNAME_www = get_cname_target('www.'.$inputdomain);
+$CNAMED_www = '';	
 if (strlen($DNS_CNAME_www))	{
-	$DNS_CNAME_www = 'CNAME: '.$DNS_CNAME_www.' -><br />';
+	$CNAMED_www = $DNS_CNAME_www;
+	$DNS_CNAME_www = 'www.'.$inputdomain.' CNAME '.$DNS_CNAME_www.' -><br />';
 	$cname_limited_www = true;
 }
 else	{
@@ -664,7 +668,7 @@ elseif (strlen($DNS_CNAME))	{
 			$security_txt_url_legacy .= '<br />'.$effective_url;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if ($received_http_code == 200)	{
+		if (strval($received_http_code) == '200')	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
 				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
 					$security_txt_legacy = $effective;
@@ -701,7 +705,7 @@ elseif (strlen($DNS_CNAME))	{
 			$security_txt_url_relocated .= '<br />'.$effective_url;
 		}		
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if ($received_http_code == 200)	{
+		if (strval($received_http_code) == '200')	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
 				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
 					$security_txt_relocated = $effective;
@@ -756,7 +760,7 @@ elseif (strlen($DNS_CNAME_www))	{
 			$security_txt_url_www_legacy .= '<br />'.$effective_url;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if ($received_http_code == 200)	{
+		if (strval($received_http_code) == '200')	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
 				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
 					$security_txt_www_legacy = $effective;
@@ -793,7 +797,7 @@ elseif (strlen($DNS_CNAME_www))	{
 			$security_txt_url_www_relocated .= '<br />'.$effective_url;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if ($received_http_code == 200)	{
+		if (strval($received_http_code) == '200')	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
 				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
 					$security_txt_www_relocated = $effective;
@@ -841,8 +845,8 @@ elseif (strlen($DNS_CNAME))	{
 		else	{
 			$robots_txt_url .= '<br />'.$effective_url;
 		}
-		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
-			if (mb_strpos($effective_url, '/robots.txt'))	{
+		if (strval(curl_getinfo($ch, CURLINFO_HTTP_CODE)) == '200')	{
+			if (str_contains($effective_url, '/robots.txt'))	{
 				$robots_txt = $effective;
 			}	
 			else	{
@@ -857,7 +861,7 @@ elseif (strlen($DNS_CNAME))	{
 		else	{
 			$robots_txt_notice = 1;
 			$robots_txt = 'No HTTP 200 OK received.';
-		}	
+		}
 	}	
 	else	{
 		$robots_txt_notice = 1;
@@ -883,8 +887,8 @@ elseif (strlen($DNS_CNAME_www))	{
 		else	{
 			$robots_txt_url_www .= '<br />'.$effective_url;
 		}
-		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == 200)	{
-			if (mb_strpos($effective_url, '/robots.txt'))	{
+		if (strval(curl_getinfo($ch, CURLINFO_HTTP_CODE)) == '200')	{
+			if (str_contains($effective_url, '/robots.txt'))	{
 				$robots_txt_www = $effective;
 			}	
 			else	{
@@ -996,6 +1000,16 @@ elseif (strlen($DNS_CNAME))	{
 					$https_code_notice = 1;
 					$https_code_destination .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';					
 				}
+				if (strlen($CNAMED))	{
+					$destination_url = str_replace('http://','', $destination_url);
+					$destination_url = str_replace('https://','', $destination_url);
+					$destination_url = str_replace(':443','', $destination_url);
+					if ($CNAMED == 'www.'.$inputdomain and 
+						($destination_url == $inputdomain or $destination_url . '/' == $inputdomain or $destination_url == $inputdomain . '/'))	{
+						$DNS_CNAME_notice = 1;
+						$DNS_CNAME .= '('. $inputdomain . ' CNAME ' . $CNAMED . ': inconsistent with destination ' . $destination_url .')<br />';
+					}	
+				}
 			}	
 			else	{
 				$https_code_notice = 1;
@@ -1031,6 +1045,16 @@ elseif (strlen($DNS_CNAME_www))	{
 					$https_code_www_notice = 1;
 					$https_code_destination_www .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';			
 				}
+				if (strlen($CNAMED_www))	{
+					$destination_url = str_replace('http://','', $destination_url);
+					$destination_url = str_replace('https://','', $destination_url);
+					$destination_url = str_replace(':443','', $destination_url);
+					if ($CNAMED_www == $inputdomain and 
+						($destination_url == 'www.' . $inputdomain or $destination_url . '/' == 'www.' . $inputdomain or $destination_url == 'www.' . $inputdomain . '/'))	{
+						$DNS_CNAME_www_notice = 1;
+						$DNS_CNAME_www .= '(www.' . $inputdomain . ' CNAME ' . $CNAMED_www . ': inconsistent with destination ' . $destination_url .')<br />';
+					}	
+				}	
 			}	
 			else	{
 				$https_code_www_notice = 1;
@@ -1047,7 +1071,6 @@ elseif (strlen($DNS_CNAME_www))	{
 	}
 }	
 //curl_close($ch); //not necessary from PHP 8
-
 $doc = new DOMDocument("1.0", "UTF-8");
 $doc->xmlStandalone = true;	
 $doc->formatOutput = true;		
