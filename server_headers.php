@@ -156,7 +156,7 @@ $html_text .= '<tr id="139" style="display:'.$defaultdisplay.';font-style:italic
 $html_text .= '<tr id="1310" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">A server header requires sufficient settings before public Internet access can be used safely. And avoid the HSTS preload list without understanding its implications.</td></tr>';
 $html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:0.9rem" onclick="SwitchDisplay(14)">About Clean Up of Search Engine Results +/-</button></td><td></td></tr>';
 $html_text .= '<tr id="141" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">For search engines in general, a no-indexing statement is necessary to clean up. For deletion in Google Search, even re-registration of the domain may be necessary.</td></tr>';
-$html_text .= '<tr id="142" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">Note that unfortunate robots.txt content - for more control over crawling - can block any processing by a search engine, such as the desired removal of search results.</td></tr>';
+$html_text .= '<tr id="142" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">Note that robots.txt content - for more control over crawling - can block any processing by a search engine, such as the desired removal of search results.</td></tr>';
 $html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 $html_text .= '<tr><td colspan="3" style="cursor:pointer;font-size:1.2rem">Analysis:</td></tr>';
 $html_text .= '</table>';

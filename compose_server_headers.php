@@ -1,5 +1,5 @@
 <?php
-//$_GET['url'] = 'hostnet.nl';
+//$_GET['url'] = 'rijksoverheid.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -670,7 +670,7 @@ elseif (strlen($DNS_CNAME))	{
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (strval($received_http_code) == '200')	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
-				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
+				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_legacy = $effective;
 				}
 				else	{
@@ -707,7 +707,7 @@ elseif (strlen($DNS_CNAME))	{
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (strval($received_http_code) == '200')	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
-				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
+				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_relocated = $effective;
 				}
 				else	{
@@ -762,7 +762,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (strval($received_http_code) == '200')	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
-				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
+				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_www_legacy = $effective;
 				}
 				else	{
@@ -799,7 +799,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (strval($received_http_code) == '200')	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
-				if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'text/plain')	{
+				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_www_relocated = $effective;
 				}
 				else	{
@@ -845,7 +845,8 @@ elseif (strlen($DNS_CNAME))	{
 		else	{
 			$robots_txt_url .= '<br />'.$effective_url;
 		}
-		if (strval(curl_getinfo($ch, CURLINFO_HTTP_CODE)) == '200')	{
+		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if (strval($received_http_code) == '200')	{
 			if (str_contains($effective_url, '/robots.txt'))	{
 				$robots_txt = $effective;
 			}	
@@ -856,12 +857,12 @@ elseif (strlen($DNS_CNAME))	{
 		}
 		elseif ($matches_server)	{
 			$robots_txt_notice = 1;
-			$robots_txt = 'No HTTP 200 OK received (www.'. $inputdomain. ' is the server name).';
+			$robots_txt = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
 		}
 		else	{
 			$robots_txt_notice = 1;
-			$robots_txt = 'No HTTP 200 OK received.';
-		}
+			$robots_txt = 'HTTP code '. $received_http_code . ' received.';
+		}		
 	}	
 	else	{
 		$robots_txt_notice = 1;
@@ -887,7 +888,8 @@ elseif (strlen($DNS_CNAME_www))	{
 		else	{
 			$robots_txt_url_www .= '<br />'.$effective_url;
 		}
-		if (strval(curl_getinfo($ch, CURLINFO_HTTP_CODE)) == '200')	{
+		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if (strval($received_http_code) == '200')	{
 			if (str_contains($effective_url, '/robots.txt'))	{
 				$robots_txt_www = $effective;
 			}	
@@ -898,11 +900,11 @@ elseif (strlen($DNS_CNAME_www))	{
 		}
 		elseif ($matches_server_www)	{
 			$robots_txt_www_notice = 1;
-			$robots_txt_www = 'No HTTP 200 OK received (www.'. $inputdomain. ' is the server name).';
+			$robots_txt_www = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
 		}
 		else	{
 			$robots_txt_www_notice = 1;
-			$robots_txt_www = 'No HTTP 200 OK received.';
+			$robots_txt_www = 'HTTP code '. $received_http_code . ' received.';
 		}	
 	}	
 	else	{
@@ -1071,6 +1073,7 @@ elseif (strlen($DNS_CNAME_www))	{
 	}
 }	
 //curl_close($ch); //not necessary from PHP 8
+	
 $doc = new DOMDocument("1.0", "UTF-8");
 $doc->xmlStandalone = true;	
 $doc->formatOutput = true;		
@@ -1081,11 +1084,11 @@ $doc->appendChild($domains);
 $domain = $doc->createElement("domain");	
 $domains->appendChild($domain);
 	
-$domain->setAttribute("item", $inputdomain);
+$domain->setAttribute("item", $inputdomain);	
 	
 $domain_url = $doc->createElement("url");
 $domain_url->appendChild($doc->createCDATASection(htmlentities($inputdomain)));		
-$domain->appendChild($domain_url);	
+$domain->appendChild($domain_url);		
 
 $domain_DNS_CNAME = $doc->createElement("DNS_CNAME");
 $domain_DNS_CNAME->appendChild($doc->createCDATASection($DNS_CNAME));		
@@ -1101,7 +1104,7 @@ $domain->appendChild($domain_DNS_CNAME_notice);
 	
 $domain_DNS_CNAME_www_notice = $doc->createElement("DNS_CNAME_www_notice");
 $domain_DNS_CNAME_www_notice->appendChild($doc->createCDATASection($DNS_CNAME_www_notice));		
-$domain->appendChild($domain_DNS_CNAME_www_notice);	
+$domain->appendChild($domain_DNS_CNAME_www_notice);			
 	
 $domain_DNS_MX = $doc->createElement("DNS_MX");
 $domain_DNS_MX->appendChild($doc->createCDATASection($DNS_MX));		
@@ -1321,6 +1324,7 @@ $domain->appendChild($domain_transfer_information_www);
 	
 $domains->appendChild($domain);
 $doc->appendChild($domains);
+	
 //return $doc->saveXML(NULL, LIBXML_NOEMPTYTAG);
 return $doc->saveXML();
 }
