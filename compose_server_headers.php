@@ -338,7 +338,7 @@ foreach($array as $key1 => $value1) {
 		}	
     }
 }
-if (mb_substr('www.'.$inputdomain, 0, 1) == '_')	{
+if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 	if (str_contains(strtolower($DNS_TXT_www), 'v=dmarc1'))	{
 		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '(incorrect, because of an unexpected "v=DMARC1")<br />';
@@ -1019,7 +1019,7 @@ elseif (strlen($DNS_CNAME))	{
 					if ($CNAMED == 'www.'.$inputdomain and 
 						($destination_url == $inputdomain or $destination_url . '/' == $inputdomain or $destination_url == $inputdomain . '/'))	{
 						$DNS_CNAME_notice = 1;	
-						$DNS_CNAME .= '(Unnecessary use of CNAME, to alias to IPs)<br />';
+						$DNS_CNAME .= '(Unnecessarily broad with CNAME from the alias to IPs)<br />';
 					}	
 				}
 			}	
@@ -1064,7 +1064,7 @@ elseif (strlen($DNS_CNAME_www))	{
 					if ($CNAMED_www == $inputdomain and 
 						($destination_url == 'www.' . $inputdomain or $destination_url . '/' == 'www.' . $inputdomain or $destination_url == 'www.' . $inputdomain . '/'))	{
 						$DNS_CNAME_www_notice = 1;
-						$DNS_CNAME_www .= '(Unnecessary use of CNAME, to alias to IPs)<br />';
+						$DNS_CNAME_www .= '(Unnecessarily broad with CNAME from the alias to IPs)<br />';
 					}	
 				}	
 			}	
@@ -1389,6 +1389,9 @@ function remove_subdomain($inputurl)	{
 function dmarc_list($inputurl)	{
 	$output = '';
 	$strpos = 1;
+	if (mb_substr($inputurl, 0, 1) == '_')	{
+		return 'not applicable';
+	}	
 	while ($strpos)	{
 		$array = dns_get_record('_dmarc.'.$inputurl, DNS_TXT);
 		$cname_value = get_cname_target('_dmarc.'.$inputurl);
