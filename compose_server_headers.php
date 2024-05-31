@@ -1,27 +1,12 @@
 <?php
-//$_GET['url'] = 'hostingtool.nl';
+//$_GET['url'] = 'rdap.hostingtool.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
-		$domain = trim($_GET['url']);
-		$domain = mb_strtolower($domain);
-		$domain = str_replace('http://','', $domain);
-		$domain = str_replace('https://','', $domain);
-		$domain = str_replace('www.','', $domain);
-		$strpos = mb_strpos($domain, '?');
-		if ($strpos)	{
-			$domain = mb_substr($domain, 0, $strpos);
-		}
-		$strpos = mb_strpos($domain, '/');
-		if ($strpos)	{
-			$domain = mb_substr($domain, 0, $strpos);
-		}
-		$strpos = mb_strpos($domain, ':');
-		if ($strpos)	{
-			$domain = mb_substr($domain, 0, $strpos);
-		}
-		$domain = urlencode($domain);
-		echo write_file($domain);
+		$url = trim($_GET['url']);
+		$url = clean_url($url);
+		$url = urlencode($url);
+		echo write_file($url);
 		die();
 	}
 	else	{	
@@ -1013,13 +998,10 @@ elseif (strlen($DNS_CNAME))	{
 					$https_code_destination .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';					
 				}
 				if (strlen($CNAMED))	{
-					$destination_url = str_replace('http://','', $destination_url);
-					$destination_url = str_replace('https://','', $destination_url);
-					$destination_url = str_replace(':443','', $destination_url);
-					if ($CNAMED == 'www.'.$inputdomain and 
-						($destination_url == $inputdomain or $destination_url . '/' == $inputdomain or $destination_url == $inputdomain . '/'))	{
+					$destination_url = clean_url($destination_url);
+					if ($CNAMED == 'www.'.$inputdomain and ($destination_url == $inputdomain or $destination_url == 'www.' . $inputdomain))	{
 						$DNS_CNAME_notice = 1;	
-						$DNS_CNAME .= '(Unnecessarily broad with CNAME from the alias to IPs)<br />';
+						$DNS_CNAME .= '(The destination does not require CNAME. Just set A/AAAA, MX and TXT.)<br />';
 					}	
 				}
 			}	
@@ -1039,7 +1021,7 @@ elseif (strlen($DNS_CNAME))	{
 }
 $https_code_destination_www = 'destination: not applicable';
 if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
-	$https_code_destination_www = 'destination: ' . $curl_error_www;
+	$https_code_destination_www = 'destination: ' . $curl_error_www;	
 }	
 elseif (strlen($DNS_CNAME_www))	{
 	$https_code_destination_www = 'destination: ';
@@ -1052,20 +1034,17 @@ elseif (strlen($DNS_CNAME_www))	{
 			$https_code_destination_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $destination_url;
 			if (strlen($destination_url))	{
 				if (str_contains($destination_url, 'https://'))	{
-				}
+					}
 				else	{
 					$https_code_www_notice = 1;
 					$https_code_destination_www .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';			
 				}
 				if (strlen($CNAMED_www))	{
-					$destination_url = str_replace('http://','', $destination_url);
-					$destination_url = str_replace('https://','', $destination_url);
-					$destination_url = str_replace(':443','', $destination_url);
-					if ($CNAMED_www == $inputdomain and 
-						($destination_url == 'www.' . $inputdomain or $destination_url . '/' == 'www.' . $inputdomain or $destination_url == 'www.' . $inputdomain . '/'))	{
+					$destination_url = clean_url($destination_url);
+					if ($CNAMED_www == $inputdomain and ($destination_url == $inputdomain or $destination_url == 'www.' . $inputdomain))	{
 						$DNS_CNAME_www_notice = 1;
-						$DNS_CNAME_www .= '(Unnecessarily broad with CNAME from the alias to IPs)<br />';
-					}	
+						$DNS_CNAME_www .= '(The destination does not require CNAME. Just set A/AAAA, MX and TXT.)<br />';
+					}
 				}	
 			}	
 			else	{
@@ -1081,7 +1060,8 @@ elseif (strlen($DNS_CNAME_www))	{
 	else	{
 		$https_code_destination_www .= '(No cURL on the same server)';	
 	}
-}	
+}		  
+						  
 //curl_close($ch); //not necessary from PHP 8
 	
 $doc = new DOMDocument("1.0", "UTF-8");
@@ -1461,5 +1441,26 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 .  "\n";
 	}
 	return($output);
+}
+
+function clean_url($inputurl)	{
+		$output = $inputurl;
+		$output = mb_strtolower($output);
+		$output = str_replace('http://','', $output);
+		$output = str_replace('https://','', $output);
+		$output = str_replace('www.','', $output);
+		$strpos = mb_strpos($output, '?');
+		if ($strpos)	{
+			$output = mb_substr($output, 0, $strpos);
+		}
+		$strpos = mb_strpos($output, '/');
+		if ($strpos)	{
+			$output = mb_substr($output, 0, $strpos);
+		}
+		$strpos = mb_strpos($output, ':');
+		if ($strpos)	{
+			$output = mb_substr($output, 0, $strpos);
+		}
+		return $output;
 }										
 ?>
