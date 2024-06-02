@@ -1,5 +1,5 @@
 <?php
-//$_GET['url'] = 'rdap.hostingtool.nl';
+	//$_GET['url'] = 'rdap.hostingtool.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -225,7 +225,7 @@ if (strlen($DNS_MX))	{
 }
 else	{	
 	if ($cname_limited)	{
-		$DNS_MX .= '(Null MX would combine with future ANAME, flatter CNAME)<br />';
+		$DNS_MX .= '(Null MX would combine with future ANAME, flattened CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME))	{
 		$DNS_MX .= 'not applicable';		
@@ -256,7 +256,7 @@ if (strlen($DNS_MX_www))	{
 }
 else	{
 	if ($cname_limited_www)	{
-		$DNS_MX_www .= '(Null MX would combine with future ANAME, flatter CNAME)<br />';
+		$DNS_MX_www .= '(Null MX would combine with future ANAME, flattened CNAME)<br />';
 	}
 	elseif (!strlen($DNS_CNAME_www))	{
 		$DNS_MX_www .= 'not applicable';		
@@ -505,7 +505,8 @@ elseif (strlen($DNS_CNAME_www))	{
 }	
 $https_code_initial = 'initial: not applicable';
 $https_code_notice = 0;		
-$server_header = 'not applicable';	
+$server_header = 'not applicable';
+$server_header_code = '';	
 $hsts_header = 'not applicable';
 $hsts_header_notice = 0;
 $transfer_information = 'not applicable';	
@@ -522,7 +523,8 @@ elseif (strlen($DNS_CNAME))	{
 	if (!curl_errno($ch)) {
 		$initial_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
-		$https_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
+		$server_header_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$https_code_initial .= $server_header_code . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
 			if (str_contains($redirect_url, 'https://'))	{
 			}
@@ -556,7 +558,10 @@ elseif (strlen($DNS_CNAME))	{
 			}													 
 		}	
 	}
-	if (str_contains($hsts_header, 'HSTS'))	{
+	if (strval($server_header_code) == '500')	{
+		$hsts_header .= ' does not show HSTS with response 500.';
+	}
+	elseif (str_contains($hsts_header, 'HSTS'))	{
 	}
 	else	{
 		$hsts_header_notice = 1;
@@ -571,6 +576,7 @@ elseif (strlen($DNS_CNAME))	{
 $https_code_initial_www = 'initial: not applicable';
 $https_code_www_notice = 0;	
 $server_header_www = 'not applicable';
+$server_header_code_www = '';	
 $hsts_header_www = 'not applicable';
 $hsts_header_www_notice = 0;	
 $transfer_information_www = 'not applicable';
@@ -587,7 +593,8 @@ elseif (strlen($DNS_CNAME_www))	{
 	if (!curl_errno($ch)) {
 		$initial_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
-		$https_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
+		$server_header_code_www = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$https_code_initial_www .= $server_header_code_www . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
 			if (str_contains($redirect_url, 'https://'))	{
 			}
@@ -614,14 +621,17 @@ elseif (strlen($DNS_CNAME_www))	{
 				$hsts_header_www .= ', not for its subdomains';
 			}
 			if (str_contains($value1, 'preload'))	{
-				$hsts_header_www .= ', with preload.' . "\n";
+					$hsts_header_www .= ', with preload.' . "\n";
 			}
 			else	{
-				$hsts_header_www .= ', without preload.' . "\n";
+				$hsts_header_www .= ', without preload.' . "\n";	
 			}
 		}	
 	}
-	if (str_contains($hsts_header_www, 'HSTS'))	{
+	if (strval($server_header_code_www) == '500')	{
+		$hsts_header_www .= ' does not show HSTS with response 500.';
+	}
+	elseif (str_contains($hsts_header_www, 'HSTS'))	{
 	}
 	else	{
 		$hsts_header_www_notice = 1;
@@ -999,9 +1009,10 @@ elseif (strlen($DNS_CNAME))	{
 				}
 				if (strlen($CNAMED))	{
 					$destination_url = clean_url($destination_url);
-					if ($CNAMED == 'www.'.$inputdomain and ($destination_url == $inputdomain or $destination_url == 'www.' . $inputdomain))	{
+					//if ($CNAMED == 'www.'.$inputdomain and ($destination_url == $inputdomain or $destination_url == 'www.' . $inputdomain))	{
+					if ($CNAMED == 'www.'.$inputdomain)	{
 						$DNS_CNAME_notice = 1;	
-						$DNS_CNAME .= '(The destination does not require CNAME. Just set A/AAAA, MX and TXT.)<br />';
+						$DNS_CNAME .= '(The destination does not require CNAME; A/AAAA, MX and TXT can work)<br />';
 					}	
 				}
 			}	
@@ -1041,9 +1052,10 @@ elseif (strlen($DNS_CNAME_www))	{
 				}
 				if (strlen($CNAMED_www))	{
 					$destination_url = clean_url($destination_url);
-					if ($CNAMED_www == $inputdomain and ($destination_url == $inputdomain or $destination_url == 'www.' . $inputdomain))	{
+					//if ($CNAMED_www == $inputdomain and ($destination_url == $inputdomain or $destination_url == 'www.' . $inputdomain))	{
+					if ($CNAMED_www == $inputdomain)	{
 						$DNS_CNAME_www_notice = 1;
-						$DNS_CNAME_www .= '(The destination does not require CNAME. Just set A/AAAA, MX and TXT.)<br />';
+						$DNS_CNAME_www .= '(The destination does not require CNAME; A/AAAA, MX and TXT can work)<br />';
 					}
 				}	
 			}	
@@ -1462,5 +1474,5 @@ function clean_url($inputurl)	{
 			$output = mb_substr($output, 0, $strpos);
 		}
 		return $output;
-}										
+}									
 ?>
