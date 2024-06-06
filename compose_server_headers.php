@@ -1,5 +1,5 @@
 <?php
-	//$_GET['url'] = 'rdap.hostingtool.nl';
+//$_GET['url'] = 'hostingtool.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -50,7 +50,7 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ip')	{
-								$rDNS_FC = $v2;
+								$rDNS_FC .= $v2 . ';';
 							}
 						}		
 					}
@@ -60,10 +60,10 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 				$AS_A .= get_as_info($value2);
 				if ($value2 == $own_ip)	$same_server = true;
 				if ($rDNS == $inputdomain) $matches_server = true;
-				if ($rDNS_FC == $value2)	{
+				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
-					$DNS_CNAME .= '(Reverse DNS does not exist)<br />';
+					//$DNS_CNAME .= '(Reverse DNS does not exist)<br />';
 				}
 				else	{
 					$DNS_CNAME_notice = 1;
@@ -83,7 +83,7 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ipv6')	{
-								$rDNS_FC = $v2;
+								$rDNS_FC .= $v2 . ';';
 							}	
 						}
 					}		
@@ -93,10 +93,10 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 				$AS_AAAA .= get_as_info($value2);
 				if ($value2 == $own_ip)	$same_server = true;
 				if ($rDNS == $inputdomain) $matches_server = true;
-				if ($rDNS_FC == $value2)	{
+				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
-					$DNS_CNAME .= '(Reverse DNS does not exist)<br />';
+					//$DNS_CNAME .= '(Reverse DNS does not exist)<br />';
 				}
 				else	{
 					$DNS_CNAME_notice = 1;
@@ -140,7 +140,7 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ip')	{
-								$rDNS_FC = $v2;
+								$rDNS_FC .= $v2 . ';';
 							}	
 						}
 					}		
@@ -150,10 +150,10 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 				$AS_A_www .= get_as_info($value2);
 				if ($value2 == $own_ip)	$same_server_www = true;
 				if ($rDNS == 'www.'.$inputdomain) $matches_server_www = true;
-				if ($rDNS_FC == $value2)	{
+				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
-					$DNS_CNAME_www .= '(Reverse DNS does not exist)<br />';
+					//$DNS_CNAME_www .= '(Reverse DNS does not exist)<br />';
 				}
 				else	{
 					$DNS_CNAME_www_notice = 1;
@@ -173,7 +173,7 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ipv6')	{
-								$rDNS_FC = $v2;
+								$rDNS_FC .= $v2 . ';';
 							}	
 						}
 					}		
@@ -183,10 +183,10 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 				$AS_AAAA_www .= get_as_info($value2);
 				if ($value2 == $own_ip)	$same_server_www = true;
 				if ($rDNS == 'www.'.$inputdomain) $matches_server_www = true;
-				if ($rDNS_FC == $value2)	{
+				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
-					$DNS_CNAME_www .= '(Reverse DNS does not exist)<br />';
+					//$DNS_CNAME_www .= '(Reverse DNS does not exist)<br />';
 				}
 				else	{
 					$DNS_CNAME_www_notice = 1;
@@ -527,6 +527,7 @@ elseif (strlen($DNS_CNAME))	{
 		$https_code_initial .= $server_header_code . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
 			if (str_contains($redirect_url, 'https://'))	{
+				//$https_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			else	{
 				$https_code_notice = 1;
@@ -597,6 +598,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		$https_code_initial_www .= $server_header_code_www . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
 			if (str_contains($redirect_url, 'https://'))	{
+				//$https_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			else	{
 				$https_code_www_notice = 1;
@@ -686,6 +688,9 @@ elseif (strlen($DNS_CNAME))	{
 				$security_txt_legacy = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
+		elseif (strval($received_http_code) == '500')	{
+			$security_txt_legacy = 'HTTP code 500 received (without security.txt).';
+		}	
 		elseif ($matches_server)	{
 			$security_txt_legacy = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
 		}
@@ -724,6 +729,9 @@ elseif (strlen($DNS_CNAME))	{
 				$security_txt_notice = 1;
 				$security_txt_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
+		}
+		elseif (strval($received_http_code) == '500')	{
+			$security_txt_relocated = 'HTTP code 500 received (without security.txt).';
 		}
 		elseif ($matches_server)	{
 			$security_txt_notice = 1;
@@ -778,6 +786,9 @@ elseif (strlen($DNS_CNAME_www))	{
 				$security_txt_www_legacy = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
+		elseif (strval($received_http_code) == '500')	{
+			$security_txt_www_legacy = 'HTTP code 500 received (without security.txt).';
+		}
 		elseif ($matches_server_www)	{
 			$security_txt_www_legacy = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
 		}
@@ -816,6 +827,9 @@ elseif (strlen($DNS_CNAME_www))	{
 				$security_txt_www_notice = 1;
 				$security_txt_www_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
+		}
+		elseif (strval($received_http_code) == '500')	{
+			$security_txt_www_relocated = 'HTTP code 500 received (without security.txt).';
 		}
 		elseif ($matches_server_www)	{
 			$security_txt_www_notice = 1;
@@ -860,6 +874,9 @@ elseif (strlen($DNS_CNAME))	{
 				$robots_txt = 'HTTP 200 OK received without a robots.txt file';
 			}
 		}
+		elseif (strval($received_http_code) == '500')	{
+			$robots_txt = 'HTTP code 500 received (without robots.txt).';
+		}	
 		elseif ($matches_server)	{
 			$robots_txt_notice = 1;
 			$robots_txt = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
@@ -902,6 +919,9 @@ elseif (strlen($DNS_CNAME_www))	{
 				$robots_txt_www_notice = 1;
 				$robots_txt_www = 'HTTP 200 OK received without a robots.txt file';
 			}
+		}
+		elseif (strval($received_http_code) == '500')	{
+			$robots_txt_www = 'HTTP code 500 received (without robots.txt).';
 		}
 		elseif ($matches_server_www)	{
 			$robots_txt_www_notice = 1;
