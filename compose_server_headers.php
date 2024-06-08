@@ -63,7 +63,7 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
-					//$DNS_CNAME .= '(Reverse DNS does not exist)<br />';
+					$DNS_CNAME .= 'No reverse DNS<br />';
 				}
 				else	{
 					$DNS_CNAME_notice = 1;
@@ -96,7 +96,7 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
-					//$DNS_CNAME .= '(Reverse DNS does not exist)<br />';
+					$DNS_CNAME .= 'No reverse DNS<br />';
 				}
 				else	{
 					$DNS_CNAME_notice = 1;
@@ -153,7 +153,7 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
-					//$DNS_CNAME_www .= '(Reverse DNS does not exist)<br />';
+					$DNS_CNAME_www .= 'No reverse DNS<br />';
 				}
 				else	{
 					$DNS_CNAME_www_notice = 1;
@@ -186,7 +186,7 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
-					//$DNS_CNAME_www .= '(Reverse DNS does not exist)<br />';
+					$DNS_CNAME_www .= 'No reverse DNS<br />';
 				}
 				else	{
 					$DNS_CNAME_www_notice = 1;
