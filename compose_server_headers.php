@@ -50,7 +50,7 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ip')	{
-								$rDNS_FC .= $v2 . ';';
+								$rDNS_FC .= $v2 . '; ';
 							}
 						}		
 					}
@@ -83,7 +83,7 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ipv6')	{
-								$rDNS_FC .= $v2 . ';';
+								$rDNS_FC .= $v2 . '; ';
 							}	
 						}
 					}		
@@ -140,7 +140,7 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ip')	{
-								$rDNS_FC .= $v2 . ';';
+								$rDNS_FC .= $v2 . '; ';
 							}	
 						}
 					}		
@@ -173,7 +173,7 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ipv6')	{
-								$rDNS_FC .= $v2 . ';';
+								$rDNS_FC .= $v2 . '; ';
 							}	
 						}
 					}		
@@ -437,6 +437,9 @@ if (strlen($DNS_CNAME))	{
 				$http_code_initial .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
 			}
 		}	
+	}
+	elseif (curl_errno($ch) == 7)	{
+		$http_code_initial .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);	
 	}	
 	else	{
 		$http_code_notice = 1;
@@ -474,6 +477,9 @@ if (strlen($DNS_CNAME_www))	{
 				$http_code_initial_www .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
 			}
 		}
+	}
+	elseif (curl_errno($ch) == 7)	{
+		$http_code_initial_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);	
 	}
 	else	{
 		$http_code_www_notice = 1;
@@ -527,7 +533,7 @@ elseif (strlen($DNS_CNAME))	{
 		$https_code_initial .= $server_header_code . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
 			if (str_contains($redirect_url, 'https://'))	{
-				//$https_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+				$https_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			else	{
 				$https_code_notice = 1;
@@ -598,7 +604,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		$https_code_initial_www .= $server_header_code_www . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
 			if (str_contains($redirect_url, 'https://'))	{
-				//$https_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+				$https_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			else	{
 				$https_code_www_notice = 1;
@@ -675,7 +681,7 @@ elseif (strlen($DNS_CNAME))	{
 			$security_txt_url_legacy .= '<br />'.$effective_url;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if (strval($received_http_code) == '200')	{
+		if (intval($received_http_code) == 200)	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_legacy = $effective;
@@ -715,7 +721,7 @@ elseif (strlen($DNS_CNAME))	{
 			$security_txt_url_relocated .= '<br />'.$effective_url;
 		}		
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if (strval($received_http_code) == '200')	{
+		if (intval($received_http_code) == 200)	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_relocated = $effective;
@@ -773,7 +779,7 @@ elseif (strlen($DNS_CNAME_www))	{
 			$security_txt_url_www_legacy .= '<br />'.$effective_url;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if (strval($received_http_code) == '200')	{
+		if (intval($received_http_code) == 200)	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_www_legacy = $effective;
@@ -813,7 +819,7 @@ elseif (strlen($DNS_CNAME_www))	{
 			$security_txt_url_www_relocated .= '<br />'.$effective_url;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if (strval($received_http_code) == '200')	{
+		if (intval($received_http_code) == 200)	{
 			if (mb_strpos($effective_url, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_www_relocated = $effective;
@@ -865,7 +871,7 @@ elseif (strlen($DNS_CNAME))	{
 			$robots_txt_url .= '<br />'.$effective_url;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);	
-		if (strval($received_http_code) == '200')	{
+		if (intval($received_http_code) == 200)	{
 			if (str_contains($effective_url, '/robots.txt'))	{
 				$robots_txt = $effective;
 			}	
@@ -911,7 +917,7 @@ elseif (strlen($DNS_CNAME_www))	{
 			$robots_txt_url_www .= '<br />'.$effective_url;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if (strval($received_http_code) == '200')	{
+		if (intval($received_http_code) == 200)	{
 			if (str_contains($effective_url, '/robots.txt'))	{
 				$robots_txt_www = $effective;
 			}	
@@ -962,7 +968,10 @@ elseif (strlen($DNS_CNAME))	{
 				$http_code_notice = 1;
 				$http_code_destination .= '<br />(No destination url)';				
 			}	
-		}		
+		}
+		elseif (curl_errno($ch) == 7)	{
+			$http_code_destination .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);	
+		}
 		else	{
 			$http_code_notice = 1;
 			$http_code_destination .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
@@ -997,7 +1006,10 @@ elseif (strlen($DNS_CNAME_www))	{
 				$http_code__wwwnotice = 1;
 				$http_code_destination_www .= '<br />(No destination url)';				
 			}
-		}		
+		}
+		elseif (curl_errno($ch) == 7)	{
+			$http_code_destination_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);	
+		}
 		else	{
 			$http_code_www_notice = 1;
 			$http_code_destination_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
