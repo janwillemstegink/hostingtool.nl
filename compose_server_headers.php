@@ -43,6 +43,8 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ip')	{
+				$DNS_CNAME .= '<b>IPv4:</b> '.$value2.'<br />';
+				$AS_A .= get_as_info($value2);
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
@@ -55,9 +57,7 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 						}		
 					}
 				}	
-				$DNS_CNAME .= '<b>IPv4:</b> '.$value2.'<br />';
 				$DNS_CNAME .= '-> rDNS: '.$rDNS.' -> FCrDNS: '.$rDNS_FC.'<br />';
-				$AS_A .= get_as_info($value2);
 				if ($value2 == $own_ip)	$same_server = true;
 				if ($rDNS == $inputdomain) $matches_server = true;
 				if (str_contains($rDNS_FC, $value2))	{
@@ -76,6 +76,8 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ipv6') {
+				$DNS_CNAME .= '<b>IPv6:</b> '.$value2.'<br />';
+				$AS_AAAA .= get_as_info($value2);
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
@@ -88,9 +90,7 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 						}
 					}		
 				}
-				$DNS_CNAME .= '<b>IPv6:</b> '.$value2.'<br />';
 				$DNS_CNAME .= '-> rDNS: '.$rDNS.' -> FCrDNS: '.$rDNS_FC.'<br />';
-				$AS_AAAA .= get_as_info($value2);
 				if ($value2 == $own_ip)	$same_server = true;
 				if ($rDNS == $inputdomain) $matches_server = true;
 				if (str_contains($rDNS_FC, $value2))	{
@@ -133,6 +133,8 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ip') {
+				$DNS_CNAME_www .= '<b>IPv4:</b> '.$value2.'<br />';
+				$AS_A_www .= get_as_info($value2);
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
@@ -145,9 +147,7 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 						}
 					}		
 				}
-				$DNS_CNAME_www .= '<b>IPv4:</b> '.$value2.'<br />';
 				$DNS_CNAME_www .= '-> rDNS: '.$rDNS.' -> FCrDNS: '.$rDNS_FC.'<br />';
-				$AS_A_www .= get_as_info($value2);
 				if ($value2 == $own_ip)	$same_server_www = true;
 				if ($rDNS == 'www.'.$inputdomain) $matches_server_www = true;
 				if (str_contains($rDNS_FC, $value2))	{
@@ -166,6 +166,8 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ipv6') {
+				$DNS_CNAME_www .= '<b>IPv6:</b> '.$value2.'<br />';
+				$AS_AAAA_www .= get_as_info($value2);
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
@@ -178,9 +180,7 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 						}
 					}		
 				}
-				$DNS_CNAME_www .= '<b>IPv6:</b> '.$value2.'<br />';
 				$DNS_CNAME_www .= '-> rDNS: '.$rDNS.' -> FCrDNS: '.$rDNS_FC.'<br />';
-				$AS_AAAA_www .= get_as_info($value2);
 				if ($value2 == $own_ip)	$same_server_www = true;
 				if ($rDNS == 'www.'.$inputdomain) $matches_server_www = true;
 				if (str_contains($rDNS_FC, $value2))	{
@@ -219,8 +219,11 @@ foreach($array as $key1 => $value1) {
 	}
 }
 if (strlen($DNS_MX))	{
-	if (strpos($DNS_MX, 'IPv6 after request'))	{
+	if (str_contains($DNS_MX, 'IPv6 after request'))	{
 		$DNS_MX_notice = 1;		
+	}
+	elseif (str_contains($DNS_MX, 'reverse DNS'))	{
+		//$DNS_MX_notice = 1;		
 	}	
 }
 else	{	
@@ -250,9 +253,12 @@ foreach($array as $key1 => $value1) {
 	}
 }
 if (strlen($DNS_MX_www))	{
-	if (strpos($DNS_MX_www, 'IPv6 after request'))	{
+	if (str_contains($DNS_MX_www, 'IPv6 after request'))	{
 		$DNS_MX_www_notice = 1;
-	}	
+	}
+	elseif (str_contains($DNS_MX_www, 'reverse DNS'))	{
+		//$DNS_MX_www_notice = 1;		
+	}
 }
 else	{
 	if ($cname_limited_www)	{
@@ -1382,7 +1388,29 @@ function get_mx_ips($inputurl)	{
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ip')	{
-				$output .= 'IPv4: '.$value2.'<br />';	
+				$output .= 'IPv4: '.$value2.'<br />';
+				$rDNS = gethostbyaddr($value2);
+				$rDNS_FC = '';
+				if ($rDNS != $value2)	{
+					$array2 = dns_get_record($rDNS, DNS_A);
+					foreach($array2 as $k1 => $v1) {
+						foreach($v1 as $k2 => $v2) {
+							if ($k2 == 'ip')	{
+								$rDNS_FC .= $v2 . '; ';
+							}	
+						}
+					}		
+				}
+				if ($value2 == $own_ip)	$same_server = true;
+				if ($rDNS == $inputdomain) $matches_server = true;
+				if (str_contains($rDNS_FC, $value2))	{
+				}
+				elseif ($rDNS == $value2)	{
+					$output .= 'No reverse DNS<br />';
+				}
+				else	{
+					$output .= '(The reverse DNS is not forward-confirmed)<br />';
+				}
 			}
 		}	
 	}
@@ -1390,7 +1418,29 @@ function get_mx_ips($inputurl)	{
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ipv6')	{
-				$output .= 'IPv6: '.$value2.'<br />';	
+				$output .= 'IPv6: '.$value2.'<br />';
+				$rDNS = gethostbyaddr($value2);
+				$rDNS_FC = '';
+				if ($rDNS != $value2)	{
+					$array2 = dns_get_record($rDNS, DNS_AAAA);
+					foreach($array2 as $k1 => $v1) {
+						foreach($v1 as $k2 => $v2) {
+							if ($k2 == 'ipv6')	{
+								$rDNS_FC .= $v2 . '; ';
+							}	
+						}
+					}		
+				}
+				if ($value2 == $own_ip)	$same_server = true;
+				if ($rDNS == $inputdomain) $matches_server = true;
+				if (str_contains($rDNS_FC, $value2))	{
+				}
+				elseif ($rDNS == $value2)	{
+					$output .= 'No reverse DNS<br />';
+				}
+				else	{
+					$output .= '(The reverse DNS is not forward-confirmed)<br />';
+				}				
 			}
 		}
 	}
