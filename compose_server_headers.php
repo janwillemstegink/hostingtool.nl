@@ -391,12 +391,12 @@ if (!strlen($DNS_DMARC_www))	{
 	
 //$DNSSEC_A = 0;
 //$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' A');
-//if (strpos($output,'RRSIG'))	{
+//if (str_contains($output,'RRSIG'))	{
 //	$DNSSEC_A = 1;
 //}
 //$DNSSEC_AAAA = 0;
 //$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' AAAA');
-//if (strpos($output,'RRSIG'))	{
+//if (str_contains($output,'RRSIG'))	{
 //	$DNSSEC_AAAA = 1;
 //}
 
@@ -688,7 +688,7 @@ elseif (strlen($DNS_CNAME))	{
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (intval($received_http_code) == 200)	{
-			if (mb_strpos($effective_url, '/security.txt'))	{
+			if (str_contains($effective_url, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_legacy = $effective;
 				}
@@ -728,7 +728,7 @@ elseif (strlen($DNS_CNAME))	{
 		}		
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (intval($received_http_code) == 200)	{
-			if (mb_strpos($effective_url, '/security.txt'))	{
+			if (str_contains($effective_url, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_relocated = $effective;
 				}
@@ -786,7 +786,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (intval($received_http_code) == 200)	{
-			if (mb_strpos($effective_url, '/security.txt'))	{
+			if (str_contains($effective_url, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_www_legacy = $effective;
 				}
@@ -826,7 +826,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (intval($received_http_code) == 200)	{
-			if (mb_strpos($effective_url, '/security.txt'))	{
+			if (str_contains($effective_url, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_www_relocated = $effective;
 				}
@@ -1444,7 +1444,7 @@ function get_mx_ips($inputurl)	{
 			}
 		}
 	}
-	if (mb_strpos($inputurl, 'mail.protection.outlook.com'))	{
+	if (str_contains($inputurl, 'mail.protection.outlook.com'))	{
 		if (str_contains($output, 'IPv6'))	{
 		}
 		else	{	
