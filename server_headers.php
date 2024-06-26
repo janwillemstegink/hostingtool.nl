@@ -12,7 +12,7 @@ function SwitchDisplay(type) {
 
 	if (type == 11)			{ // about redirect 
 		var pre = '11';
-		var max = 5
+		var max = 4
 	}
 	else if (type == 12)	{ // about regulation
 		var pre = '12';
@@ -132,11 +132,10 @@ $html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:b
 $html_text .= '<tr><td colspan="3" style="cursor:pointer;font-size:1.0rem">Analyze hosting data</td></tr>';
 $html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 $html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:0.9rem" onclick="SwitchDisplay(11)">About redirection from an alias +/-</button></td></tr>';
-$html_text .= '<tr id="111" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">RFC 1033 forbids the use of CNAME records at the same node as any other record type. RR does mean resource record. RFC 1033: "The CNAME record is used for nicknames.</td></tr>';
-$html_text .= '<tr id="112" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">The name associated with the RR is the nickname. The data portion is the official name. There must not be any other RRs associated with a nickname of the same class."</td></tr>';
-$html_text .= '<tr id="113" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">Apex refers to the root/bare/naked domain, or the zone apex, so without a subdomain part. It is common practice for websites to publish content at their registered domain name.</td></tr>';
-$html_text .= '<tr id="114" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">The <b>www</b> subdomain has been considered unnecessary. There are some useful aspects. If you host elsewhere, such as with www.microsoft.com, email can be safe with future ANAME.</td></tr>';
-$html_text .= '<tr id="115" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">For a URL with a subdomain such as www, HSTS can be set more precisely. <a style="font-size: 0.9rem" href="https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-aname-01" target="_blank">An RFC draft from PowerDNS and DNSimple on ANAME</a> - <a style="font-size: 0.9rem" href="https://blog.cloudflare.com/introducing-cname-flattening-rfc-compliant-cnames-at-a-domains-root/" target="_blank">Cloudflare about ANAME</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/dns-setup/a-aaaa-or-cname/" target="_blank">Me about CNAME</a></td></tr>';
+$html_text .= '<tr id="111" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">RFC 1033 forbids the use of CNAME for the registered, apex domain. The Apex domain is the main domain without subdomains, such as ‘example.com’.</td></tr>';
+$html_text .= '<tr id="112" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">CNAME affects subdomain email settings because MX and SPF cannot differ. Upcoming ANAME is flattened CNAME to just A/AAAA. Outsourced hosting can then be safe.</td></tr>';
+$html_text .= '<tr id="113" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">The <b>www</b> subdomain is not unnecessary. There are some useful aspects. If you host elsewhere, you need CNAME, that is allowed for subdomain www.</td></tr>';
+$html_text .= '<tr id="114" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">And for a website with a subdomain, HSTS can be set more precisely. <a style="font-size: 0.9rem" href="https://datatracker.ietf.org/doc/html/draft-ietf-dnsop-aname-01" target="_blank">An RFC draft from PowerDNS and DNSimple on ANAME</a> - <a style="font-size: 0.9rem" href="https://blog.cloudflare.com/introducing-cname-flattening-rfc-compliant-cnames-at-a-domains-root/" target="_blank">Cloudflare about ANAME</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/dns-setup/a-aaaa-or-cname/" target="_blank">Me about CNAME</a></td></tr>';
 $html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:0.9rem" onclick="SwitchDisplay(12)">About security.txt Content Expiry +/-</button></td></tr>';
 $html_text .= '<tr id="121" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">RFC 9116: "The "Expires" field indicates the date and time after which the data contained in the "security.txt" file is considered stale and should not be used (as per Section 5.3)".</td></tr>';
 $html_text .= '<tr id="122" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">RFC 9116: "It is RECOMMENDED that the value of this field be less than a year into the future to avoid staleness."</td></tr>';
