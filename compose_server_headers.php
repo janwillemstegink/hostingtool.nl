@@ -296,7 +296,7 @@ if (mb_substr($inputdomain, 0, 1) != '_')	{
 	}
 	else	{	
 		if ($cname_limited)	{
-			$DNS_TXT .= '("v=spf1 -all" would combine with future ANAME, flatter CNAME)<br />';
+			$DNS_TXT .= '("v=spf1 -all" would combine with future ANAME, flattened CNAME)<br />';
 		}
 		elseif (!strlen($DNS_CNAME))	{
 			$DNS_TXT .= 'not applicable';		
@@ -343,7 +343,7 @@ if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
 	}
 	else	{
 		if ($cname_limited_www)	{
-			$DNS_TXT_www .= '("v=spf1 -all" would combine with future ANAME, flatter CNAME)<br />';
+			$DNS_TXT_www .= '("v=spf1 -all" would combine with future ANAME, flattened CNAME)<br />';
 		}
 		elseif (!strlen($DNS_CNAME_www))	{
 			$DNS_TXT_www .= 'not applicable';		
@@ -409,6 +409,7 @@ curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
 curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 curl_setopt($ch, CURLOPT_VERBOSE, 1);
+//curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); // CURL_IPRESOLVE_V6, by default CURL_IPRESOLVE_WHATEVER
 	
 //curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201');
 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36');
@@ -571,8 +572,11 @@ elseif (strlen($DNS_CNAME))	{
 			}													 
 		}	
 	}
-	if (strval($server_header_code) == '500')	{
+	if (intval($server_header_code) == 500)	{
 		$hsts_header .= ' does not show HSTS with response 500.';
+	}
+	elseif (intval($server_header_code) == 403)	{
+		$hsts_header .= ' does not show HSTS with response 403.';
 	}
 	elseif (str_contains($hsts_header, 'HSTS'))	{
 	}
@@ -642,8 +646,11 @@ elseif (strlen($DNS_CNAME_www))	{
 			}
 		}	
 	}
-	if (strval($server_header_code_www) == '500')	{
+	if (intval($server_header_code) == 500)	{
 		$hsts_header_www .= ' does not show HSTS with response 500.';
+	}
+	elseif (intval($server_header_code) == 403)	{
+		$hsts_header_www .= ' does not show HSTS with response 403.';
 	}
 	elseif (str_contains($hsts_header_www, 'HSTS'))	{
 	}
@@ -700,9 +707,12 @@ elseif (strlen($DNS_CNAME))	{
 				$security_txt_legacy = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
-		elseif (strval($received_http_code) == '500')	{
+		elseif (intval($received_http_code) == 500)	{
 			$security_txt_legacy = 'HTTP code 500 received (without security.txt).';
-		}	
+		}
+		elseif (intval($received_http_code) == 403)	{
+			$security_txt_legacy = 'HTTP code 403 received (without security.txt).';
+		}
 		elseif ($matches_server)	{
 			$security_txt_legacy = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
 		}
@@ -742,8 +752,11 @@ elseif (strlen($DNS_CNAME))	{
 				$security_txt_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
-		elseif (strval($received_http_code) == '500')	{
+		elseif (intval($received_http_code) == 500)	{
 			$security_txt_relocated = 'HTTP code 500 received (without security.txt).';
+		}
+		elseif (intval($received_http_code) == 403)	{
+			$security_txt_relocated = 'HTTP code 403 received (without security.txt).';
 		}
 		elseif ($matches_server)	{
 			$security_txt_notice = 1;
@@ -798,8 +811,11 @@ elseif (strlen($DNS_CNAME_www))	{
 				$security_txt_www_legacy = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
-		elseif (strval($received_http_code) == '500')	{
+		elseif (intval($received_http_code) == 500)	{
 			$security_txt_www_legacy = 'HTTP code 500 received (without security.txt).';
+		}
+		elseif (intval($received_http_code) == 403)	{
+			$security_txt_www_legacy = 'HTTP code 403 received (without security.txt).';
 		}
 		elseif ($matches_server_www)	{
 			$security_txt_www_legacy = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
@@ -840,8 +856,11 @@ elseif (strlen($DNS_CNAME_www))	{
 				$security_txt_www_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
-		elseif (strval($received_http_code) == '500')	{
+		elseif (intval($received_http_code) == 500)	{
 			$security_txt_www_relocated = 'HTTP code 500 received (without security.txt).';
+		}
+		elseif (intval($received_http_code) == 403)	{
+			$security_txt_www_relocated = 'HTTP code 403 received (without security.txt).';
 		}
 		elseif ($matches_server_www)	{
 			$security_txt_www_notice = 1;
@@ -886,9 +905,12 @@ elseif (strlen($DNS_CNAME))	{
 				$robots_txt = 'HTTP 200 OK received without a robots.txt file';
 			}
 		}
-		elseif (strval($received_http_code) == '500')	{
+		elseif (intval($received_http_code) == 500)	{
 			$robots_txt = 'HTTP code 500 received (without robots.txt).';
-		}	
+		}
+		elseif (intval($received_http_code) == 403)	{
+			$robots_txt = 'HTTP code 403 received (without robots.txt).';
+		}
 		elseif ($matches_server)	{
 			$robots_txt_notice = 1;
 			$robots_txt = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
@@ -932,8 +954,11 @@ elseif (strlen($DNS_CNAME_www))	{
 				$robots_txt_www = 'HTTP 200 OK received without a robots.txt file';
 			}
 		}
-		elseif (strval($received_http_code) == '500')	{
+		elseif (intval($received_http_code) == 500)	{
 			$robots_txt_www = 'HTTP code 500 received (without robots.txt).';
+		}
+		elseif (intval($received_http_code) == 403)	{
+			$robots_txt_www = 'HTTP code 403 received (without robots.txt).';
 		}
 		elseif ($matches_server_www)	{
 			$robots_txt_www_notice = 1;
@@ -965,6 +990,8 @@ elseif (strlen($DNS_CNAME))	{
 			if (strlen($destination_url))	{
 				if (str_contains($destination_url, 'https://'))	{
 				}
+				elseif (intval(curl_getinfo($ch, CURLINFO_HTTP_CODE)) == 403)	{
+				}	
 				else	{
 					$http_code_notice = 1;
 					$http_code_destination .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';					
@@ -1002,6 +1029,8 @@ elseif (strlen($DNS_CNAME_www))	{
 			$http_code_destination_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $destination_url;
 			if (strlen($destination_url))	{
 				if (str_contains($destination_url, 'https://'))	{
+				}
+				elseif (intval(curl_getinfo($ch, CURLINFO_HTTP_CODE)) == 403)	{
 				}
 				else	{
 					$http_code_www_notice = 1;
