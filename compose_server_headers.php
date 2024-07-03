@@ -28,7 +28,7 @@ $matches_server = false;
 $DNS_CNAME = '';
 $CNAMED = '';	
 $DNS_CNAME_notice = 0;	
-if (mb_substr($inputdomain, 0, 1) != '_')	{	
+if (!str_contains($inputdomain, '_'))	{
 	$DNS_CNAME = get_cname_target($inputdomain);	
 	if (strlen($DNS_CNAME))	{		
 		$CNAMED = $DNS_CNAME;
@@ -121,7 +121,7 @@ $matches_server_www = false;
 $DNS_CNAME_www = '';
 $CNAMED_www = '';	
 $DNS_CNAME_www_notice = 0;	
-if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
+if (!str_contains('www.'.$inputdomain, '_'))	{	
 	$DNS_CNAME_www = '';	
 	$DNS_CNAME_www = get_cname_target('www.'.$inputdomain);		
 	if (strlen($DNS_CNAME_www))	{
@@ -282,7 +282,7 @@ foreach($array as $key1 => $value1) {
 		}
 	}	
 }
-if (mb_substr($inputdomain, 0, 1) != '_')	{
+if (!str_contains($inputdomain, '_'))	{
 	if (str_contains(strtolower($DNS_TXT), 'v=dmarc1'))	{
 		$DNS_TXT_notice = 1;
 		$DNS_TXT .= '(incorrect, because of an unexpected "v=DMARC1")<br />';
@@ -329,7 +329,7 @@ foreach($array as $key1 => $value1) {
 		}	
     }
 }
-if (mb_substr('www.'.$inputdomain, 0, 1) != '_')	{
+if (!str_contains('www.'.$inputdomain, '_'))	{	
 	if (str_contains(strtolower($DNS_TXT_www), 'v=dmarc1'))	{
 		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '(incorrect, because of an unexpected "v=DMARC1")<br />';
