@@ -397,8 +397,21 @@ else	{
 		$DNS_DMARC_www_notice = 1;
 		$DNS_DMARC_www .= '(DMARC can be strengthened with reject for subdomains)<br />';
 	}	
+}
+$DNS_SOA = '';
+$array = dns_get_record($inputdomain, DNS_SOA);	
+foreach($array as $key1 => $value1) {
+	foreach($value1 as $key2 => $value2) {
+		$DNS_SOA .= $key2 . ': ' . $value2 . '<br />';
+    }
+}
+$DNS_SOA_www = '(not expected)<br />';
+$array = dns_get_record('www.'.$inputdomain, DNS_SOA);		
+foreach($array as $key1 => $value1) {
+	foreach($value1 as $key2 => $value2) {
+		$DNS_SOA_www .= $key2 . ': ' . $value2 . '<br />';
+    }
 }	
-	
 //$DNSSEC_A = 0;
 //$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' A');
 //if (str_contains($output,'RRSIG'))	{
@@ -1248,6 +1261,14 @@ $domain->appendChild($domain_AS_A_www);
 $domain_AS_AAAA_www = $doc->createElement("AS_AAAA_www");
 $domain_AS_AAAA_www->appendChild($doc->createCDATASection(nl2br(htmlentities($AS_AAAA_www))));
 $domain->appendChild($domain_AS_AAAA_www);	
+	
+$domain_DNS_SOA = $doc->createElement("DNS_SOA");
+$domain_DNS_SOA->appendChild($doc->createCDATASection($DNS_SOA));
+$domain->appendChild($domain_DNS_SOA);
+	
+$domain_DNS_SOA_www = $doc->createElement("DNS_SOA_www");
+$domain_DNS_SOA_www->appendChild($doc->createCDATASection($DNS_SOA_www));
+$domain->appendChild($domain_DNS_SOA_www);	
 	
 $domain_security_txt_url_legacy = $doc->createElement("security_txt_url_legacy");
 $domain_security_txt_url_legacy->appendChild($doc->createCDATASection($security_txt_url_legacy));		

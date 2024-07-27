@@ -54,6 +54,10 @@ function SwitchDisplay(type) {
 		var pre = '35';
 		var max = 3
 	}
+	else if (type == 36)	{ // SOA
+		var pre = '36';
+		var max = 2
+	}
 	else if (type == 41)	{ // robots.txt
 		var pre = '41';
 		var max = 2
@@ -262,7 +266,9 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="351" style="display:none;vertical-align:top"><td colspan="2"><b>Autonomous system IPv4:</b><br />'.$item->AS_A.'</td><td><b>Autonomous system IPv4:</b><br />'.$item->AS_A_www.'</td></tr>';
 	$html_text .= '<tr id="352" style="display:none"><td><hr></td><td><hr></td><td><hr></td></tr>';
 	$html_text .= '<tr id="353" style="display:none;vertical-align:top"><td colspan="2"><b>Autonomous system IPv6:</b><br />'.$item->AS_AAAA.'</td><td><b>Autonomous system IPv6:</b><br />'.$item->AS_AAAA_www.'</td></tr>';
-	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
+	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(36)">SOA +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(36)">SOA +/-</button></td></tr>';
+	$html_text .= '<tr id="361" style="display:none;vertical-align:top"><td colspan="2"><b>Start of Authority:</b><br />'.$item->DNS_SOA.'</td><td><b>Start of Authority:</b><br />'.$item->DNS_SOA_www.'</td></tr>';
+	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	if ($item->robots_txt_notice == "1")	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(41)">
 		robots.txt +/-</button></td>';
