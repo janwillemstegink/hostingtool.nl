@@ -776,9 +776,11 @@ elseif (strlen($DNS_CNAME))	{
 			}
 		}
 		elseif (intval($received_http_code) == 500)	{
+			$security_txt_notice = 1;
 			$security_txt_relocated = 'HTTP code 500 received (without security.txt).';
 		}
 		elseif (intval($received_http_code) == 403)	{
+			$security_txt_notice = 1;
 			$security_txt_relocated = 'HTTP code 403 received (without security.txt).';
 		}
 		elseif ($matches_server)	{
@@ -880,9 +882,11 @@ elseif (strlen($DNS_CNAME_www))	{
 			}
 		}
 		elseif (intval($received_http_code) == 500)	{
+			$security_txt_www_notice = 1;
 			$security_txt_www_relocated = 'HTTP code 500 received (without security.txt).';
 		}
 		elseif (intval($received_http_code) == 403)	{
+			$security_txt_www_notice = 1;
 			$security_txt_www_relocated = 'HTTP code 403 received (without security.txt).';
 		}
 		elseif ($matches_server_www)	{
@@ -1508,7 +1512,7 @@ function get_mx_ips($inputurl)	{
 		if (str_contains($output, 'IPv6'))	{
 		}
 		else	{	
-			$output .= '(IPv6 after request to Microsoft)<br />';
+			$output .= '(IPv6 after request to Microsoft; standard from October 1, 2024)<br />';
 		}		
 	}	
 	return $output;

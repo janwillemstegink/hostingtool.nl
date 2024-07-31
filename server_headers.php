@@ -182,13 +182,19 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr><td colspan="2" style="cursor:pointer;font-size:1.6rem">'.$item->url.'</td><td style="cursor:pointer;font-size:1.6rem">www.'.$item->url.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	if ($item->http_code_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(21)">HTTP response +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(21)">HTTP response +/-</button></td>';
+	}
+	elseif ($item->http_code_notice == "0" and !str_contains($item->http_code_initial, 'not applicable'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(21)">HTTP response +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(21)">HTTP response +/-</button></td>';
 	}
 	if ($item->http_code_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(21)">HTTP response +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(21)">HTTP response +/-</button></td></tr>';
+	}
+	elseif ($item->http_code_www_notice == "0" and !str_contains($item->http_code_initial_www, 'not applicable'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(21)">HTTP response +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(21)">HTTP response +/-</button></td></tr>';
@@ -196,13 +202,19 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="211" style="display:none;vertical-align:top"><td colspan="2">'.$item->http_code_initial.'</td><td>'.$item->http_code_initial_www.'</td></tr>';
 	$html_text .= '<tr id="212" style="display:none;vertical-align:top"><td colspan="2">'.$item->http_code_destination.'</td><td>'.$item->http_code_destination_www.'</td></tr>';
 	if ($item->https_code_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td>';
+	}
+	elseif ($item->https_code_notice == "0" and !str_contains($item->https_code_initial, 'not applicable'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td>';
 	}
 	if ($item->https_code_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td></tr>';
+	}
+	elseif ($item->https_code_www_notice == "0" and !str_contains($item->https_code_initial_www, 'not applicable'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(22)">HTTPS response +/-</button></td></tr>';
@@ -211,52 +223,76 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="222" style="display:none;vertical-align:top"><td colspan="2">'.$item->https_code_destination.'</td><td>'.$item->https_code_destination_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	if ($item->DNS_CNAME_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td>';
+	}
+	elseif ($item->DNS_CNAME_notice == "0" and strlen($item->DNS_CNAME))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A, FCrDNS +/-</button></td>';
 	}
 	if ($item->DNS_CNAME_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
+	}
+	elseif ($item->DNS_CNAME_www_notice == "0" and strlen($item->DNS_CNAME_www))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(31)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(31)">CNAME, A, quad A, FCrDNS +/-</button></td></tr>';
 	}	
 	$html_text .= '<tr id="311" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CNAME.'</td><td>'.$item->DNS_CNAME_www.'</td></tr>';
 	if ($item->DNS_MX_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(32)">MX +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(32)">MX +/-</button></td>';
+	}
+	elseif ($item->DNS_MX_notice == "0" and !str_contains($item->DNS_MX, 'not applicable'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(32)">MX +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(32)">MX +/-</button></td>';		
 	}
 	if ($item->DNS_MX_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(32)">MX +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(32)">MX +/-</button></td></tr>';
+	}
+	elseif ($item->DNS_MX_www_notice == "0" and !str_contains($item->DNS_MX_www, 'not applicable'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(32)">MX +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(32)">MX +/-</button></td></tr>';		
 	}
 	$html_text .= '<tr id="321" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_MX.'</td><td>'.$item->DNS_MX_www.'</td></tr>';
 	if ($item->DNS_TXT_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
+	}
+	elseif ($item->DNS_TXT_notice == "0" and !str_contains($item->DNS_TXT, 'not applicable'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td>';
 	}
 	if ($item->DNS_TXT_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';
+	}
+	elseif ($item->DNS_TXT_www_notice == "0" and !str_contains($item->DNS_TXT_www, 'not applicable'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(33)">TXT +/-</button></td></tr>';		
 	}
 	$html_text .= '<tr id="331" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_TXT.'</td><td>'.$item->DNS_TXT_www.'</td></tr>';
 	if ($item->DNS_DMARC_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(34)">DMARC +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(34)">DMARC +/-</button></td>';
+	}
+	elseif ($item->DNS_DMARC_notice == "0" and !str_contains($item->DNS_DMARC, 'not applicable'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td>';
 	}
 	if ($item->DNS_DMARC_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';
+	}
+	elseif ($item->DNS_DMARC_www_notice == "0" and !str_contains($item->DNS_DMARC_www, 'not applicable'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';
 	}
 	else	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(34)">DMARC +/-</button></td></tr>';		
@@ -270,14 +306,22 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="361" style="display:none;vertical-align:top"><td colspan="2"><b>Start of Authority:</b><br />'.$item->DNS_SOA.'</td><td><b>Start of Authority:</b><br />'.$item->DNS_SOA_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	if ($item->robots_txt_notice == "1")	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(41)">
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(41)">
+		robots.txt +/-</button></td>';
+	}
+	elseif ($item->robots_txt_notice == "0" and !str_contains($item->robots_txt, 'not applicable'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(41)">
 		robots.txt +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(41)">robots.txt +/-</button></td>';
 	}
 	if ($item->robots_txt_www_notice == "1")	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(41)">
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(41)">
+		robots.txt +/-</button></td></tr>';
+	}
+	elseif ($item->robots_txt_www_notice == "0" and !str_contains($item->robots_txt_www, 'not applicable'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(41)">
 		robots.txt +/-</button></td></tr>';
 	}
 	else	{
@@ -292,14 +336,22 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="431" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->security_txt_url_legacy.'</em></td><td><em>'.$item->security_txt_url_www_legacy.'</em></td></tr>';
 	$html_text .= '<tr id="432" style="display:none;vertical-align:top"><td colspan="2">'.$item->security_txt_legacy.'</td><td>'.$item->security_txt_www_legacy.'</td></tr>';
 	if ($item->security_txt_notice == "1")	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(44)">
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(44)">
+		.well-known/security.txt +/-</button></td>';
+	}
+	elseif ($item->security_txt_notice == "0" and !str_contains($item->security_txt_url_relocated, 'not applicable'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(44)">
 		.well-known/security.txt +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(44)">.well-known/security.txt +/-</button></td>';
 	}
 	if ($item->security_txt_www_notice == "1")	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(44)">
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(44)">
+		.well-known/security.txt +/-</button></td></tr>';
+	}
+	elseif ($item->security_txt_www_notice == "0" and !str_contains($item->security_txt_url_www_relocated, 'not applicable'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(44)">
 		.well-known/security.txt +/-</button></td></tr>';
 	}
 	else	{
@@ -309,14 +361,22 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="442" style="display:none;vertical-align:top"><td colspan="2">'.$item->security_txt_relocated.'</td><td>'.$item->security_txt_www_relocated.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';		
 	if ($item->hsts_header_notice == "1")	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(51)">
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(51)">
+		HSTS +/-</button></td>';
+	}
+	elseif ($item->hsts_header_notice == "0" and !str_contains($item->hsts_header, 'not applicable'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(51)">
 		HSTS +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(51)">HSTS +/-</button></td>';
 	}
 	if ($item->hsts_header_www_notice == "1")	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#f0be77;border-color:#f0be77" onclick="SwitchDisplay(51)">
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(51)">
+		HSTS +/-</button></td></tr>';
+	}
+	elseif ($item->hsts_header_www_notice == "0" and !str_contains($item->hsts_header_www, 'not applicable'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(51)">
 		HSTS +/-</button></td></tr>';
 	}
 	else	{
@@ -332,5 +392,5 @@ foreach ($xml1->xpath('//domain') as $item)	{
 }
 }	
 $html_text .= '</div></body></html>';	
-echo $html_text;	
+echo $html_text;
 ?>
