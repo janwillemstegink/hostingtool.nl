@@ -392,5 +392,5 @@ foreach ($xml1->xpath('//domain') as $item)	{
 }
 }	
 $html_text .= '</div></body></html>';	
-echo $html_text;
+echo $html_text;	
 ?>

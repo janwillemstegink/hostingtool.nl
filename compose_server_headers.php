@@ -405,12 +405,18 @@ foreach($array as $key1 => $value1) {
 		$DNS_SOA .= $key2 . ': ' . $value2 . '<br />';
     }
 }
-$DNS_SOA_www = '(not expected)<br />';
+$DNS_SOA_www = '';
 $array = dns_get_record('www.'.$inputdomain, DNS_SOA);		
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		$DNS_SOA_www .= $key2 . ': ' . $value2 . '<br />';
     }
+}
+if (strlen($DNS_SOA_www))	{	
+	$DNS_SOA_www = '(the registry may exclude this domain)<br />'.$DNS_SOA_www;	
+}
+else	{
+	$DNS_SOA_www = '(no registrant domain)<br />';	
 }	
 //$DNSSEC_A = 0;
 //$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' A');
