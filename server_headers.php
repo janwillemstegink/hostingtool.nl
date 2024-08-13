@@ -52,7 +52,7 @@ function SwitchDisplay(type) {
 	}
 	else if (type == 35)	{ // AS
 		var pre = '35';
-		var max = 3
+		var max = 4
 	}
 	else if (type == 36)	{ // SOA
 		var pre = '36';
@@ -299,9 +299,10 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	}
 	$html_text .= '<tr id="341" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_DMARC.'</td><td>'.$item->DNS_DMARC_www.'</td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">AS +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(35)">AS +/-</button></td></tr>';
-	$html_text .= '<tr id="351" style="display:none;vertical-align:top"><td colspan="2"><b>Autonomous system IPv4:</b><br />'.$item->AS_A.'</td><td><b>Autonomous system IPv4:</b><br />'.$item->AS_A_www.'</td></tr>';
-	$html_text .= '<tr id="352" style="display:none"><td><hr></td><td><hr></td><td><hr></td></tr>';
-	$html_text .= '<tr id="353" style="display:none;vertical-align:top"><td colspan="2"><b>Autonomous system IPv6:</b><br />'.$item->AS_AAAA.'</td><td><b>Autonomous system IPv6:</b><br />'.$item->AS_AAAA_www.'</td></tr>';
+	$html_text .= '<tr id="351" style="display:none;vertical-align:top"><td colspan="3">(For consultation about the desired state: more than one AS, AnyCast, DNSSEC algorithm 13, more than one DNS software)</td></tr>';
+	$html_text .= '<tr id="352" style="display:none;vertical-align:top"><td colspan="2"><b>Autonomous system IPv4:</b><br />'.$item->AS_A.'</td><td><b>Autonomous system IPv4:</b><br />'.$item->AS_A_www.'</td></tr>';
+	$html_text .= '<tr id="353" style="display:none"><td><hr></td><td><hr></td><td><hr></td></tr>';
+	$html_text .= '<tr id="354" style="display:none;vertical-align:top"><td colspan="2"><b>Autonomous system IPv6:</b><br />'.$item->AS_AAAA.'</td><td><b>Autonomous system IPv6:</b><br />'.$item->AS_AAAA_www.'</td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(36)">SOA +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(36)">SOA +/-</button></td></tr>';
 	$html_text .= '<tr id="361" style="display:none;vertical-align:top"><td colspan="2"><b>Start of Authority:</b><br />'.$item->DNS_SOA.'</td><td><b>Start of Authority:</b><br />'.$item->DNS_SOA_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	

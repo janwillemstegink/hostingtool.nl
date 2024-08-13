@@ -105,7 +105,7 @@ if (!str_contains($inputdomain, '_'))	{
 			}
 		}	
 	}
-}
+}	
 if (strlen($DNS_CNAME))	{
 	if (!str_contains($DNS_CNAME, 'IPv4'))	{
 		$DNS_CNAME .= '(IPv4 is not supported)<br />';
@@ -114,7 +114,6 @@ if (strlen($DNS_CNAME))	{
 		$DNS_CNAME .= '(IPv6 is not supported)<br />';
 	}
 }
-	
 $same_server_www = false;
 $cname_limited_www = false;
 $matches_server_www = false;
@@ -377,6 +376,10 @@ if (!strlen($DNS_DMARC))	{
 		$DNS_DMARC .= '(DMARC misses in email settings)<br />';	
 	}	
 }
+elseif (str_contains($DNS_DMARC, 'no underscore'))	{
+	$DNS_DMARC_notice = 1;
+	$DNS_DMARC .= '(without underscore the url can be a server name)<br />';
+}	
 $DNS_DMARC_www = dmarc_list('www.'.$inputdomain);
 $DNS_DMARC_www_notice = 0;	
 if (!strlen($DNS_DMARC_www))	{
@@ -395,8 +398,12 @@ else	{
 	}
 	else	{
 		$DNS_DMARC_www_notice = 1;
-		$DNS_DMARC_www .= '(DMARC can be strengthened with reject for subdomains)<br />';
-	}	
+		$DNS_DMARC_www .= '(DMARC can be strengthened with "reject" for subdomains)<br />';
+	}
+	if (str_contains($DNS_DMARC_www, 'no underscore'))	{
+		$DNS_DMARC_www_notice = 1;
+		$DNS_DMARC_www .= '(without underscore the url can be a server name)<br />';
+	}
 }
 $DNS_SOA = '';
 $array = dns_get_record($inputdomain, DNS_SOA);	
@@ -405,6 +412,15 @@ foreach($array as $key1 => $value1) {
 		$DNS_SOA .= $key2 . ': ' . $value2 . '<br />';
     }
 }
+if (strlen($DNS_SOA) and $cname_limited)	{	
+	$DNS_SOA = '(CNAME determines fetched data)<br />'.$DNS_SOA;
+}
+elseif (strlen($DNS_SOA))	{
+	$DNS_SOA = '(this is a registrant, second-level or zone domain)<br />'.$DNS_SOA;
+}	
+else	{	
+	$DNS_SOA = '(no registrant, second-level or zone domain)<br />';	
+}	
 $DNS_SOA_www = '';
 $array = dns_get_record('www.'.$inputdomain, DNS_SOA);		
 foreach($array as $key1 => $value1) {
@@ -412,8 +428,11 @@ foreach($array as $key1 => $value1) {
 		$DNS_SOA_www .= $key2 . ': ' . $value2 . '<br />';
     }
 }
-if (strlen($DNS_SOA_www))	{	
-	$DNS_SOA_www = '(the registry may exclude this domain)<br />'.$DNS_SOA_www;	
+if (strlen($DNS_SOA_www) and $cname_limited_www)	{	
+	$DNS_SOA_www = '(CNAME determines fetched data)<br />'.$DNS_SOA_www;	
+}
+elseif (strlen($DNS_SOA_www))	{	
+	$DNS_SOA_www = '(this domain would fit an excluded status)<br />'.$DNS_SOA_www;	
 }
 else	{
 	$DNS_SOA_www = '(no registrant domain)<br />';	
@@ -1537,12 +1556,13 @@ function dmarc_list($inputurl)	{
 		return 'not applicable';
 	}	
 	while ($strpos)	{
+		$underscore = '';
 		$array = dns_get_record('_dmarc.'.$inputurl, DNS_TXT);
 		$cname_value = get_cname_target('_dmarc.'.$inputurl);
 		foreach($cname_value as $key1 => $value1) {
 			foreach($cname_value as $key2 => $value2) {
 				$inputurl = $cname_value;
-				$array = dns_get_record($inputurl, DNS_TXT);							
+				$array = dns_get_record($inputurl, DNS_TXT);
 			}
 		}
 		$temp1 = '';
@@ -1551,33 +1571,36 @@ function dmarc_list($inputurl)	{
 			foreach($value1 as $key2 => $value2) {
 				if ($key2 == 'host') {
 					$temp1 = $value2;
+					if (mb_substr($value2, 0, 1) != '_')	{
+						$underscore = ' (no underscore)';
+					}
 				}
 				if ($key2 == 'txt') {
 					$temp2 = $value2;
 				}				
 			}
 		}
-		if	(!str_contains($temp2, 'v=DMARC1;'))	{
-			$cname_value = get_cname_target($inputurl);
-			foreach($cname_value as $key1 => $value1) {
-				foreach($cname_value as $key2 => $value2) {
-					foreach($array as $key1 => $value1) {
-						foreach($value1 as $key2 => $value2) {
-							if ($key2 == 'host') {
-								$temp1 = $value2;
-							}
-							if ($key2 == 'txt') {
-								$temp2 = $value2;
-							}				
-						}
-					}
-				}	
-			}
-		}
+		//if	(!str_contains($temp2, 'v=DMARC1;'))	{
+		//	$cname_value = get_cname_target($inputurl);
+		//	foreach($cname_value as $key1 => $value1) {
+		//		foreach($cname_value as $key2 => $value2) {
+		//			foreach($array as $key1 => $value1) {
+		//				foreach($value1 as $key2 => $value2) {
+		//					if ($key2 == 'host') {
+		//						$temp1 = $value2;
+		//					}
+		//					if ($key2 == 'txt') {
+		//						$temp2 = $value2;
+		//					}
+		//				}
+		//			}
+		//		}	
+		//	}
+		//}
 		if (strlen($temp1) and str_contains(str_replace(' ', '', $temp2), 'v=DMARC1;'))	{
-			$output .= $inputurl . ': ' .  $temp1 . ': ' . $temp2 . '<br />';
+			$output .= $inputurl . ': ' . $temp1 . $underscore . ': ' . $temp2 . '<br />';
 		}
-		if (mb_strpos($output, 'v=DMARC1;'))	{
+		if (str_contains($output, 'v=DMARC1;'))	{
 			break;
 		}
 		$inputurl = remove_subdomain($inputurl);
