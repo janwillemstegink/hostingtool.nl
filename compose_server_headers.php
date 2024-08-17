@@ -940,11 +940,11 @@ elseif (strlen($DNS_CNAME_www))	{
 }
 if ($effective_url_legacy != $effective_url_relocated and $security_txt_legacy_plain and $security_txt_relocated_plain)	{
 	$security_txt_legacy_notice = 1;
-	$security_txt_legacy = '(the legacy file url differs from the .well-known file url)';
+	$security_txt_legacy .= "\r\n" . '(the legacy file url differs from the .well-known file url)';
 }
 if ($effective_url_www_legacy != $effective_url_www_relocated and $security_txt_www_legacy_plain and $security_txt_www_relocated_plain)	{
 	$security_txt_www_legacy_notice = 1;
-	$security_txt_www_legacy = '(the legacy file url differs from the .well-known file url)';
+	$security_txt_www_legacy .= "\r\n" . '(the legacy file url differs from the .well-known file url)';
 }
 $robots_txt = 'not applicable';
 $robots_txt_notice = 0;
