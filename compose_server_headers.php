@@ -713,10 +713,13 @@ elseif (strlen($DNS_CNAME_www))	{
 	}
 }
 $security_txt_legacy = '';	
-$security_txt_url_legacy = 'not applicable';	
+$security_txt_url_legacy = 'not applicable';
+$security_txt_legacy_plain = 0;
+$security_txt_legacy_notice = 0;
 $security_txt_relocated = '';
-$security_txt_url_relocated = 'not applicable';		
-$security_txt_notice = 0;
+$security_txt_url_relocated = 'not applicable';	
+$security_txt_relocated_plain = 0;
+$security_txt_relocated_notice = 0;
 	
 curl_setopt($ch, CURLOPT_HEADER, 0);		
 curl_setopt($ch, CURLOPT_NOBODY, 0);	
@@ -734,18 +737,19 @@ elseif (strlen($DNS_CNAME))	{
 	$security_txt_url_legacy = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	$effective = curl_exec($ch);
-	$effective_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	$effective_url_legacy = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	if (!curl_errno($ch)) {
-		if ($effective_url == $security_txt_url_legacy)	{
+		if ($effective_url_legacy == $security_txt_url_legacy)	{
 		}
 		else	{
-			$security_txt_url_legacy .= '<br />'.$effective_url;
+			$security_txt_url_legacy .= '<br />'.$effective_url_legacy;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (intval($received_http_code) == 200)	{
-			if (str_contains($effective_url, '/security.txt'))	{
+			if (str_contains($effective_url_legacy, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_legacy = $effective;
+					$security_txt_legacy_plain = 1;
 				}
 				else	{
 					$security_txt_legacy = 'No text/plain content type received.';
@@ -777,56 +781,60 @@ elseif (strlen($DNS_CNAME))	{
 	$security_txt_url_relocated = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	$effective = curl_exec($ch);
-	$effective_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	$effective_url_relocated = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	if (!curl_errno($ch)) {
-		if ($effective_url == $security_txt_url_relocated)	{
+		if ($effective_url_relocated == $security_txt_url_relocated)	{
 		}
 		else	{
-			$security_txt_url_relocated .= '<br />'.$effective_url;
+			$security_txt_url_relocated .= '<br />'.$effective_url_relocated;
 		}		
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (intval($received_http_code) == 200)	{
-			if (str_contains($effective_url, '/security.txt'))	{
+			if (str_contains($effective_url_relocated, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_relocated = $effective;
+					$security_txt_relocated_plain = 1;
 				}
 				else	{
-					$security_txt_notice = 1;
+					$security_txt_relocated_notice = 1;
 					$security_txt_relocated = 'No text/plain content type received.';
 				}
 			}	
 			else	{
-				$security_txt_notice = 1;
+				$security_txt_relocated_notice = 1;
 				$security_txt_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
 		elseif (intval($received_http_code) == 500)	{
-			$security_txt_notice = 1;
+			$security_txt_relocated_notice = 1;
 			$security_txt_relocated = 'HTTP code 500 received (without security.txt).';
 		}
 		elseif (intval($received_http_code) == 403)	{
-			$security_txt_notice = 1;
+			$security_txt_relocated_notice = 1;
 			$security_txt_relocated = 'HTTP code 403 received (without security.txt).';
 		}
 		elseif ($matches_server)	{
-			$security_txt_notice = 1;
+			$security_txt_relocated_notice = 1;
 			$security_txt_relocated = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
 		}
 		else	{
-			$security_txt_notice = 1;
+			$security_txt_relocated_notice = 1;
 			$security_txt_relocated = 'HTTP code '. $received_http_code . ' received.';
 		}		
 	}	
 	else	{
-		$security_txt_notice = 1;
+		$security_txt_relocated_notice = 1;
 		$security_txt_relocated = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
 }
 $security_txt_www_legacy = '';
-$security_txt_url_www_legacy = 'not applicable';	
+$security_txt_url_www_legacy = 'not applicable';
+$security_txt_www_legacy_plain = 0;
+$security_txt_www_legacy_notice = 0;
 $security_txt_www_relocated = '';
 $security_txt_url_www_relocated = 'not applicable';
-$security_txt_www_notice = 0;
+$security_txt_www_relocated_plain = 0;	
+$security_txt_www_relocated_notice = 0;
 if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
 	$security_txt_www_legacy = '';
 	$security_txt_url_www_legacy = $curl_error_www;	
@@ -840,18 +848,19 @@ elseif (strlen($DNS_CNAME_www))	{
 	$security_txt_url_www_legacy = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	$effective = curl_exec($ch);
-	$effective_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	$effective_url_www_legacy = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	if (!curl_errno($ch)) {
-		if ($effective_url == $security_txt_url_www_legacy)	{
+		if ($effective_url_www_legacy == $security_txt_url_www_legacy)	{
 		}
 		else	{
-			$security_txt_url_www_legacy .= '<br />'.$effective_url;
+			$security_txt_url_www_legacy .= '<br />'.$effective_url_www_legacy;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (intval($received_http_code) == 200)	{
-			if (str_contains($effective_url, '/security.txt'))	{
+			if (str_contains($effective_url_www_legacy, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_www_legacy = $effective;
+					$security_txt_www_legacy_plain = 1;
 				}
 				else	{
 					$security_txt_www_legacy = 'No text/plain content type received.';
@@ -883,50 +892,59 @@ elseif (strlen($DNS_CNAME_www))	{
 	$security_txt_url_www_relocated = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 	$effective = curl_exec($ch);
-	$effective_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	$effective_url_www_relocated = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	if (!curl_errno($ch)) {
-		if ($effective_url == $security_txt_url_www_relocated)	{
+		if ($effective_url_www_relocated == $security_txt_url_www_relocated)	{
 		}
 		else	{
-			$security_txt_url_www_relocated .= '<br />'.$effective_url;
+			$security_txt_url_www_relocated .= '<br />'.$effective_url_www_relocated;
 		}
 		$received_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (intval($received_http_code) == 200)	{
-			if (str_contains($effective_url, '/security.txt'))	{
+			if (str_contains($effective_url_www_relocated, '/security.txt'))	{
 				if (str_contains(curl_getinfo($ch, CURLINFO_CONTENT_TYPE), 'text/plain'))	{
 					$security_txt_www_relocated = $effective;
+					$security_txt_www_relocated_plain = 1;
 				}
 				else	{
-					$security_txt_www_notice = 1;
+					$security_txt_www_relocated_notice = 1;
 					$security_txt_www_relocated = 'No text/plain content type received.';
 				}
 			}	
 			else	{
-				$security_txt_www_notice = 1;
+				$security_txt_www_relocated_notice = 1;
 				$security_txt_www_relocated = 'HTTP 200 OK received without a security.txt file';
 			}
 		}
 		elseif (intval($received_http_code) == 500)	{
-			$security_txt_www_notice = 1;
+			$security_txt_www_relocated_notice = 1;
 			$security_txt_www_relocated = 'HTTP code 500 received (without security.txt).';
 		}
 		elseif (intval($received_http_code) == 403)	{
-			$security_txt_www_notice = 1;
+			$security_txt_www_relocated_notice = 1;
 			$security_txt_www_relocated = 'HTTP code 403 received (without security.txt).';
 		}
 		elseif ($matches_server_www)	{
-			$security_txt_www_notice = 1;
+			$security_txt_www_relocated_notice = 1;
 			$security_txt_www_relocated = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
 		}
 		else	{
-			$security_txt_www_notice = 1;
+			$security_txt_www_relocated_notice = 1;
 			$security_txt_www_relocated = 'HTTP code '. $received_http_code . ' received.';
 		}
 	}	
 	else	{
-		$security_txt_www_notice = 1;
+		$security_txt_www_relocated_notice = 1;
 		$security_txt_www_relocated = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
+}
+if ($effective_url_legacy != $effective_url_relocated and $security_txt_legacy_plain and $security_txt_relocated_plain)	{
+	$security_txt_legacy_notice = 1;
+	$security_txt_legacy = '(the legacy file url differs from the .well-known file url)';
+}
+if ($effective_url_www_legacy != $effective_url_www_relocated and $security_txt_www_legacy_plain and $security_txt_www_relocated_plain)	{
+	$security_txt_www_legacy_notice = 1;
+	$security_txt_www_legacy = '(the legacy file url differs from the .well-known file url)';
 }
 $robots_txt = 'not applicable';
 $robots_txt_notice = 0;
@@ -1331,13 +1349,21 @@ $domain_security_txt_www_relocated = $doc->createElement("security_txt_www_reloc
 $domain_security_txt_www_relocated->appendChild($doc->createCDATASection(nl2br(htmlentities($security_txt_www_relocated))));
 $domain->appendChild($domain_security_txt_www_relocated);
 	
-$domain_security_txt_notice = $doc->createElement("security_txt_notice");
-$domain_security_txt_notice->appendChild($doc->createCDATASection($security_txt_notice));
-$domain->appendChild($domain_security_txt_notice);	
+$domain_security_txt_legacy_notice = $doc->createElement("security_txt_legacy_notice");
+$domain_security_txt_legacy_notice->appendChild($doc->createCDATASection($security_txt_legacy_notice));
+$domain->appendChild($domain_security_txt_legacy_notice);	
 	
-$domain_security_txt_www_notice = $doc->createElement("security_txt_www_notice");
-$domain_security_txt_www_notice->appendChild($doc->createCDATASection($security_txt_www_notice));
-$domain->appendChild($domain_security_txt_www_notice);
+$domain_security_txt_www_legacy_notice = $doc->createElement("security_txt_www_legacy_notice");
+$domain_security_txt_www_legacy_notice->appendChild($doc->createCDATASection($security_txt_www_legacy_notice));
+$domain->appendChild($domain_security_txt_www_legacy_notice);
+	
+$domain_security_txt_relocated_notice = $doc->createElement("security_txt_relocated_notice");
+$domain_security_txt_relocated_notice->appendChild($doc->createCDATASection($security_txt_relocated_notice));
+$domain->appendChild($domain_security_txt_relocated_notice);	
+	
+$domain_security_txt_www_relocated_notice = $doc->createElement("security_txt_www_relocated_notice");
+$domain_security_txt_www_relocated_notice->appendChild($doc->createCDATASection($security_txt_www_relocated_notice));
+$domain->appendChild($domain_security_txt_www_relocated_notice);	
 	
 $domain_robots_txt_url = $doc->createElement("robots_txt_url");
 $domain_robots_txt_url->appendChild($doc->createCDATASection($robots_txt_url));		

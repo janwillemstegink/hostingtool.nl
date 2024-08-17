@@ -333,25 +333,42 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(42)">meta tags +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(42)">meta tags +/-</button></td></tr>';
 	$html_text .= '<tr id="421" style="display:none;vertical-align:top"><td colspan="2">'.$item->meta_tags.'</td><td>'.$item->meta_tags_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
-	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td></tr>';
+	if ($item->security_txt_legacy_notice == "1")	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td>';
+	}
+	elseif ($item->security_txt_legacy_notice == "0" and !str_contains($item->security_txt_url_legacy, 'not applicable'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td>';
+	}
+	else	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td>';
+	}
+	if ($item->security_txt_www_legacy_notice == "1")	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td></tr>';
+	}
+	elseif ($item->security_txt_www_legacy_notice == "0" and !str_contains($item->security_txt_url_www_legacy, 'not applicable'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td></tr>';
+	}
+	else	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(43)">legacy security.txt +/-</button></td></tr>';
+	}
 	$html_text .= '<tr id="431" style="display:none;vertical-align:top"><td colspan="2"><em>'.$item->security_txt_url_legacy.'</em></td><td><em>'.$item->security_txt_url_www_legacy.'</em></td></tr>';
 	$html_text .= '<tr id="432" style="display:none;vertical-align:top"><td colspan="2">'.$item->security_txt_legacy.'</td><td>'.$item->security_txt_www_legacy.'</td></tr>';
-	if ($item->security_txt_notice == "1")	{
+	if ($item->security_txt_relocated_notice == "1")	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(44)">
 		.well-known/security.txt +/-</button></td>';
 	}
-	elseif ($item->security_txt_notice == "0" and !str_contains($item->security_txt_url_relocated, 'not applicable'))	{
+	elseif ($item->security_txt_relocated_notice == "0" and !str_contains($item->security_txt_url_relocated, 'not applicable'))	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(44)">
 		.well-known/security.txt +/-</button></td>';
 	}
 	else	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(44)">.well-known/security.txt +/-</button></td>';
 	}
-	if ($item->security_txt_www_notice == "1")	{
+	if ($item->security_txt_www_relocated_notice == "1")	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(44)">
 		.well-known/security.txt +/-</button></td></tr>';
 	}
-	elseif ($item->security_txt_www_notice == "0" and !str_contains($item->security_txt_url_www_relocated, 'not applicable'))	{
+	elseif ($item->security_txt_www_relocated_notice == "0" and !str_contains($item->security_txt_url_www_relocated, 'not applicable'))	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(44)">
 		.well-known/security.txt +/-</button></td></tr>';
 	}
