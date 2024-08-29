@@ -376,9 +376,9 @@ if (!strlen($DNS_DMARC))	{
 		$DNS_DMARC .= '(DMARC misses in email settings)<br />';	
 	}	
 }
-elseif (str_contains($DNS_DMARC, 'no underscore'))	{
+elseif (str_contains($DNS_DMARC, 'underscore'))	{
 	$DNS_DMARC_notice = 1;
-	$DNS_DMARC .= '(without underscore the url can be a server name)<br />';
+	$DNS_DMARC .= '(Non-server URLs clearly group in DNS settings when starting with an underscore)<br />';
 }	
 $DNS_DMARC_www = dmarc_list('www.'.$inputdomain);
 $DNS_DMARC_www_notice = 0;	
@@ -400,9 +400,9 @@ else	{
 		$DNS_DMARC_www_notice = 1;
 		$DNS_DMARC_www .= '(DMARC can be strengthened with "reject" for subdomains)<br />';
 	}
-	if (str_contains($DNS_DMARC_www, 'no underscore'))	{
+	if (str_contains($DNS_DMARC_www, 'underscore'))	{
 		$DNS_DMARC_www_notice = 1;
-		$DNS_DMARC_www .= '(without underscore the url can be a server name)<br />';
+		$DNS_DMARC_www .= '(Non-server URLs clearly group in DNS settings when starting with an underscore)<br />';
 	}
 }
 $DNS_SOA = '';
@@ -1597,9 +1597,14 @@ function dmarc_list($inputurl)	{
 			foreach($value1 as $key2 => $value2) {
 				if ($key2 == 'host') {
 					$temp1 = $value2;
-					if (mb_substr($value2, 0, 1) != '_')	{
-						$underscore = ' (no underscore)';
+					if (str_contains($value2, '_'))	{
+						if (mb_substr($value2, 0, 1) != '_')	{
+							$underscore = ' (no underscore first)';
+						}
 					}
+					else	{
+						$underscore = ' (without underscore)';
+					}	
 				}
 				if ($key2 == 'txt') {
 					$temp2 = $value2;

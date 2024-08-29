@@ -1,5 +1,5 @@
 <?php
-session_start();  // is needed with no Scriptcase PHP Generator
+session_start();  // is needed with no PHP Generator Scriptcase
 echo '<!DOCTYPE html><html lang="en" style="font-size: 90%"><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta charset="UTF-8" />
