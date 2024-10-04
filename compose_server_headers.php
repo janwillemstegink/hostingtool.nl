@@ -482,18 +482,18 @@ if (strlen($DNS_CNAME))	{
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);		
 		$http_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
-			if	(str_replace(':443','', $redirect_url) == str_replace('http://', 'https://', $initial_url))	{
+			if	(str_replace(':443','', clean_redirect_url($redirect_url)) == str_replace('http://', 'https://', $initial_url))	{
 				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}	
-			elseif (str_replace(':443','', $redirect_url) . '/' == str_replace('http://', 'https://', $initial_url))	{
+			elseif (str_replace(':443','', clean_redirect_url($redirect_url)) . '/' == str_replace('http://', 'https://', $initial_url))	{
 				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
-			elseif (str_replace(':443','', $redirect_url) == str_replace('http://', 'https://', $initial_url . '/'))	{
+			elseif (str_replace(':443','', clean_redirect_url($redirect_url)) == str_replace('http://', 'https://', $initial_url . '/'))	{
 				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			elseif (str_contains($redirect_url, 'https://'))	{
 				$http_code_notice = 1;	
-				$http_code_initial .= '<br />(unsafe from ' . $initial_url . ' to HTTPS ' . $redirect_url . ')';
+				$http_code_initial .= '<br />(unsafe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			else	{
 				$http_code_notice = 1;
@@ -522,18 +522,18 @@ if (strlen($DNS_CNAME_www))	{
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
 		$http_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
 		if (strlen($redirect_url))	{
-			if	(str_replace(':443','', $redirect_url) == str_replace('http://', 'https://', $initial_url))	{
+			if	(str_replace(':443','', clean_redirect_url($redirect_url)) == str_replace('http://', 'https://', $initial_url))	{
 				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}	
-			elseif (str_replace(':443','', $redirect_url) . '/' == str_replace('http://', 'https://', $initial_url))	{
+			elseif (str_replace(':443','', clean_redirect_url($redirect_url)) . '/' == str_replace('http://', 'https://', $initial_url))	{
 				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
-			elseif (str_replace(':443','', $redirect_url) == str_replace('http://', 'https://', $initial_url . '/'))	{
+			elseif (str_replace(':443','', clean_redirect_url($redirect_url)) == str_replace('http://', 'https://', $initial_url . '/'))	{
 				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			elseif (str_contains($redirect_url, 'https://'))	{
-				$http_code_www_notice = 1;	
-				$http_code_initial_www .= '<br />(unsafe from ' . $initial_url . ' to HTTPS ' . $redirect_url . ')';
+				$http_code_www_notice = 1;
+				$http_code_initial_www .= '<br />(unsafe from ' . $initial_url . ' to ' . $redirect_url . ')';
 			}
 			else	{
 				$http_code_www_notice = 1;
@@ -1686,6 +1686,23 @@ function clean_url($inputurl)	{
 		$strpos = mb_strpos($output, ':');
 		if ($strpos)	{
 			$output = mb_substr($output, 0, $strpos);
+		}
+		return $output;
+}
+
+function clean_redirect_url($inputurl)	{
+		$output = clean_url($inputurl);
+		if (str_contains($inputurl, 'https://www.'))	{
+			$output = 'https://www.' . $output;
+		} 		
+		elseif (str_contains($inputurl, 'https://'))	{
+			$output = 'https://' . $output;
+		}
+		elseif (str_contains($inputurl, 'http://www.'))	{
+			$output = 'http://www.' . $output;
+		}
+		elseif (str_contains($inputurl, 'http://'))	{
+			$output = 'http://' . $output;
 		}
 		return $output;
 }							
