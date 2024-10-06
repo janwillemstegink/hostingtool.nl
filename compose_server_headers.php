@@ -34,9 +34,6 @@ if (!str_contains($inputdomain, '_'))	{
 		$CNAMED = $DNS_CNAME;
 		$DNS_CNAME = $inputdomain.' CNAME '.$DNS_CNAME.' points to';
 		$cname_limited = true;
-	}
-	else	{
-		$DNS_CNAME = $inputdomain.' works with A (and quad A)';
 	}	
 	$AS_A = '';	
 	$AS_AAAA = '';
@@ -108,6 +105,9 @@ if (!str_contains($inputdomain, '_'))	{
 			}
 		}	
 	}
+	if (!$cname_limited and strlen($DNS_CNAME))	{
+		$DNS_CNAME = $inputdomain.' works with A (and quad A)' . $DNS_CNAME;
+	}
 }	
 if (strlen($DNS_CNAME))	{
 	if (!str_contains($DNS_CNAME, 'IPv4'))	{
@@ -130,9 +130,6 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 		$CNAMED_www = $DNS_CNAME_www;
 		$DNS_CNAME_www = 'www.'.$inputdomain.' CNAME '.$DNS_CNAME_www.' points to';
 		$cname_limited_www = true;
-	}
-	else	{
-		$DNS_CNAME_www = 'www.'.$inputdomain.' works with A (and quad A)';
 	}
 	$array = dns_get_record('www.'.$inputdomain, DNS_A);
 	foreach($array as $key1 => $value1) {
@@ -199,6 +196,9 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 				}
 			}
 		}
+	}
+	if (!$cname_limited_www and strlen($DNS_CNAME_www))	{
+		$DNS_CNAME_www = 'www.'.$inputdomain.' works with A (and quad A)' . $DNS_CNAME_www;
 	}
 }
 if (strlen($DNS_CNAME_www))	{
@@ -679,6 +679,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		}
 	}
 	else	{
+		$https_code_www_notice = 1;
 		$https_code_initial_www .= 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}	
 	$arr_server_header_www = explode (",", $curl_server_header_www);
@@ -1220,6 +1221,8 @@ elseif (strlen($DNS_CNAME_www))	{
 }		  
 						  
 //curl_close($ch); //not necessary from PHP 8
+	
+//die($https_code_www_notice);	
 	
 $doc = new DOMDocument("1.0", "UTF-8");
 $doc->xmlStandalone = true;	
