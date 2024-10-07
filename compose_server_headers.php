@@ -106,7 +106,7 @@ if (!str_contains($inputdomain, '_'))	{
 		}	
 	}
 	if (!$cname_limited and strlen($DNS_CNAME))	{
-		$DNS_CNAME = $inputdomain.' works with A (and quad A)' . $DNS_CNAME;
+		$DNS_CNAME = $inputdomain.' works with A and/or quad A' . $DNS_CNAME;
 	}
 }	
 if (strlen($DNS_CNAME))	{
@@ -198,7 +198,7 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 		}
 	}
 	if (!$cname_limited_www and strlen($DNS_CNAME_www))	{
-		$DNS_CNAME_www = 'www.'.$inputdomain.' works with A (and quad A)' . $DNS_CNAME_www;
+		$DNS_CNAME_www = 'www.'.$inputdomain.' works with A and/or quad A' . $DNS_CNAME_www;
 	}
 }
 if (strlen($DNS_CNAME_www))	{
@@ -383,6 +383,14 @@ if (!strlen($DNS_DMARC))	{
 	}	
 }
 else	{
+	if (str_contains($DNS_DMARC, 'p=reject'))	{	
+	}
+	elseif (str_contains($DNS_DMARC, 'p=quarantine'))	{
+	}
+	elseif (str_contains($DNS_DMARC, 'p=none') and !str_contains($DNS_DMARC, '@'))	{
+		$DNS_DMARC_notice = 1;
+		$DNS_DMARC .= '(DMARC with p=none and no email address is not secure)<br />';
+	}
 	if (str_contains($DNS_DMARC, 'underscore'))	{
 		$DNS_DMARC_notice = 1;
 		$DNS_DMARC .= '(Non-server URLs are uniquely grouped in DNS settings if they start with an underscore)<br />';
@@ -1133,7 +1141,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		$http_code_destination_www .= '(No cURL on the same server)';	
 	}
 }	
-$https_code_destination = 'destination: not applicable';	
+$https_code_destination = 'destination: not applicable';
 if (strlen($DNS_CNAME) and strlen($curl_error))	{
 	$https_code_destination = 'destination: ' . $curl_error;
 }	
@@ -1155,7 +1163,6 @@ elseif (strlen($DNS_CNAME))	{
 				}
 				if (strlen($CNAMED))	{
 					$destination_url = clean_url($destination_url);
-					//if ($CNAMED == 'www.'.$inputdomain and ($destination_url == $inputdomain or $destination_url == 'www.' . $inputdomain))	{
 					if ($CNAMED == 'www.'.$inputdomain)	{
 						$DNS_CNAME_notice = 1;	
 						$DNS_CNAME .= '<br />(The destination does not require CNAME; A/AAAA, MX and TXT can work)';
@@ -1198,7 +1205,6 @@ elseif (strlen($DNS_CNAME_www))	{
 				}
 				if (strlen($CNAMED_www))	{
 					$destination_url = clean_url($destination_url);
-					//if ($CNAMED_www == $inputdomain and ($destination_url == $inputdomain or $destination_url == 'www.' . $inputdomain))	{
 					if ($CNAMED_www == $inputdomain)	{
 						$DNS_CNAME_www_notice = 1;
 						$DNS_CNAME_www .= '<br />(The destination does not require CNAME; A/AAAA, MX and TXT can work)';
@@ -1221,8 +1227,6 @@ elseif (strlen($DNS_CNAME_www))	{
 }		  
 						  
 //curl_close($ch); //not necessary from PHP 8
-	
-//die($https_code_www_notice);	
 	
 $doc = new DOMDocument("1.0", "UTF-8");
 $doc->xmlStandalone = true;	
