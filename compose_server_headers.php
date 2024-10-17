@@ -224,7 +224,7 @@ foreach($array as $key1 => $value1) {
 	}
 }
 if (strlen($DNS_MX))	{
-	if (str_contains($DNS_MX, 'IPv6 after request'))	{
+	if (str_contains($DNS_MX, 'IPv6 on demand'))	{
 		$DNS_MX_notice = 1;		
 	}
 	elseif (str_contains($DNS_MX, 'reverse DNS'))	{
@@ -258,7 +258,7 @@ foreach($array as $key1 => $value1) {
 	}
 }
 if (strlen($DNS_MX_www))	{
-	if (str_contains($DNS_MX_www, 'IPv6 after request'))	{
+	if (str_contains($DNS_MX_www, 'IPv6 on demand'))	{
 		$DNS_MX_www_notice = 1;
 	}
 	elseif (str_contains($DNS_MX_www, 'reverse DNS'))	{
@@ -1578,7 +1578,7 @@ function get_mx_ips($inputurl)	{
 		if (str_contains($output, 'IPv6'))	{
 		}
 		else	{	
-			$output .= '(IPv6 after request to Microsoft; to work standard from October 1, 2024)<br />';
+			$output .= '(IPv6 on demand; Microsoft is gradually enabling it by default starting October 1, 2024)<br />';
 		}		
 	}	
 	return $output;
