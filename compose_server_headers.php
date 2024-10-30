@@ -18,7 +18,7 @@ else	{
 }
 
 function write_file($inputdomain)	{
-
+	
 //$php_version = (float)phpversion();
 $own_ip = $_SERVER['SERVER_ADDR'];
 	
@@ -71,7 +71,7 @@ if (!str_contains($inputdomain, '_'))	{
 				}
 			}	
 		}
-	}	
+	}
 	$array = dns_get_record($inputdomain, DNS_AAAA);	
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
