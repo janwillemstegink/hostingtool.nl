@@ -1,11 +1,11 @@
 <?php
-//$_GET['url'] = 'hostingtool.nl';
+//$_GET['url'] = 'münchen.de';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
 		$url = trim($_GET['url']);
 		$url = clean_url($url);
-		$url = urlencode($url);
+		$_GET['url'] = rawurlencode($url);
 		echo write_file($url);
 		die();
 	}
@@ -17,29 +17,43 @@ else	{
 	die("No input has been entered.");
 }
 
-function write_file($inputdomain)	{
+function puny_code($input)	{
+	return idn_to_ascii($input, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+}
+
+function puny_decode($input)	{
+	if (mb_substr($input, 0, 7) == 'http://')	{
+		return 'http://' . idn_to_utf8(mb_substr($input, 7), IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);		
+	}
+	elseif (mb_substr($input, 0, 8) == 'https://')	{
+		return 'https://' . idn_to_utf8(mb_substr($input, 8), IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);		
+	}
+	return idn_to_utf8($input, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+}
+
+function write_file($inputurl)	{
 	
 //$php_version = (float)phpversion();
 $own_ip = $_SERVER['SERVER_ADDR'];
-	
+
 $same_server = false;
 $cname_limited = false;
 $matches_server = false;
 $DNS_CNAME = '';
 $CNAMED = '';	
 $DNS_CNAME_notice = 0;	
-if (!str_contains($inputdomain, '_'))	{
-	$DNS_CNAME = get_cname_target($inputdomain);	
+if (!str_contains($inputurl, '_'))	{
+	$DNS_CNAME = get_cname_target($inputurl);	
 	if (strlen($DNS_CNAME))	{		
 		$CNAMED = $DNS_CNAME;
-		$DNS_CNAME = $inputdomain.' CNAME '.$DNS_CNAME.' points to';
+		$DNS_CNAME = $inputurl.' CNAME '.$DNS_CNAME.' points to';
 		$cname_limited = true;
 	}	
 	$AS_A = '';	
 	$AS_AAAA = '';
 	$AS_A_www = '';	
 	$AS_AAAA_www = '';	
-	$array = dns_get_record($inputdomain, DNS_A);
+	$array = dns_get_record(puny_code($inputurl), DNS_A);
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ip')	{
@@ -48,7 +62,7 @@ if (!str_contains($inputdomain, '_'))	{
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
-					$array2 = dns_get_record($rDNS, DNS_A);
+					$array2 = dns_get_record(puny_code($rDNS), DNS_A);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ip')	{
@@ -59,7 +73,7 @@ if (!str_contains($inputdomain, '_'))	{
 				}	
 				$DNS_CNAME .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;	
 				if ($value2 == $own_ip)	$same_server = true;
-				if ($rDNS == $inputdomain) $matches_server = true;
+				if ($rDNS == $inputurl) $matches_server = true;
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
@@ -72,7 +86,7 @@ if (!str_contains($inputdomain, '_'))	{
 			}	
 		}
 	}
-	$array = dns_get_record($inputdomain, DNS_AAAA);	
+	$array = dns_get_record(puny_code($inputurl), DNS_AAAA);	
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ipv6') {
@@ -81,7 +95,7 @@ if (!str_contains($inputdomain, '_'))	{
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
-					$array2 = dns_get_record($rDNS, DNS_AAAA);
+					$array2 = dns_get_record(puny_code($rDNS), DNS_AAAA);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ipv6')	{
@@ -92,7 +106,7 @@ if (!str_contains($inputdomain, '_'))	{
 				}
 				$DNS_CNAME .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
 				if ($value2 == $own_ip)	$same_server = true;
-				if ($rDNS == $inputdomain) $matches_server = true;
+				if ($rDNS == $inputurl) $matches_server = true;
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
@@ -106,7 +120,7 @@ if (!str_contains($inputdomain, '_'))	{
 		}	
 	}
 	if (!$cname_limited and strlen($DNS_CNAME))	{
-		$DNS_CNAME = $inputdomain.' works with A and/or quad A' . $DNS_CNAME;
+		$DNS_CNAME = $inputurl.' works with A and/or quad A' . $DNS_CNAME;
 	}
 }	
 if (strlen($DNS_CNAME))	{
@@ -123,15 +137,15 @@ $matches_server_www = false;
 $DNS_CNAME_www = '';
 $CNAMED_www = '';	
 $DNS_CNAME_www_notice = 0;	
-if (!str_contains('www.'.$inputdomain, '_'))	{	
+if (!str_contains('www.'.$inputurl, '_'))	{	
 	$DNS_CNAME_www = '';	
-	$DNS_CNAME_www = get_cname_target('www.'.$inputdomain);		
+	$DNS_CNAME_www = get_cname_target('www.'.$inputurl);
 	if (strlen($DNS_CNAME_www))	{
 		$CNAMED_www = $DNS_CNAME_www;
-		$DNS_CNAME_www = 'www.'.$inputdomain.' CNAME '.$DNS_CNAME_www.' points to';
+		$DNS_CNAME_www = 'www.'.$inputurl.' CNAME '.$DNS_CNAME_www.' points to';
 		$cname_limited_www = true;
 	}
-	$array = dns_get_record('www.'.$inputdomain, DNS_A);
+	$array = dns_get_record(puny_code('www.'.$inputurl), DNS_A);
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ip') {
@@ -140,7 +154,7 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
-					$array2 = dns_get_record($rDNS, DNS_A);
+					$array2 = dns_get_record(puny_code($rDNS), DNS_A);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ip')	{
@@ -151,7 +165,7 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 				}
 				$DNS_CNAME_www .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
 				if ($value2 == $own_ip)	$same_server_www = true;
-				if ($rDNS == 'www.'.$inputdomain) $matches_server_www = true;
+				if ($rDNS == 'www.'.$inputurl) $matches_server_www = true;
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
@@ -164,7 +178,7 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 			}
 		}
 	}	
-	$array = dns_get_record('www.'.$inputdomain, DNS_AAAA);	
+	$array = dns_get_record(puny_code('www.'.$inputurl), DNS_AAAA);	
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ipv6') {
@@ -173,7 +187,7 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
-					$array2 = dns_get_record($rDNS, DNS_AAAA);
+					$array2 = dns_get_record(puny_code($rDNS), DNS_AAAA);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ipv6')	{
@@ -184,7 +198,7 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 				}
 				$DNS_CNAME_www .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
 				if ($value2 == $own_ip)	$same_server_www = true;
-				if ($rDNS == 'www.'.$inputdomain) $matches_server_www = true;
+				if ($rDNS == 'www.'.$inputurl) $matches_server_www = true;
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
@@ -198,7 +212,7 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 		}
 	}
 	if (!$cname_limited_www and strlen($DNS_CNAME_www))	{
-		$DNS_CNAME_www = 'www.'.$inputdomain.' works with A and/or quad A' . $DNS_CNAME_www;
+		$DNS_CNAME_www = 'www.'.$inputurl.' works with A and/or quad A' . $DNS_CNAME_www;
 	}
 }
 if (strlen($DNS_CNAME_www))	{
@@ -211,7 +225,7 @@ if (strlen($DNS_CNAME_www))	{
 }
 $DNS_MX = '';
 $DNS_MX_notice = 0;	
-$array = dns_get_record($inputdomain, DNS_MX);
+$array = dns_get_record(puny_code($inputurl), DNS_MX);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'pri') {
@@ -245,7 +259,7 @@ else	{
 }	
 $DNS_MX_www = '';
 $DNS_MX_www_notice = 0;		
-$array = dns_get_record('www.'.$inputdomain, DNS_MX);		
+$array = dns_get_record(puny_code('www.').puny_code($inputurl), DNS_MX);		
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'pri') {
@@ -279,7 +293,7 @@ else	{
 }	
 $DNS_TXT = '';	
 $DNS_TXT_notice = 0;
-$array = dns_get_record($inputdomain, DNS_TXT);
+$array = dns_get_record(puny_code($inputurl), DNS_TXT);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
        	if ($key2 == 'txt') {
@@ -287,7 +301,7 @@ foreach($array as $key1 => $value1) {
 		}
 	}	
 }
-if (!str_contains($inputdomain, '_'))	{
+if (!str_contains($inputurl, '_'))	{
 	if (str_contains(strtolower($DNS_TXT), 'v=dmarc1'))	{
 		$DNS_TXT_notice = 1;
 		$DNS_TXT .= '(incorrect, because of an unexpected "v=DMARC1")<br />';
@@ -326,7 +340,7 @@ if (!str_contains($inputdomain, '_'))	{
 }
 $DNS_TXT_www = '';
 $DNS_TXT_www_notice = 0;	
-$array = dns_get_record('www.'.$inputdomain, DNS_TXT);		
+$array = dns_get_record(puny_code('www.'.$inputurl), DNS_TXT);		
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
        	if ($key2 == 'txt') {
@@ -334,7 +348,7 @@ foreach($array as $key1 => $value1) {
 		}	
     }
 }
-if (!str_contains('www.'.$inputdomain, '_'))	{	
+if (!str_contains('www.'.$inputurl, '_'))	{	
 	if (str_contains(strtolower($DNS_TXT_www), 'v=dmarc1'))	{
 		$DNS_TXT_www_notice = 1;
 		$DNS_TXT_www .= '(incorrect, because of an unexpected "v=DMARC1")<br />';
@@ -371,7 +385,7 @@ if (!str_contains('www.'.$inputdomain, '_'))	{
 		}	
 	}
 }	
-$DNS_DMARC = dmarc_list($inputdomain);
+$DNS_DMARC = dmarc_list($inputurl);
 $DNS_DMARC_notice = 0;	
 if (!strlen($DNS_DMARC))	{
 	if (!strlen($DNS_CNAME))	{
@@ -396,7 +410,7 @@ else	{
 		$DNS_DMARC .= '(Non-server URLs are uniquely grouped in DNS settings if they start with an underscore)<br />';
 	}	
 }	
-$DNS_DMARC_www = dmarc_list('www.'.$inputdomain);
+$DNS_DMARC_www = dmarc_list('www.'.$inputurl);
 $DNS_DMARC_www_notice = 0;	
 if (!strlen($DNS_DMARC_www))	{
 	if (!strlen($DNS_CNAME_www))	{
@@ -414,7 +428,7 @@ else	{
 	}
 	else	{
 		$DNS_DMARC_www_notice = 1;
-		$DNS_DMARC_www .= '(DMARC can be strengthened with "reject" for subdomains)<br />';
+		$DNS_DMARC_www .= '(DMARC can be stronger with "reject" for subdomains, existing or not)<br />';
 	}
 	if (str_contains($DNS_DMARC_www, 'underscore'))	{
 		$DNS_DMARC_www_notice = 1;
@@ -422,7 +436,7 @@ else	{
 	}
 }
 $DNS_SOA = '';
-$array = dns_get_record($inputdomain, DNS_SOA);	
+$array = dns_get_record(puny_code($inputurl), DNS_SOA);	
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		$DNS_SOA .= $key2 . ': ' . $value2 . '<br />';
@@ -438,7 +452,7 @@ else	{
 	$DNS_SOA = '(no registrant, second-level or zone domain)<br />';	
 }	
 $DNS_SOA_www = '';
-$array = dns_get_record('www.'.$inputdomain, DNS_SOA);		
+$array = dns_get_record(puny_code('www.').puny_code($inputurl), DNS_SOA);		
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		$DNS_SOA_www .= $key2 . ': ' . $value2 . '<br />';
@@ -454,12 +468,12 @@ else	{
 	$DNS_SOA_www = '(no registrant domain)<br />';	
 }	
 //$DNSSEC_A = 0;
-//$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' A');
+//$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputurl.' A');
 //if (str_contains($output,'RRSIG'))	{
 //	$DNSSEC_A = 1;
 //}
 //$DNSSEC_AAAA = 0;
-//$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputdomain.' AAAA');
+//$output = shell_exec('dig @9.9.9.9 +dnssec '.$inputurl.' AAAA');
 //if (str_contains($output,'RRSIG'))	{
 //	$DNSSEC_AAAA = 1;
 //}
@@ -482,30 +496,30 @@ $curl_error = '';
 $http_code_initial = 'initial: not applicable';
 $http_code_notice = 0;
 if (strlen($DNS_CNAME))	{
-	curl_setopt($ch, CURLOPT_URL, 'http://'.$inputdomain);
+	curl_setopt($ch, CURLOPT_URL, 'http://'.$inputurl);
 	$curl_server_header = curl_exec($ch);
 	$http_code_initial = 'initial: ';
 	if (!curl_errno($ch)) {
 		$initial_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);		
-		$http_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
+		$http_code_initial .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. puny_decode($initial_url);		
 		if (strlen($redirect_url))	{
-			if	(str_replace(':443','', clean_redirect_url($redirect_url)) == str_replace('http://', 'https://', $initial_url))	{
-				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+			if	(puny_decode(str_replace(':443','', clean_redirect_url($redirect_url))) == puny_decode(str_replace('http://', 'https://', $initial_url)))	{
+				$http_code_initial .= '<br />(safe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}	
-			elseif (str_replace(':443','', clean_redirect_url($redirect_url)) . '/' == str_replace('http://', 'https://', $initial_url))	{
-				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+			elseif (puny_decode(str_replace(':443','', clean_redirect_url($redirect_url)) . '/') == puny_decode(str_replace('http://', 'https://', $initial_url)))	{
+				$http_code_initial .= '<br />(safe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}
-			elseif (str_replace(':443','', clean_redirect_url($redirect_url)) == str_replace('http://', 'https://', $initial_url . '/'))	{
-				$http_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+			elseif (puny_decode(str_replace(':443','', clean_redirect_url($redirect_url))) == puny_decode(str_replace('http://', 'https://', $initial_url . '/')))	{
+				$http_code_initial .= '<br />(safe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}
-			elseif (str_contains($redirect_url, 'https://'))	{
+			elseif (str_contains(puny_decode($redirect_url), 'https://'))	{
 				$http_code_notice = 1;	
-				$http_code_initial .= '<br />(unsafe from ' . $initial_url . ' to ' . $redirect_url . ')';
+				$http_code_initial .= '<br />(unsafe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}
 			else	{
 				$http_code_notice = 1;
-				$http_code_initial .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
+				$http_code_initial .= '<br />(unsafe from ' . puny_decode($initial_url) . ' to HTTP ' . puny_decode($redirect_url) . ')';
 			}
 		}	
 	}
@@ -522,30 +536,30 @@ $curl_error_www = '';
 $http_code_initial_www = 'initial: not applicable';
 $http_code_www_notice = 0;
 if (strlen($DNS_CNAME_www))	{
-	curl_setopt($ch, CURLOPT_URL, 'http://www.'.$inputdomain);
+	curl_setopt($ch, CURLOPT_URL, 'http://www.'.$inputurl);
 	$curl_server_header_www = curl_exec($ch);
 	$http_code_initial_www = 'initial: ';
 	if (!curl_errno($ch)) {
 		$initial_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
-		$http_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. $initial_url;
+		$http_code_initial_www .= curl_getinfo($ch, CURLINFO_HTTP_CODE) . ' - '. puny_decode($initial_url);
 		if (strlen($redirect_url))	{
-			if	(str_replace(':443','', clean_redirect_url($redirect_url)) == str_replace('http://', 'https://', $initial_url))	{
-				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+			if	(puny_decode(str_replace(':443','', clean_redirect_url($redirect_url))) == puny_decode(str_replace('http://', 'https://', $initial_url)))	{
+				$http_code_initial_www .= '<br />(safe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}	
-			elseif (str_replace(':443','', clean_redirect_url($redirect_url)) . '/' == str_replace('http://', 'https://', $initial_url))	{
-				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+			elseif (puny_decode(str_replace(':443','', clean_redirect_url($redirect_url)) . '/') == puny_decode(str_replace('http://', 'https://', $initial_url)))	{
+				$http_code_initial_www .= '<br />(safe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}
-			elseif (str_replace(':443','', clean_redirect_url($redirect_url)) == str_replace('http://', 'https://', $initial_url . '/'))	{
-				$http_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+			elseif (puny_decode(str_replace(':443','', clean_redirect_url($redirect_url))) == puny_decode(str_replace('http://', 'https://', $initial_url . '/')))	{
+				$http_code_initial_www .= '<br />(safe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}
-			elseif (str_contains($redirect_url, 'https://'))	{
+			elseif (str_contains(puny_decode($redirect_url), 'https://'))	{
 				$http_code_www_notice = 1;
-				$http_code_initial_www .= '<br />(unsafe from ' . $initial_url . ' to ' . $redirect_url . ')';
+				$http_code_initial_www .= '<br />(unsafe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}
 			else	{
 				$http_code_www_notice = 1;
-				$http_code_initial_www .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
+				$http_code_initial_www .= '<br />(unsafe from ' . puny_decode($initial_url) . ' to HTTP ' . puny_decode($redirect_url) . ')';
 			}
 		}
 	}
@@ -564,7 +578,7 @@ if (strlen($DNS_CNAME) and strlen($curl_error))	{
 }
 elseif (strlen($DNS_CNAME))	{
 	$meta_tags = '';
-	$array = get_meta_tags('https://'.$inputdomain);
+	$array = get_meta_tags('https://'.$inputurl);
 	foreach($array as $key1 => $value1) {
 		$meta_tags .= $key1 . ': ' . $value1 . "\n";
     }
@@ -575,7 +589,7 @@ if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
 }
 elseif (strlen($DNS_CNAME_www))	{
 	$meta_tags_www = '';
-	$array = get_meta_tags('https://www.'.$inputdomain);
+	$array = get_meta_tags('https://www.'.$inputurl);
 	foreach($array as $key1 => $value1) {
 		$meta_tags_www .= $key1 . ': ' . $value1 . "\n";
     }
@@ -594,21 +608,21 @@ if (strlen($DNS_CNAME) and strlen($curl_error))	{
 	$transfer_information = $curl_error;	
 }
 elseif (strlen($DNS_CNAME))	{
-	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);	
+	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputurl);	
 	$curl_server_header = curl_exec($ch);
 	$https_code_initial = 'initial: ';
 	if (!curl_errno($ch)) {
 		$initial_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
 		$server_header_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		$https_code_initial .= $server_header_code . ' - '. $initial_url;
+		$https_code_initial .= $server_header_code . ' - '. puny_decode($initial_url);
 		if (strlen($redirect_url))	{
-			if (str_contains($redirect_url, 'https://'))	{
-				$https_code_initial .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+			if (str_contains(puny_decode($redirect_url), 'https://'))	{
+				$https_code_initial .= '<br />(safe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}
 			else	{
 				$https_code_notice = 1;
-				$https_code_initial .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
+				$https_code_initial .= '<br />(unsafe from ' . puny_decode($initial_url) . ' to HTTP ' . puny_decode($redirect_url) . ')';
 			}	
 		}
 	}
@@ -668,21 +682,21 @@ if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
 	$transfer_information_www = $curl_error_www;	
 }
 elseif (strlen($DNS_CNAME_www))	{	
-	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);
+	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputurl);
 	$curl_server_header_www = curl_exec($ch);
 	$https_code_initial_www = 'initial: ';
 	if (!curl_errno($ch)) {
 		$initial_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 		$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
 		$server_header_code_www = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		$https_code_initial_www .= $server_header_code_www . ' - '. $initial_url;
+		$https_code_initial_www .= $server_header_code_www . ' - '. puny_decode($initial_url);
 		if (strlen($redirect_url))	{
-			if (str_contains($redirect_url, 'https://'))	{
-				$https_code_initial_www .= '<br />(safe from ' . $initial_url . ' to ' . $redirect_url . ')';
+			if (str_contains(puny_decode($redirect_url), 'https://'))	{
+				$https_code_initial_www .= '<br />(safe from ' . puny_decode($initial_url) . ' to ' . puny_decode($redirect_url) . ')';
 			}
 			else	{
 				$https_code_www_notice = 1;
-				$https_code_initial_www .= '<br />(unsafe from ' . $initial_url . ' to HTTP ' . $redirect_url . ')';
+				$https_code_initial_www .= '<br />(unsafe from ' . puny_decode($initial_url) . ' to HTTP ' . puny_decode($redirect_url) . ')';
 			}	
 		}
 	}
@@ -748,7 +762,7 @@ if (strlen($DNS_CNAME) and strlen($curl_error))	{
 	$security_txt_url_relocated = $curl_error;		
 }	
 elseif (strlen($DNS_CNAME))	{
-	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain.'/security.txt');	
+	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputurl.'/security.txt');	
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
 	$security_txt_legacy = curl_exec($ch);
 	$security_txt_url_legacy = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -783,7 +797,7 @@ elseif (strlen($DNS_CNAME))	{
 			$security_txt_legacy = 'HTTP code 403 received (without security.txt).';
 		}
 		elseif ($matches_server)	{
-			$security_txt_legacy = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
+			$security_txt_legacy = 'HTTP code '. $received_http_code . ' received ('. $inputurl. ' is the server name).';
 		}
 		else	{
 			$security_txt_legacy = 'HTTP code '. $received_http_code . ' received.';
@@ -792,7 +806,7 @@ elseif (strlen($DNS_CNAME))	{
 	else	{
 		$security_txt_legacy = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
-	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain.'/.well-known/security.txt');
+	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputurl.'/.well-known/security.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);		
 	$security_txt_relocated = curl_exec($ch);
 	$security_txt_url_relocated = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -832,7 +846,7 @@ elseif (strlen($DNS_CNAME))	{
 		}
 		elseif ($matches_server)	{
 			$security_txt_relocated_notice = 1;
-			$security_txt_relocated = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
+			$security_txt_relocated = 'HTTP code '. $received_http_code . ' received ('. $inputurl. ' is the server name).';
 		}
 		else	{
 			$security_txt_relocated_notice = 1;
@@ -859,7 +873,7 @@ if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
 	$security_txt_url_www_relocated = $curl_error_www;
 }	
 elseif (strlen($DNS_CNAME_www))	{
-	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain.'/security.txt');
+	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputurl.'/security.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
 	$security_txt_www_legacy = curl_exec($ch);
 	$security_txt_url_www_legacy = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -894,7 +908,7 @@ elseif (strlen($DNS_CNAME_www))	{
 			$security_txt_www_legacy = 'HTTP code 403 received (without security.txt).';
 		}
 		elseif ($matches_server_www)	{
-			$security_txt_www_legacy = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
+			$security_txt_www_legacy = 'HTTP code '. $received_http_code . ' received (www.'. $inputurl. ' is the server name).';
 		}
 		else	{
 			$security_txt_www_legacy = 'HTTP code '. $received_http_code . ' received.';
@@ -903,7 +917,7 @@ elseif (strlen($DNS_CNAME_www))	{
 	else	{
 		$security_txt_www_legacy = 'cURL error '.curl_errno($ch).' - '.curl_error($ch);
 	}
-	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain.'/.well-known/security.txt');
+	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputurl.'/.well-known/security.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);	
 	$security_txt_www_relocated = curl_exec($ch);
 	$security_txt_url_www_relocated = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -943,7 +957,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		}
 		elseif ($matches_server_www)	{
 			$security_txt_www_relocated_notice = 1;
-			$security_txt_www_relocated = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
+			$security_txt_www_relocated = 'HTTP code '. $received_http_code . ' received (www.'. $inputurl. ' is the server name).';
 		}
 		else	{
 			$security_txt_www_relocated_notice = 1;
@@ -969,7 +983,7 @@ if (strlen($DNS_CNAME) and strlen($curl_error))	{
 	$robots_txt = $curl_error;
 }	
 elseif (strlen($DNS_CNAME))	{
-	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain.'/robots.txt');
+	curl_setopt($ch, CURLOPT_URL, 'https://'.$inputurl.'/robots.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);	
 	$robots_txt = curl_exec($ch);
 	$robots_txt_url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -1000,7 +1014,7 @@ elseif (strlen($DNS_CNAME))	{
 		}
 		elseif ($matches_server)	{
 			$robots_txt_notice = 1;
-			$robots_txt = 'HTTP code '. $received_http_code . ' received ('. $inputdomain. ' is the server name).';
+			$robots_txt = 'HTTP code '. $received_http_code . ' received ('. $inputurl. ' is the server name).';
 		}
 		else	{
 			$robots_txt_notice = 1;
@@ -1018,7 +1032,7 @@ if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
 	$robots_txt_www = $curl_error_www;
 }	
 elseif (strlen($DNS_CNAME_www))	{
-	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain.'/robots.txt');
+	curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputurl.'/robots.txt');
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);	
 	$robots_txt_www = curl_exec($ch);
 	$robots_txt_url_www = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
@@ -1049,7 +1063,7 @@ elseif (strlen($DNS_CNAME_www))	{
 		}
 		elseif ($matches_server_www)	{
 			$robots_txt_www_notice = 1;
-			$robots_txt_www = 'HTTP code '. $received_http_code . ' received (www.'. $inputdomain. ' is the server name).';
+			$robots_txt_www = 'HTTP code '. $received_http_code . ' received (www.'. $inputurl. ' is the server name).';
 		}
 		else	{
 			$robots_txt_www_notice = 1;
@@ -1068,7 +1082,7 @@ if (strlen($DNS_CNAME) and strlen($curl_error))	{
 elseif (strlen($DNS_CNAME))	{
 	$http_code_destination = 'destination: ';
 	if (!$same_server)	{
-		curl_setopt($ch, CURLOPT_URL, 'http://'.$inputdomain);
+		curl_setopt($ch, CURLOPT_URL, 'http://'.$inputurl);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);				
 		$target = curl_exec($ch);
 		if (!curl_errno($ch)) {
@@ -1108,7 +1122,7 @@ if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
 elseif (strlen($DNS_CNAME_www))	{
 	$http_code_destination_www = 'destination: ';
 	if (!$same_server_www)	{
-		curl_setopt($ch, CURLOPT_URL, 'http://www.'.$inputdomain);	
+		curl_setopt($ch, CURLOPT_URL, 'http://www.'.$inputurl);	
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);	
 		$target = curl_exec($ch);
 		if (!curl_errno($ch)) {	
@@ -1148,7 +1162,7 @@ if (strlen($DNS_CNAME) and strlen($curl_error))	{
 elseif (strlen($DNS_CNAME))	{
 	$https_code_destination = 'destination: ';
 	if (!$same_server)	{
-		curl_setopt($ch, CURLOPT_URL, 'https://'.$inputdomain);	
+		curl_setopt($ch, CURLOPT_URL, 'https://'.$inputurl);	
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);			
 		$target = curl_exec($ch);
 		if (!curl_errno($ch)) {	
@@ -1163,7 +1177,7 @@ elseif (strlen($DNS_CNAME))	{
 				}
 				if (strlen($CNAMED))	{
 					$destination_url = clean_url($destination_url);
-					if ($CNAMED == 'www.'.$inputdomain)	{
+					if ($CNAMED == 'www.'.$inputurl)	{
 						$DNS_CNAME_notice = 1;	
 						$DNS_CNAME .= '<br />(The destination does not require CNAME; A/AAAA, MX and TXT can work)';
 					}	
@@ -1190,7 +1204,7 @@ if (strlen($DNS_CNAME_www) and strlen($curl_error_www))	{
 elseif (strlen($DNS_CNAME_www))	{
 	$https_code_destination_www = 'destination: ';
 	if (!$same_server_www)	{
-		curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputdomain);
+		curl_setopt($ch, CURLOPT_URL, 'https://www.'.$inputurl);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);			
 		$target = curl_exec($ch);
 		if (!curl_errno($ch)) {	
@@ -1205,7 +1219,7 @@ elseif (strlen($DNS_CNAME_www))	{
 				}
 				if (strlen($CNAMED_www))	{
 					$destination_url = clean_url($destination_url);
-					if ($CNAMED_www == $inputdomain)	{
+					if ($CNAMED_www == $inputurl)	{
 						$DNS_CNAME_www_notice = 1;
 						$DNS_CNAME_www .= '<br />(The destination does not require CNAME; A/AAAA, MX and TXT can work)';
 					}	
@@ -1238,10 +1252,10 @@ $doc->appendChild($domains);
 $domain = $doc->createElement("domain");	
 $domains->appendChild($domain);
 	
-$domain->setAttribute("item", $inputdomain);	
+$domain->setAttribute("item", $inputurl);	
 	
 $domain_url = $doc->createElement("url");
-$domain_url->appendChild($doc->createCDATASection(htmlentities($inputdomain)));		
+$domain_url->appendChild($doc->createCDATASection(htmlentities($inputurl)));		
 $domain->appendChild($domain_url);		
 
 $domain_DNS_CNAME = $doc->createElement("DNS_CNAME");
@@ -1499,9 +1513,9 @@ $doc->appendChild($domains);
 return $doc->saveXML();
 }
 
-function get_cname_target($inputdomain)	{	
+function get_cname_target($inputurl)	{
 	$output = '';
-	$array = dns_get_record($inputdomain, DNS_CNAME);
+	$array = dns_get_record(puny_code($inputurl), DNS_CNAME);
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'target') {
@@ -1514,7 +1528,7 @@ function get_cname_target($inputdomain)	{
 
 function get_mx_ips($inputurl)	{
 	$output = '';
-	$array = dns_get_record($inputurl, DNS_A);
+	$array = dns_get_record(puny_code($input), DNS_A);
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ip')	{
@@ -1522,7 +1536,7 @@ function get_mx_ips($inputurl)	{
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
-					$array2 = dns_get_record($rDNS, DNS_A);
+					$array2 = dns_get_record(puny_code($rDNS), DNS_A);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ip')	{
@@ -1532,7 +1546,7 @@ function get_mx_ips($inputurl)	{
 					}		
 				}
 				if ($value2 == $own_ip)	$same_server = true;
-				if ($rDNS == $inputdomain) $matches_server = true;
+				if ($rDNS == $inputurl) $matches_server = true;
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
@@ -1552,7 +1566,7 @@ function get_mx_ips($inputurl)	{
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
-					$array2 = dns_get_record($rDNS, DNS_AAAA);
+					$array2 = dns_get_record(puny_code($rDNS), DNS_AAAA);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ipv6')	{
@@ -1562,7 +1576,7 @@ function get_mx_ips($inputurl)	{
 					}		
 				}
 				if ($value2 == $own_ip)	$same_server = true;
-				if ($rDNS == $inputdomain) $matches_server = true;
+				if ($rDNS == $inputurl) $matches_server = true;
 				if (str_contains($rDNS_FC, $value2))	{
 				}
 				elseif ($rDNS == $value2)	{
@@ -1598,12 +1612,12 @@ function dmarc_list($inputurl)	{
 	}	
 	while ($strpos)	{
 		$underscore = '';
-		$array = dns_get_record('_dmarc.'.$inputurl, DNS_TXT);
+		$array = dns_get_record(puny_code('_dmarc.').puny_code($inputurl), DNS_TXT);
 		$cname_value = get_cname_target('_dmarc.'.$inputurl);
 		foreach($cname_value as $key1 => $value1) {
 			foreach($cname_value as $key2 => $value2) {
 				$inputurl = $cname_value;
-				$array = dns_get_record($inputurl, DNS_TXT);
+				$array = dns_get_record(puny_code($inputurl), DNS_TXT);
 			}
 		}
 		$temp1 = '';
@@ -1626,23 +1640,6 @@ function dmarc_list($inputurl)	{
 				}				
 			}
 		}
-		//if	(!str_contains($temp2, 'v=DMARC1;'))	{
-		//	$cname_value = get_cname_target($inputurl);
-		//	foreach($cname_value as $key1 => $value1) {
-		//		foreach($cname_value as $key2 => $value2) {
-		//			foreach($array as $key1 => $value1) {
-		//				foreach($value1 as $key2 => $value2) {
-		//					if ($key2 == 'host') {
-		//						$temp1 = $value2;
-		//					}
-		//					if ($key2 == 'txt') {
-		//						$temp2 = $value2;
-		//					}
-		//				}
-		//			}
-		//		}	
-		//	}
-		//}
 		if (strlen($temp1) and str_contains(str_replace(' ', '', $temp2), 'v=DMARC1;'))	{
 			$output .= $inputurl . ': ' . $temp1 . $underscore . ': ' . $temp2 . '<br />';
 		}

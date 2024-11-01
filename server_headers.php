@@ -110,6 +110,7 @@ function SwitchDisplay(type) {
 }
 
 </script><?php
+
 echo '</head>';
 if (!function_exists('simplexml_load_file')) {
 	die('simpleXML functions are not available.');
@@ -124,6 +125,9 @@ if (empty($_GET['url']))	{
 	$defaultdisplay = 'table-row';
 }
 else	{
+	$_GET['url'] = trim($_GET['url']);
+	$_GET['url'] = clean_url($_GET['url']);	
+	$_GET['url'] = rawurldecode($_GET['url']);
 	$viewserver = $_GET['url'];
 	$defaultdisplay = 'none';
 }
@@ -410,5 +414,26 @@ foreach ($xml1->xpath('//domain') as $item)	{
 }
 }	
 $html_text .= '</div></body></html>';	
-echo $html_text;	
+echo $html_text;
+
+function clean_url($inputurl)	{
+		$output = $inputurl;
+		$output = mb_strtolower($output);
+		$output = str_replace('http://','', $output);
+		$output = str_replace('https://','', $output);
+		$output = str_replace('www.','', $output);
+		$strpos = mb_strpos($output, '?');
+		if ($strpos)	{
+			$output = mb_substr($output, 0, $strpos);
+		}
+		$strpos = mb_strpos($output, '/');
+		if ($strpos)	{
+			$output = mb_substr($output, 0, $strpos);
+		}
+		$strpos = mb_strpos($output, ':');
+		if ($strpos)	{
+			$output = mb_substr($output, 0, $strpos);
+		}
+		return $output;
+}
 ?>
