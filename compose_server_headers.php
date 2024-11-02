@@ -228,8 +228,11 @@ $DNS_MX_notice = 0;
 $array = dns_get_record(puny_code($inputurl), DNS_MX);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
-		if ($key2 == 'pri') {
-			$DNS_MX .= 'priority target: '. $value2 . ' ';
+		if ($key2 == 'host') {
+			$DNS_MX .= $value2 . ' ';
+		}
+		elseif ($key2 == 'pri') {
+			$DNS_MX .= 'MX priority target: '. $value2 . ' ';
 		}	
 		elseif ($key2 == 'target') {
 			$DNS_MX .= $value2 . '.<br />';
@@ -259,11 +262,14 @@ else	{
 }	
 $DNS_MX_www = '';
 $DNS_MX_www_notice = 0;		
-$array = dns_get_record(puny_code('www.').puny_code($inputurl), DNS_MX);		
+$array = dns_get_record(puny_code('www.'.$inputurl), DNS_MX);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
-		if ($key2 == 'pri') {
-			$DNS_MX_www .= 'priority target: '. $value2 . ' ';
+		if ($key2 == 'host') {
+			$DNS_MX_www .= $value2 . ' ';
+		}
+		elseif ($key2 == 'pri') {
+			$DNS_MX_www .= 'MX priority target: '. $value2 . ' ';
 		}	
 		elseif ($key2 == 'target') {
 			$DNS_MX_www .= $value2 . '.<br />';
@@ -293,19 +299,21 @@ else	{
 }	
 $DNS_TXT = '';	
 $DNS_TXT_notice = 0;
+$temp1 = '';
+$temp2 = '';	
 $array = dns_get_record(puny_code($inputurl), DNS_TXT);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
+		if ($key2 == 'host') {
+			$temp1 = $value2;
+		}	
        	if ($key2 == 'txt') {
-			$DNS_TXT .= $value2 . '<br />';
-		}
-	}	
+			$temp2 = $value2;
+		}	
+    }
+	$DNS_TXT .= $temp1 . ' TXT ' . $temp2 . '<br />';
 }
-if (!str_contains($inputurl, '_'))	{
-	if (str_contains(strtolower($DNS_TXT), 'v=dmarc1'))	{
-		$DNS_TXT_notice = 1;
-		$DNS_TXT .= '(incorrect, because of an unexpected "v=DMARC1")<br />';
-	}	
+if (!str_contains($inputurl, '_'))	{	
 	if (str_contains(strtolower($DNS_TXT), 'v=spf1'))	{
 		$counter = substr_count(strtolower($DNS_TXT), 'v=spf1');
 		if ($counter > 1)	{
@@ -340,19 +348,21 @@ if (!str_contains($inputurl, '_'))	{
 }
 $DNS_TXT_www = '';
 $DNS_TXT_www_notice = 0;	
-$array = dns_get_record(puny_code('www.'.$inputurl), DNS_TXT);		
+$temp1 = '';
+$temp2 = '';
+$array = dns_get_record(puny_code('www.'.$inputurl), DNS_TXT);	
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
+		if ($key2 == 'host') {
+			$temp1 = $value2;
+		}	
        	if ($key2 == 'txt') {
-			$DNS_TXT_www .= $value2 . '<br />';
+			$temp2 = $value2;
 		}	
     }
+	$DNS_TXT_www .= $temp1 . ' TXT ' . $temp2 . '<br />';
 }
-if (!str_contains('www.'.$inputurl, '_'))	{	
-	if (str_contains(strtolower($DNS_TXT_www), 'v=dmarc1'))	{
-		$DNS_TXT_www_notice = 1;
-		$DNS_TXT_www .= '(incorrect, because of an unexpected "v=DMARC1")<br />';
-	}	
+if (!str_contains('www.'.$inputurl, '_'))	{
 	if (str_contains(strtolower($DNS_TXT_www), 'v=spf1'))	{
 		$counter = substr_count(strtolower($DNS_TXT_www), 'v=spf1');
 		if ($counter > 1)	{
@@ -1609,10 +1619,10 @@ function dmarc_list($inputurl)	{
 	$strpos = 1;
 	if (mb_substr($inputurl, 0, 1) == '_')	{
 		return 'not applicable';
-	}	
+	}
 	while ($strpos)	{
 		$underscore = '';
-		$array = dns_get_record(puny_code('_dmarc.').puny_code($inputurl), DNS_TXT);
+		$array = dns_get_record(puny_code('_dmarc.'.$inputurl), DNS_TXT);
 		$cname_value = get_cname_target('_dmarc.'.$inputurl);
 		foreach($cname_value as $key1 => $value1) {
 			foreach($cname_value as $key2 => $value2) {
@@ -1641,7 +1651,7 @@ function dmarc_list($inputurl)	{
 			}
 		}
 		if (strlen($temp1) and str_contains(str_replace(' ', '', $temp2), 'v=DMARC1;'))	{
-			$output .= $inputurl . ': ' . $temp1 . $underscore . ': ' . $temp2 . '<br />';
+			$output .= $temp1 . $underscore . ' TXT ' . $temp2 . '<br />';
 		}
 		if (str_contains($output, 'v=DMARC1;'))	{
 			break;
