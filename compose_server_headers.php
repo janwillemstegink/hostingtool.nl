@@ -495,10 +495,10 @@ if (strlen($DNS_SOA) and $cname_limited)	{
 	$DNS_SOA = '(CNAME determines fetched data)<br />'.$DNS_SOA;
 }
 elseif (strlen($DNS_SOA))	{
-	$DNS_SOA = '(this can be one of a registrant, second-level or zone domain)<br />'.$DNS_SOA;
+	$DNS_SOA = '(this can be one of a registrant, second-level or top-level domain)<br />'.$DNS_SOA;
 }	
 else	{	
-	$DNS_SOA = '(this is not one of a registrant, second level or zone domain)<br />';	
+	$DNS_SOA = '(this is not one of a registrant, second-level or top-level domain)<br />';	
 }	
 $DNS_SOA_www = '';
 $array = dns_get_record(puny_code('www.').puny_code($inputurl), DNS_SOA);		
