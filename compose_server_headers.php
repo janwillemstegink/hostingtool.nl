@@ -1,5 +1,5 @@
 <?php
-//$_GET['url'] = 'münchen.de';
+//$_GET['url'] = 'janwillemstegink.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -46,18 +46,22 @@ if (!str_contains($inputurl, '_'))	{
 	$DNS_CNAME = get_cname_target($inputurl);	
 	if (strlen($DNS_CNAME))	{		
 		$CNAMED = $DNS_CNAME;
-		$DNS_CNAME = $inputurl.' CNAME '.$DNS_CNAME.' points to';
+		$DNS_CNAME = $inputurl.' '.$DNS_CNAME.' points to';
 		$cname_limited = true;
 	}	
 	$AS_A = '';	
 	$AS_AAAA = '';
 	$AS_A_www = '';	
-	$AS_AAAA_www = '';	
+	$AS_AAAA_www = '';
+	$ttl = '';
 	$array = dns_get_record(puny_code($inputurl), DNS_A);
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
+			if ($key2 == 'ttl') {
+				$ttl = $value2;
+			}
 			if ($key2 == 'ip')	{
-				$DNS_CNAME .= '<br /><b>IPv4</b> A '.$value2;
+				$DNS_CNAME .= '<br /><b>IPv4</b> TTL '.$ttl.', A '.$value2;
 				$AS_A .= get_as_info($value2);
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
@@ -65,8 +69,11 @@ if (!str_contains($inputurl, '_'))	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_A);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
+							if ($k2 == 'ttl') {
+								$ttl = $v2;
+							}										
 							if ($k2 == 'ip')	{
-								$rDNS_FC .= '<br />FCrDNS '.$v2;
+								$rDNS_FC .= '<br />FCrDNS TTL '.$ttl.', A '.$v2;
 							}
 						}		
 					}
@@ -89,8 +96,11 @@ if (!str_contains($inputurl, '_'))	{
 	$array = dns_get_record(puny_code($inputurl), DNS_AAAA);	
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
+			if ($key2 == 'ttl') {
+				$ttl = $value2;
+			}
 			if ($key2 == 'ipv6') {
-				$DNS_CNAME .= '<br /><b>IPv6</b> AAAA '.$value2;
+				$DNS_CNAME .= '<br /><b>IPv6</b> TTL '.$ttl.', AAAA '.$value2;
 				$AS_AAAA .= get_as_info($value2);
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
@@ -98,8 +108,11 @@ if (!str_contains($inputurl, '_'))	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_AAAA);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
+							if ($k2 == 'ttl') {
+								$ttl = $v2;
+							}
 							if ($k2 == 'ipv6')	{
-								$rDNS_FC .= '<br />FCrDNS '.$v2;
+								$rDNS_FC .= '<br />FCrDNS TTL '.$ttl.', AAAA '.$v2;
 							}	
 						}
 					}		
@@ -142,14 +155,17 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 	$DNS_CNAME_www = get_cname_target('www.'.$inputurl);
 	if (strlen($DNS_CNAME_www))	{
 		$CNAMED_www = $DNS_CNAME_www;
-		$DNS_CNAME_www = 'www.'.$inputurl.' CNAME '.$DNS_CNAME_www.' points to';
+		$DNS_CNAME_www = 'www.'.$inputurl.' '.$DNS_CNAME_www.' points to';
 		$cname_limited_www = true;
 	}
 	$array = dns_get_record(puny_code('www.'.$inputurl), DNS_A);
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
-			if ($key2 == 'ip') {
-				$DNS_CNAME_www .= '<br /><b>IPv4</b> A '.$value2;
+			if ($key2 == 'ttl') {
+				$ttl = $value2;
+			}
+			elseif ($key2 == 'ip') {
+				$DNS_CNAME_www .= '<br /><b>IPv4</b> TTL '.$ttl.', A '.$value2;
 				$AS_A_www .= get_as_info($value2);
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
@@ -157,8 +173,11 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_A);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
+							if ($k2 == 'ttl') {
+								$ttl = $v2;
+							}
 							if ($k2 == 'ip')	{
-								$rDNS_FC .= '<br />FCrDNS '.$v2;
+								$rDNS_FC .= '<br />FCrDNS TTL '.$ttl.', A '.$v2;
 							}	
 						}
 					}		
@@ -181,8 +200,11 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 	$array = dns_get_record(puny_code('www.'.$inputurl), DNS_AAAA);	
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
-			if ($key2 == 'ipv6') {
-				$DNS_CNAME_www .= '<br /><b>IPv6</b> AAAA ' .$value2;
+			if ($key2 == 'ttl') {
+				$ttl = $value2;
+			}
+			elseif ($key2 == 'ipv6') {
+				$DNS_CNAME_www .= '<br /><b>IPv6</b> TTL '.$ttl.', AAAA '.$value2;
 				$AS_AAAA_www .= get_as_info($value2);
 				$rDNS = gethostbyaddr($value2);
 				$rDNS_FC = '';
@@ -190,8 +212,11 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_AAAA);
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
+							if ($k2 == 'ttl') {
+								$ttl = $v2;
+							}
 							if ($k2 == 'ipv6')	{
-								$rDNS_FC .= '<br />FCrDNS '.$v2;
+								$rDNS_FC .= '<br />FCrDNS TTL '.$ttl.', AAAA '.$v2;
 							}	
 						}
 					}		
@@ -231,8 +256,11 @@ foreach($array as $key1 => $value1) {
 		if ($key2 == 'host') {
 			$DNS_MX .= $value2 . ' ';
 		}
+		elseif ($key2 == 'ttl') {
+			$DNS_MX .= 'TTL '.$value2.', MX ';
+		}
 		elseif ($key2 == 'pri') {
-			$DNS_MX .= 'MX priority target: '. $value2 . ' ';
+			$DNS_MX .= $value2 . ' ';
 		}	
 		elseif ($key2 == 'target') {
 			$DNS_MX .= $value2 . '.<br />';
@@ -268,8 +296,11 @@ foreach($array as $key1 => $value1) {
 		if ($key2 == 'host') {
 			$DNS_MX_www .= $value2 . ' ';
 		}
+		elseif ($key2 == 'ttl') {
+			$DNS_MX_www .= 'TTL '.$value2.', MX ';
+		}
 		elseif ($key2 == 'pri') {
-			$DNS_MX_www .= 'MX priority target: '. $value2 . ' ';
+			$DNS_MX_www .= $value2 . ' ';
 		}	
 		elseif ($key2 == 'target') {
 			$DNS_MX_www .= $value2 . '.<br />';
@@ -301,17 +332,21 @@ $DNS_TXT = '';
 $DNS_TXT_notice = 0;
 $temp1 = '';
 $temp2 = '';	
+$temp3 = '';	
 $array = dns_get_record(puny_code($inputurl), DNS_TXT);
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'host') {
 			$temp1 = $value2;
-		}	
-       	if ($key2 == 'txt') {
+		}
+		elseif ($key2 == 'ttl') {
 			$temp2 = $value2;
+		}
+       	elseif ($key2 == 'txt') {
+			$temp3 = $value2;
 		}	
     }
-	$DNS_TXT .= $temp1 . ' TXT ' . $temp2 . '<br />';
+	$DNS_TXT .= $temp1.' TTL '.$temp2.', TXT '.$temp3.'<br />';
 }
 if (!str_contains($inputurl, '_'))	{	
 	if (str_contains(strtolower($DNS_TXT), 'v=spf1'))	{
@@ -350,17 +385,21 @@ $DNS_TXT_www = '';
 $DNS_TXT_www_notice = 0;	
 $temp1 = '';
 $temp2 = '';
+$temp3 = '';	
 $array = dns_get_record(puny_code('www.'.$inputurl), DNS_TXT);	
 foreach($array as $key1 => $value1) {
 	foreach($value1 as $key2 => $value2) {
 		if ($key2 == 'host') {
 			$temp1 = $value2;
 		}	
-       	if ($key2 == 'txt') {
+		elseif ($key2 == 'ttl') {
 			$temp2 = $value2;
+		}
+       	elseif ($key2 == 'txt') {
+			$temp3 = $value2;
 		}	
     }
-	$DNS_TXT_www .= $temp1 . ' TXT ' . $temp2 . '<br />';
+	$DNS_TXT_www .= $temp1.' TTL '.$temp2.', TXT '.$temp3.'<br />';
 }
 if (!str_contains('www.'.$inputurl, '_'))	{
 	if (str_contains(strtolower($DNS_TXT_www), 'v=spf1'))	{
@@ -1528,7 +1567,10 @@ function get_cname_target($inputurl)	{
 	$array = dns_get_record(puny_code($inputurl), DNS_CNAME);
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
-			if ($key2 == 'target') {
+			if ($key2 == 'ttl') {
+				$output .= 'TTL '.$value2.', CNAME ';
+			}
+			elseif ($key2 == 'target') {
 				$output .= $value2;
 			}	
 		}
@@ -1538,7 +1580,7 @@ function get_cname_target($inputurl)	{
 
 function get_mx_ips($inputurl)	{
 	$output = '';
-	$array = dns_get_record(puny_code($input), DNS_A);
+	$array = dns_get_record(puny_code($inputurl), DNS_A);
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ip')	{
@@ -1550,7 +1592,7 @@ function get_mx_ips($inputurl)	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ip')	{
-								$rDNS_FC .= $v2 . '; ';
+								$rDNS_FC .= $v2.' ';
 							}	
 						}
 					}		
@@ -1568,7 +1610,7 @@ function get_mx_ips($inputurl)	{
 			}
 		}	
 	}
-	$array = dns_get_record($inputurl, DNS_AAAA); 
+	$array = dns_get_record(puny_code($inputurl), DNS_AAAA); 
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ipv6')	{
@@ -1580,7 +1622,7 @@ function get_mx_ips($inputurl)	{
 					foreach($array2 as $k1 => $v1) {
 						foreach($v1 as $k2 => $v2) {
 							if ($k2 == 'ipv6')	{
-								$rDNS_FC .= $v2 . '; ';
+								$rDNS_FC .= $v2.' ';
 							}	
 						}
 					}		
@@ -1632,6 +1674,7 @@ function dmarc_list($inputurl)	{
 		}
 		$temp1 = '';
 		$temp2 = '';
+		$temp3  = '';
 		foreach($array as $key1 => $value1) {
 			foreach($value1 as $key2 => $value2) {
 				if ($key2 == 'host') {
@@ -1645,13 +1688,16 @@ function dmarc_list($inputurl)	{
 						$underscore = ' (without underscore)';
 					}	
 				}
-				if ($key2 == 'txt') {
+				elseif ($key2 == 'ttl') {
 					$temp2 = $value2;
+				}
+				elseif ($key2 == 'txt') {
+					$temp3 = $value2;
 				}				
 			}
 		}
-		if (strlen($temp1) and str_contains(str_replace(' ', '', $temp2), 'v=DMARC1;'))	{
-			$output .= $temp1 . $underscore . ' TXT ' . $temp2 . '<br />';
+		if (strlen($temp1) and str_contains(str_replace(' ', '', $temp3), 'v=DMARC1;'))	{
+			$output .= $temp1 . $underscore.' TTL '.$temp2.', TXT '.$temp3.'<br />';
 		}
 		if (str_contains($output, 'v=DMARC1;'))	{
 			break;
