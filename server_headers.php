@@ -5,7 +5,7 @@ echo '<!DOCTYPE html><html lang="en" style="font-size: 90%"><head>
 <meta charset="UTF-8" />
 <meta http-equiv="x-ua-compatible" content="ie=edge" />
 <meta name="robots" content="index" />
-<title>Server Header Information</title>';
+<title>Server Header Display Tool</title>';
 ?><script>
 	
 function SwitchDisplay(type) {
@@ -135,7 +135,7 @@ else	{
 $html_text = '<body><div style="border-collapse:collapse; line-height:120%">
 <table style="font-family:Helvetica, Arial, sans-serif; font-size: 1rem; table-layout: fixed; width:1200px; overflow-wrap: break-word">
 <tr><th style="width:300px"></th><th style="width:300px"></th><th style="width:600px"></th></tr>';
-$html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:blue;font-weight:bold">Server Header Information</td>
+$html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:blue;font-weight:bold">Server Header Display Tool</td>
 <td><form action='.htmlentities($_SERVER['PHP_SELF']).' method="get"><label for="url">Paste a URL and press Enter</label><input type="text" style="width:90%;font-size: 1.2rem" id="url" name="url" value='.$viewserver.'></form></td><td> <a style="font-size: 0.9rem" href="https://github.com/janwillemstegink/hostingtool.nl/issues" target="_blank">issues on GitHub</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-htaccess/" target="_blank">conditional redirect in .htaccess</a> - <a style="font-size: 0.9rem" href="https://janwillemstegink.nl/" target="_blank">janwillemstegink.nl</a></td></tr>';
 $html_text .= '<tr><td colspan="3" style="cursor:pointer;font-size:1.0rem">Settings to optimize are colored orange.</td></tr>';
 $html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
