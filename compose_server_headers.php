@@ -1,5 +1,5 @@
 <?php
-//$_GET['url'] = 'janwillemstegink.nl';
+//$_GET['url'] = 'internet.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -477,7 +477,7 @@ else	{
 	}
 	else	{
 		$DNS_DMARC_www_notice = 1;
-		$DNS_DMARC_www .= '(DMARC can be stronger with "reject" for subdomains, existing or not)<br />';
+		$DNS_DMARC_www .= '(DMARC can be stronger with "reject" for subdomains that exist or not)<br />';
 	}
 	if (str_contains($DNS_DMARC_www, 'underscore'))	{
 		$DNS_DMARC_www_notice = 1;
