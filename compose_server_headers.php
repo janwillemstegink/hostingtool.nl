@@ -1,5 +1,5 @@
 <?php
-//$_GET['url'] = 'internet.nl';
+//$_GET['url'] = 'fryslan.frl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -63,7 +63,7 @@ if (!str_contains($inputurl, '_'))	{
 			if ($key2 == 'ip')	{
 				$DNS_CNAME .= '<br /><b>IPv4</b> TTL '.$ttl.', A '.$value2;
 				$AS_A .= get_as_info($value2);
-				$rDNS = gethostbyaddr($value2);
+				$rDNS = get_host($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_A);
@@ -102,7 +102,7 @@ if (!str_contains($inputurl, '_'))	{
 			if ($key2 == 'ipv6') {
 				$DNS_CNAME .= '<br /><b>IPv6</b> TTL '.$ttl.', AAAA '.$value2;
 				$AS_AAAA .= get_as_info($value2);
-				$rDNS = gethostbyaddr($value2);
+				$rDNS = get_host($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_AAAA);
@@ -167,7 +167,7 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 			elseif ($key2 == 'ip') {
 				$DNS_CNAME_www .= '<br /><b>IPv4</b> TTL '.$ttl.', A '.$value2;
 				$AS_A_www .= get_as_info($value2);
-				$rDNS = gethostbyaddr($value2);
+				$rDNS = get_host($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_A);
@@ -206,7 +206,7 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 			elseif ($key2 == 'ipv6') {
 				$DNS_CNAME_www .= '<br /><b>IPv6</b> TTL '.$ttl.', AAAA '.$value2;
 				$AS_AAAA_www .= get_as_info($value2);
-				$rDNS = gethostbyaddr($value2);
+				$rDNS = get_host($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_AAAA);
@@ -1585,7 +1585,7 @@ function get_mx_ips($inputurl)	{
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ip')	{
 				$output .= 'IPv4: '.$value2.'<br />';
-				$rDNS = gethostbyaddr($value2);
+				$rDNS = get_host($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_A);
@@ -1615,7 +1615,7 @@ function get_mx_ips($inputurl)	{
 		foreach($value1 as $key2 => $value2) {
 			if ($key2 == 'ipv6')	{
 				$output .= 'IPv6: '.$value2.'<br />';
-				$rDNS = gethostbyaddr($value2);
+				$rDNS = get_host($value2);
 				$rDNS_FC = '';
 				if ($rDNS != $value2)	{
 					$array2 = dns_get_record(puny_code($rDNS), DNS_AAAA);
@@ -1727,6 +1727,18 @@ function get_as_info($inputip)	{
 		$output .= $key1 . ': ' . $value1 .  "\n";
 	}
 	return($output);
+}
+
+function get_host($inputip)	{
+	$fp = @fsockopen($inputip, 80, $errno, $errstr, 3); // 5-second timeout
+	if ($fp) {
+    	fclose($fp);
+		return gethostbyaddr($inputip);
+	}
+	else {
+		return $inputip;
+    	//die("Ping failed: $errstr ($errno)");
+	}
 }
 
 function clean_url($inputurl)	{
