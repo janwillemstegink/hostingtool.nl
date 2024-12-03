@@ -1,5 +1,6 @@
 <?php
 session_start();  // is needed with no PHP Generator Scriptcase
+//session_start();  // is needed with no PHP Generator Scriptcase
 echo '<!DOCTYPE html><html lang="en" style="font-size: 90%"><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta charset="UTF-8" />
@@ -183,7 +184,8 @@ if (@get_headers($server_url))	{
 if	(is_null($xml1))	{
 	$display_message = str_replace("'", "\'", "A result could not be retrieved.");	
 	echo "<script>alert('$display_message');</script>";
-	sc_redir(server_heders);
+	$reopen = $server_url.'/server_headers/index.php';
+	sc_redir($reopen);
 }	
 foreach ($xml1->xpath('//domain') as $item)	{
 	simplexml_load_string($item->asXML());

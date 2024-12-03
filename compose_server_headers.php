@@ -1288,8 +1288,9 @@ elseif (strlen($DNS_CNAME_www))	{
 	else	{
 		$https_code_destination_www .= '(No cURL on the same server)';	
 	}
-}		  
-						  
+}
+//die();
+	
 //curl_close($ch); //not necessary from PHP 8
 	
 $doc = new DOMDocument("1.0", "UTF-8");
@@ -1747,7 +1748,8 @@ function get_host($inputip)	{
 		$reverse_ipv4 = implode('.', array_reverse(explode('.', $inputip))) . '.in-addr.arpa';
 		$result = dns_get_record($reverse_ipv4, DNS_PTR);
 		if ($result) {
-    		return $result[0]['target'];
+			//echo $inputip . ' -> ' . $result[0]['target'] . ' (' . strval(round(microtime(true) - $time_start, 1)) . ' seconds)<br />';
+    		return $result[0]['target'];	
 		}	
 	}
 	elseif (get_ip_type($inputip) == 'IPv6') {
@@ -1756,11 +1758,11 @@ function get_host($inputip)	{
     	$reverse_ipv6 = implode('.', $nibbles) . '.ip6.arpa';
 		$result = dns_get_record($reverse_ipv6, DNS_PTR);
 		if ($result) {
-    		foreach ($result as $record) {
-				return $record['target'];
-			}
+			//echo $inputip . ' -> ' . $result[0]['target'] . ' (' . strval(round(microtime(true) - $time_start, 1)) . ' seconds)<br />';
+			return $result[0]['target'];
 		}
 	}
+	//echo $inputip . ' -> ... (' . strval(round(microtime(true) - $time_start, 1)) . ' seconds)<br />';
 	return $inputip;
 
 	//$fp = @fsockopen($inputip, 443, $errno, $errstr, 5); // 5-second timeout
