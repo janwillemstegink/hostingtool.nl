@@ -1,5 +1,6 @@
 <?php
 //$_GET['url'] = 'fryslan.frl';
+//$_GET['url'] = 'janwillemstegink.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -196,7 +197,7 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 				}
 			}
 		}
-	}	
+	}
 	$array = dns_get_record(puny_code('www.'.$inputurl), DNS_AAAA);	
 	foreach($array as $key1 => $value1) {
 		foreach($value1 as $key2 => $value2) {
@@ -239,7 +240,7 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 	if (!$cname_limited_www and strlen($DNS_CNAME_www))	{
 		$DNS_CNAME_www = 'www.'.$inputurl.' works with A and/or quad A' . $DNS_CNAME_www;
 	}
-}
+}	
 if (strlen($DNS_CNAME_www))	{
 	if (!str_contains($DNS_CNAME_www, 'IPv4'))	{
 		$DNS_CNAME_www .= '<br />(IPv4 is not supported)';
@@ -1729,16 +1730,50 @@ function get_as_info($inputip)	{
 	return($output);
 }
 
-function get_host($inputip)	{
-	$fp = @fsockopen($inputip, 80, $errno, $errstr, 3); // 5-second timeout
-	if ($fp) {
-    	fclose($fp);
-		return gethostbyaddr($inputip);
-	}
+function get_ip_type($inputip) {
+    if (filter_var($inputip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))	{
+        return "IPv4";
+    }
+	elseif (filter_var($inputip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6))	{
+        return "IPv6";
+    }
 	else {
-		return $inputip;
-    	//die("Ping failed: $errstr ($errno)");
+		return "Invalid IP";
+    }
+}
+
+function get_host($inputip)	{
+	if (get_ip_type($inputip) == 'IPv4') {
+		$reverse_ipv4 = implode('.', array_reverse(explode('.', $inputip))) . '.in-addr.arpa';
+		$result = dns_get_record($reverse_ipv4, DNS_PTR);
+		if ($result) {
+    		return $result[0]['target'];
+		}	
 	}
+	elseif (get_ip_type($inputip) == 'IPv6') {
+		$expanded = inet_ntop(inet_pton($inputip));
+    	$nibbles = array_reverse(str_split(bin2hex(inet_pton($expanded))));
+    	$reverse_ipv6 = implode('.', $nibbles) . '.ip6.arpa';
+		$result = dns_get_record($reverse_ipv6, DNS_PTR);
+		if ($result) {
+    		foreach ($result as $record) {
+				return $record['target'];
+			}
+		}
+	}
+	return $inputip;
+
+	//$fp = @fsockopen($inputip, 443, $errno, $errstr, 5); // 5-second timeout
+	//echo 'Ping on '.$inputip.': '.$fp.'<br />';
+	//if ($fp) {
+    	//fclose($fp);
+		//echo 'reverse host name: '.  gethostbyaddr($inputip).'<br />';
+		//return gethostbyaddr($inputip);
+	//}
+	//else {
+		//echo $inputip . ': ' . "Ping failed: $errstr ($errno)".'<br />';
+		//return "skipped: $errstr ($errno)";
+	//}	
 }
 
 function clean_url($inputurl)	{

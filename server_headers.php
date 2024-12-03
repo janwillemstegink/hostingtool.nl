@@ -179,6 +179,11 @@ $server_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRI
 $server_url = dirname($server_url).'/compose_server_headers/index.php?url='.$viewserver;
 if (@get_headers($server_url))	{	
 	$xml1 = simplexml_load_file($server_url, "SimpleXMLElement", LIBXML_NOCDATA) or die("An entered url could not be read.");
+}
+if	(is_null($xml1))	{
+	$display_message = str_replace("'", "\'", "A result could not be retrieved.");	
+	echo "<script>alert('$display_message');</script>";
+	sc_redir(server_heders);
 }	
 foreach ($xml1->xpath('//domain') as $item)	{
 	simplexml_load_string($item->asXML());
