@@ -1,6 +1,5 @@
 <?php
 session_start();  // is needed with no PHP Generator Scriptcase
-//session_start();  // is needed with no PHP Generator Scriptcase
 echo '<!DOCTYPE html><html lang="en" style="font-size: 90%"><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta charset="UTF-8" />
@@ -177,9 +176,10 @@ $html_text .= '<table style="font-family:Helvetica, Arial, sans-serif; font-size
 $server_url = isset($_SERVER['HTTPS']) && strcasecmp('off', $_SERVER['HTTPS']) !== 0 ? "https" : "http";
 $server_url .= '://'. $_SERVER['HTTP_HOST'];
 $server_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);	
-$server_url = dirname($server_url).'/compose_server_headers/index.php?url='.$viewserver;
-if (@get_headers($server_url))	{	
-	$xml1 = simplexml_load_file($server_url, "SimpleXMLElement", LIBXML_NOCDATA) or die("An entered url could not be read.");
+$server_url = dirname($server_url);
+$hosting_url = $server_url.'/compose_server_headers/index.php?url='.$viewserver;	
+if (@get_headers($hosting_url))	{	
+	$xml1 = simplexml_load_file($hosting_url, "SimpleXMLElement", LIBXML_NOCDATA) or die("An entered url could not be read.");
 }
 if	(is_null($xml1))	{
 	$display_message = str_replace("'", "\'", "A result could not be retrieved.");	

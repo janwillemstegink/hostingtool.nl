@@ -1744,6 +1744,7 @@ function get_ip_type($inputip) {
 }
 
 function get_host($inputip)	{
+	//$time_start = microtime(true);
 	if (get_ip_type($inputip) == 'IPv4') {
 		$reverse_ipv4 = implode('.', array_reverse(explode('.', $inputip))) . '.in-addr.arpa';
 		$result = dns_get_record($reverse_ipv4, DNS_PTR);
