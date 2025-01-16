@@ -83,14 +83,14 @@ if (!str_contains($inputurl, '_'))	{
 				$DNS_CNAME .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;	
 				if ($value2 == $own_ip)	$same_server = true;
 				if ($rDNS == $inputurl) $matches_server = true;
-				if (str_contains($rDNS_FC, $value2))	{
+				if ($rDNS == $value2)	{
+					$DNS_CNAME .= '<br />(A reverse DNS does not exist)';
 				}
-				elseif ($rDNS == $value2)	{
-					$DNS_CNAME .= '<br />no reverse DNS';
+				elseif (str_contains($rDNS_FC, $value2))	{
 				}
 				else	{
 					$DNS_CNAME_notice = 1;
-					$DNS_CNAME .= '<br />(The reverse DNS is not forward-confirmed)';
+					$DNS_CNAME .= '<br />(No matching forward-confirmed)';
 				}
 			}	
 		}
@@ -122,14 +122,14 @@ if (!str_contains($inputurl, '_'))	{
 				$DNS_CNAME .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
 				if ($value2 == $own_ip)	$same_server = true;
 				if ($rDNS == $inputurl) $matches_server = true;
-				if (str_contains($rDNS_FC, $value2))	{
+				if ($rDNS == $value2)	{
+					$DNS_CNAME .= '<br />(A reverse DNS does not exist)';
 				}
-				elseif ($rDNS == $value2)	{
-					$DNS_CNAME .= '<br />no reverse DNS';
+				elseif (str_contains($rDNS_FC, $value2))	{
 				}
 				else	{
 					$DNS_CNAME_notice = 1;
-					$DNS_CNAME .= '<br />(The reverse DNS is not forward-confirmed)';
+					$DNS_CNAME .= '<br />(No matching forward-confirmed)';
 				}
 			}
 		}	
@@ -187,14 +187,14 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 				$DNS_CNAME_www .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
 				if ($value2 == $own_ip)	$same_server_www = true;
 				if ($rDNS == 'www.'.$inputurl) $matches_server_www = true;
-				if (str_contains($rDNS_FC, $value2))	{
+				if ($rDNS == $value2)	{
+					$DNS_CNAME_www .= '<br />(A reverse DNS does not exist)';
 				}
-				elseif ($rDNS == $value2)	{
-					$DNS_CNAME_www .= '<br />no reverse DNS';
+				elseif (str_contains($rDNS_FC, $value2))	{
 				}
 				else	{
 					$DNS_CNAME_www_notice = 1;
-					$DNS_CNAME_www .= '<br />(The reverse DNS is not forward-confirmed)';
+					$DNS_CNAME_www .= '<br />(No matching forward-confirmed)';
 				}
 			}
 		}
@@ -226,14 +226,14 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 				$DNS_CNAME_www .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
 				if ($value2 == $own_ip)	$same_server_www = true;
 				if ($rDNS == 'www.'.$inputurl) $matches_server_www = true;
-				if (str_contains($rDNS_FC, $value2))	{
+				if ($rDNS == $value2)	{
+					$DNS_CNAME_www .= '<br />(A reverse DNS does not exist)';
 				}
-				elseif ($rDNS == $value2)	{
-					$DNS_CNAME_www .= '<br />no reverse DNS';
+				elseif (str_contains($rDNS_FC, $value2))	{
 				}
 				else	{
 					$DNS_CNAME_www_notice = 1;
-					$DNS_CNAME_www .= '<br />(The reverse DNS is not forward-confirmed)';
+					$DNS_CNAME_www .= '<br />(No matching forward-confirmed)';
 				}
 			}
 		}
