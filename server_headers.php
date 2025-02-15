@@ -34,7 +34,11 @@ function SwitchDisplay(type) {
 		var pre = '22';
 		var max = 2
 	}
-	else if (type == 25)	{ // CNAME
+	else if (type == 24)	{ // CNAME IPv4
+		var pre = '24';
+		var max = 1
+	}
+	else if (type == 25)	{ // CNAME IPv6
 		var pre = '25';
 		var max = 1
 	}
@@ -238,24 +242,44 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	$html_text .= '<tr id="222" style="display:none;vertical-align:top"><td colspan="2">'.$item->https_code_destination.'</td><td>'.$item->https_code_destination_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';	
 	if ($item->DNS_CNAME_notice == "1" )	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(25)">CNAME, A, quad A - FCrDNS +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(24)">CNAME, A - FCrDNS +/-</button></td>';
 	}
-	elseif ($item->DNS_CNAME_notice == "0" and strlen($item->DNS_CNAME))	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(25)">CNAME, A, quad A - FCrDNS +/-</button></td>';
+	elseif ($item->DNS_CNAME_notice == "0" and str_contains($item->DNS_CNAME, 'IPv4'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(24)">CNAME, A - FCrDNS +/-</button></td>';
 	}
 	else	{
-		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(25)">CNAME, A, quad A, FCrDNS +/-</button></td>';
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(24)">CNAME, A, FCrDNS +/-</button></td>';
 	}
 	if ($item->DNS_CNAME_www_notice == "1" )	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(25)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(24)">CNAME, A - FCrDNS +/-</button></td></tr>';
 	}
-	elseif ($item->DNS_CNAME_www_notice == "0" and strlen($item->DNS_CNAME_www))	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(25)">CNAME, A, quad A - FCrDNS +/-</button></td></tr>';
+	elseif ($item->DNS_CNAME_www_notice == "0" and str_contains($item->DNS_CNAME_www, 'IPv4'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(24)">CNAME, A - FCrDNS +/-</button></td></tr>';
 	}
 	else	{
-		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(25)">CNAME, A, quad A, FCrDNS +/-</button></td></tr>';
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(24)">CNAME, A, FCrDNS +/-</button></td></tr>';
 	}	
-	$html_text .= '<tr id="251" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CNAME.'</td><td>'.$item->DNS_CNAME_www.'</td></tr>';
+	$html_text .= '<tr id="241" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CNAME.'</td><td>'.$item->DNS_CNAME_www.'</td></tr>';
+	if ($item->DNS_CNAME6_notice == "1" )	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(25)">CNAME, quad A - FCrDNS +/-</button></td>';
+	}
+	elseif ($item->DNS_CNAME6_notice == "0" and str_contains($item->DNS_CNAME6, 'IPv6'))	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(25)">CNAME, quad A - FCrDNS +/-</button></td>';
+	}
+	else	{
+		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(25)">CNAME, quad A, FCrDNS +/-</button></td>';
+	}
+	if ($item->DNS_CNAME6_www_notice == "1" )	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(25)">CNAME, quad A - FCrDNS +/-</button></td></tr>';
+	}
+	elseif ($item->DNS_CNAME6_www_notice == "0" and str_contains($item->DNS_CNAME6_www, 'IPv6'))	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem;background-color:#C7F6C7;border-color:#C7F6C7" onclick="SwitchDisplay(25)">CNAME, quad A - FCrDNS +/-</button></td></tr>';
+	}
+	else	{
+		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(25)">CNAME, quad A, FCrDNS +/-</button></td></tr>';
+	}	
+	$html_text .= '<tr id="251" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CNAME6.'</td><td>'.$item->DNS_CNAME6_www.'</td></tr>';
+	
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(26)">CAA +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(26)">CAA +/-</button></td></tr>';
 	$html_text .= '<tr id="261" style="display:none;vertical-align:top"><td colspan="2">'.$item->DNS_CAA.'</td><td>'.$item->DNS_CAA_www.'</td></tr>';
 	if ($item->DNS_MX_notice == "1" )	{

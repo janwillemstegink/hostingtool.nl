@@ -1,7 +1,7 @@
 <?php
 //$_GET['url'] = 'fryslan.frl';
 //$_GET['url'] = 'janwillemstegink.nl';
-//$_GET['url'] = 'top.nic.br';
+//$_GET['url'] = 'sidn.nl';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -41,9 +41,11 @@ $own_ip = $_SERVER['SERVER_ADDR'];
 $same_server = false;
 $cname_limited = false;
 $matches_server = false;
+$CNAMED	= '';
 $DNS_CNAME = '';
-$CNAMED = '';	
-$DNS_CNAME_notice = 0;	
+$DNS_CNAME_notice = 0;
+$DNS_CNAME6 = '';
+$DNS_CNAME6_notice = 0;		
 if (!str_contains($inputurl, '_'))	{
 	$DNS_CNAME = get_cname_target($inputurl);	
 	if (strlen($DNS_CNAME))	{		
@@ -102,7 +104,7 @@ if (!str_contains($inputurl, '_'))	{
 				$ttl = $value2;
 			}
 			if ($key2 == 'ipv6') {
-				$DNS_CNAME .= '<br /><b>IPv6</b> TTL '.$ttl.', AAAA '.$value2;
+				$DNS_CNAME6 .= '<br /><b>IPv6</b> TTL '.$ttl.', AAAA '.$value2;
 				$AS_AAAA .= get_as_info($value2);
 				$rDNS = get_host($value2);
 				$rDNS_FC = '';
@@ -119,39 +121,50 @@ if (!str_contains($inputurl, '_'))	{
 						}
 					}		
 				}
-				$DNS_CNAME .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
+				$DNS_CNAME6 .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
 				if ($value2 == $own_ip)	$same_server = true;
 				if ($rDNS == $inputurl) $matches_server = true;
 				if ($rDNS == $value2)	{
-					$DNS_CNAME .= '<br />(A reverse DNS does not exist)';
+					$DNS_CNAME6 .= '<br />(A reverse DNS does not exist)';
 				}
 				elseif (str_contains($rDNS_FC, $value2))	{
 				}
 				else	{
-					$DNS_CNAME_notice = 1;
-					$DNS_CNAME .= '<br />(No matching forward-confirmed)';
+					$DNS_CNAME6_notice = 1;
+					$DNS_CNAME6 .= '<br />(No matching forward-confirmed)';
 				}
 			}
 		}	
 	}
-	if (!$cname_limited and strlen($DNS_CNAME))	{
-		$DNS_CNAME = $inputurl.' works with A and/or quad A' . $DNS_CNAME;
+	if (!$cname_limited)	{
+		if (strlen($DNS_CNAME))	{
+			$DNS_CNAME = $inputurl.' works with A' . $DNS_CNAME;
+		}
+		if (strlen($DNS_CNAME6))	{
+			$DNS_CNAME6 = $inputurl.' works with quad A' . $DNS_CNAME6;
+		}
 	}
 }	
-if (strlen($DNS_CNAME))	{
+if (strlen($DNS_CNAME) or strlen($DNS_CNAME6))	{
 	if (!str_contains($DNS_CNAME, 'IPv4'))	{
-		$DNS_CNAME .= '<br />(IPv4 is not supported)';
-	}	
-	elseif (!str_contains($DNS_CNAME, 'IPv6'))	{
-		$DNS_CNAME .= '<br />(IPv6 is not supported)';
+		$DNS_CNAME_notice = 1;
+		if (strlen($DNS_CNAME)) $DNS_CNAME .= '<br />';
+		$DNS_CNAME .= 'IPv4 is not supported';
 	}
-}
+	if (!str_contains($DNS_CNAME6, 'IPv6'))	{
+		$DNS_CNAME6_notice = 1;
+		if (strlen($DNS_CNAME6)) $DNS_CNAME6 .= '<br />';
+		$DNS_CNAME6 .= 'IPv6 is not supported';
+	}
+}	
 $same_server_www = false;
 $cname_limited_www = false;
 $matches_server_www = false;
-$DNS_CNAME_www = '';
 $CNAMED_www = '';	
+$DNS_CNAME_www = '';
 $DNS_CNAME_www_notice = 0;	
+$DNS_CNAME6_www = '';
+$DNS_CNAME6_www_notice = 0;
 if (!str_contains('www.'.$inputurl, '_'))	{	
 	$DNS_CNAME_www = '';	
 	$DNS_CNAME_www = get_cname_target('www.'.$inputurl);
@@ -206,7 +219,7 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 				$ttl = $value2;
 			}
 			elseif ($key2 == 'ipv6') {
-				$DNS_CNAME_www .= '<br /><b>IPv6</b> TTL '.$ttl.', AAAA '.$value2;
+				$DNS_CNAME6_www .= '<br /><b>IPv6</b> TTL '.$ttl.', AAAA '.$value2;
 				$AS_AAAA_www .= get_as_info($value2);
 				$rDNS = get_host($value2);
 				$rDNS_FC = '';
@@ -223,33 +236,42 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 						}
 					}		
 				}
-				$DNS_CNAME_www .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
+				$DNS_CNAME6_www .= ' points to<br />rDNS: '.$rDNS. ' points to'.$rDNS_FC;
 				if ($value2 == $own_ip)	$same_server_www = true;
 				if ($rDNS == 'www.'.$inputurl) $matches_server_www = true;
 				if ($rDNS == $value2)	{
-					$DNS_CNAME_www .= '<br />(A reverse DNS does not exist)';
+					$DNS_CNAME6_www .= '<br />(A reverse DNS does not exist)';
 				}
 				elseif (str_contains($rDNS_FC, $value2))	{
 				}
 				else	{
-					$DNS_CNAME_www_notice = 1;
-					$DNS_CNAME_www .= '<br />(No matching forward-confirmed)';
+					$DNS_CNAME6_www_notice = 1;
+					$DNS_CNAME6_www .= '<br />(No matching forward-confirmed)';
 				}
 			}
 		}
 	}
-	if (!$cname_limited_www and strlen($DNS_CNAME_www))	{
-		$DNS_CNAME_www = 'www.'.$inputurl.' works with A and/or quad A' . $DNS_CNAME_www;
+	if (!$cname_limited_www)	{
+		if (strlen($DNS_CNAME_www))	{
+			$DNS_CNAME_www = 'www.'.$inputurl.' works with A' . $DNS_CNAME_www;
+		}
+		if (strlen($DNS_CNAME6_www))	{
+			$DNS_CNAME6_www = 'www.'.$inputurl.' works with quad A' . $DNS_CNAME6_www;
+		}
+	}	
+}	
+if (strlen($DNS_CNAME_www) or strlen($DNS_CNAME6_www))	{
+	if (!str_contains($DNS_CNAME_www, 'IPv4'))	{
+		$DNS_CNAME_www_notice = 1;
+		if (strlen($DNS_CNAME_www)) $DNS_CNAME_www .= '<br />';
+		$DNS_CNAME_www .= 'IPv4 is not supported';
+	}
+	if (!str_contains($DNS_CNAME6_www, 'IPv6'))	{
+		$DNS_CNAME6_www_notice = 1;
+		if (strlen($DNS_CNAME6_www)) $DNS_CNAME6_www .= '<br />';
+		$DNS_CNAME6_www .= 'IPv6 is not supported';
 	}
 }	
-if (strlen($DNS_CNAME_www))	{
-	if (!str_contains($DNS_CNAME_www, 'IPv4'))	{
-		$DNS_CNAME_www .= '<br />(IPv4 is not supported)';
-	}	
-	elseif (!str_contains($DNS_CNAME_www, 'IPv6'))	{
-		$DNS_CNAME_www .= '<br />(IPv6 is not supported)';
-	}
-}
 $DNS_CAA = '';
 $array = dns_get_record(puny_code($inputurl), DNS_CAA);	
 foreach($array as $key1 => $value1) {
@@ -614,7 +636,10 @@ if (strlen($DNS_CNAME))	{
 				$http_code_notice = 1;
 				$http_code_initial .= '<br />(unsafe from ' . puny_decode($initial_url) . ' to HTTP ' . puny_decode($redirect_url) . ')';
 			}
-		}	
+		}
+		else	{
+			$http_code_initial .= '<br />(not from ' . puny_decode($initial_url) . ' to another url)';
+		}
 	}
 	elseif (curl_errno($ch) == 7)	{
 		$http_code_notice = 1;
@@ -656,6 +681,9 @@ if (strlen($DNS_CNAME_www))	{
 				$http_code_initial_www .= '<br />(unsafe from ' . puny_decode($initial_url) . ' to HTTP ' . puny_decode($redirect_url) . ')';
 			}
 		}
+		else	{
+			$http_code_initial_www .= '<br />(not from ' . puny_decode($initial_url) . ' to a another url)';
+		}	
 	}
 	elseif (curl_errno($ch) == 7)	{
 		$http_code_www_notice = 1;
@@ -1231,7 +1259,7 @@ elseif (strlen($DNS_CNAME_www))	{
 				}
 				else	{
 					$http_code_www_notice = 1;
-					$http_code_destination_www .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';					
+					$http_code_destination_www .= '<br />(HTTPS misses in the destination url: ' . $destination_url . ')';
 				}
 			}	
 			else	{
@@ -1319,6 +1347,8 @@ elseif (strlen($DNS_CNAME_www))	{
 					if ($CNAMED_www == $inputurl)	{
 						$DNS_CNAME_www_notice = 1;
 						$DNS_CNAME_www .= '<br />(The destination does not require CNAME; A/AAAA, MX and TXT can work)';
+						$DNS_CNAME6_www_notice = 1;
+						$DNS_CNAME6_www .= '<br />(The destination does not require CNAME; A/AAAA, MX and TXT can work)';
 					}	
 				}	
 			}	
@@ -1371,6 +1401,22 @@ $domain->appendChild($domain_DNS_CNAME_notice);
 $domain_DNS_CNAME_www_notice = $doc->createElement("DNS_CNAME_www_notice");
 $domain_DNS_CNAME_www_notice->appendChild($doc->createCDATASection($DNS_CNAME_www_notice));		
 $domain->appendChild($domain_DNS_CNAME_www_notice);	
+	
+$domain_DNS_CNAME6 = $doc->createElement("DNS_CNAME6");
+$domain_DNS_CNAME6->appendChild($doc->createCDATASection($DNS_CNAME6));		
+$domain->appendChild($domain_DNS_CNAME6);	
+	
+$domain_DNS_CNAME6_www = $doc->createElement("DNS_CNAME6_www");
+$domain_DNS_CNAME6_www->appendChild($doc->createCDATASection($DNS_CNAME6_www));		
+$domain->appendChild($domain_DNS_CNAME6_www);
+
+$domain_DNS_CNAME6_notice = $doc->createElement("DNS_CNAME6_notice");
+$domain_DNS_CNAME6_notice->appendChild($doc->createCDATASection($DNS_CNAME6_notice));		
+$domain->appendChild($domain_DNS_CNAME6_notice);	
+	
+$domain_DNS_CNAME6_www_notice = $doc->createElement("DNS_CNAME6_www_notice");
+$domain_DNS_CNAME6_www_notice->appendChild($doc->createCDATASection($DNS_CNAME6_www_notice));		
+$domain->appendChild($domain_DNS_CNAME6_www_notice);	
 	
 $domain_DNS_CAA = $doc->createElement("DNS_CAA");
 $domain_DNS_CAA->appendChild($doc->createCDATASection($DNS_CAA));		
