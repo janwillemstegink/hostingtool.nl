@@ -2,6 +2,7 @@
 //$_GET['url'] = 'fryslan.frl';
 //$_GET['url'] = 'janwillemstegink.nl';
 //$_GET['url'] = 'sidn.nl';
+//$_GET['url'] = 'iana.org';
 
 if (!empty($_GET['url']))	{
 	if (strlen($_GET['url']))	{
@@ -50,6 +51,7 @@ if (!str_contains($inputurl, '_'))	{
 	$DNS_CNAME = get_cname_target($inputurl);	
 	if (strlen($DNS_CNAME))	{		
 		$CNAMED = $DNS_CNAME;
+		$DNS_CNAME6 = $inputurl.' '.$DNS_CNAME.' points to';
 		$DNS_CNAME = $inputurl.' '.$DNS_CNAME.' points to';
 		$cname_limited = true;
 	}	
@@ -170,6 +172,7 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 	$DNS_CNAME_www = get_cname_target('www.'.$inputurl);
 	if (strlen($DNS_CNAME_www))	{
 		$CNAMED_www = $DNS_CNAME_www;
+		$DNS_CNAME6_www = 'www.'.$inputurl.' '.$DNS_CNAME_www.' points to';
 		$DNS_CNAME_www = 'www.'.$inputurl.' '.$DNS_CNAME_www.' points to';
 		$cname_limited_www = true;
 	}
@@ -258,7 +261,7 @@ if (!str_contains('www.'.$inputurl, '_'))	{
 		if (strlen($DNS_CNAME6_www))	{
 			$DNS_CNAME6_www = 'www.'.$inputurl.' works with quad A' . $DNS_CNAME6_www;
 		}
-	}	
+	}
 }	
 if (strlen($DNS_CNAME_www) or strlen($DNS_CNAME6_www))	{
 	if (!str_contains($DNS_CNAME_www, 'IPv4'))	{
