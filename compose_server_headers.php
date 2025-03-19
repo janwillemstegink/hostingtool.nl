@@ -597,6 +597,7 @@ else	{
 //}
 
 $ch = curl_init();
+curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);	
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_HEADER, 1);	
 curl_setopt($ch, CURLOPT_NOBODY, 1);
@@ -861,7 +862,7 @@ elseif (strlen($DNS_CNAME_www))	{
 	}
 	else	{
 		$hsts_header_www_notice = 1;
-		$hsts_header_www .= ' does not contain HSTS.';
+		$hsts_header_www .= ' does not have strictly correct HSTS.';
 	}
 	$arr_transfer_information_www = curl_getinfo($ch);
 	$transfer_information_www = '';	

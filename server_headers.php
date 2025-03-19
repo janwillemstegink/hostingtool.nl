@@ -88,7 +88,7 @@ function SwitchDisplay(type) {
 	}
 	else if (type == 52)	{ // server headers
 		var pre = '52';
-		var max = 1
+		var max = 2
 	}
 	else if (type == 61)	{ // transfer information
 		var pre = '61';
@@ -144,7 +144,7 @@ $html_text = '<body><div style="border-collapse:collapse; line-height:120%">
 <table style="font-family:Helvetica, Arial, sans-serif; font-size: 1rem; table-layout: fixed; width:1200px; overflow-wrap: break-word">
 <tr><th style="width:300px"></th><th style="width:300px"></th><th style="width:600px"></th></tr>';
 $html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:blue;font-weight:bold">Server Header Data</td>
-<td><form action='.htmlentities($_SERVER['PHP_SELF']).' method="get"><label for="url">Paste a URL and press Enter</label><input type="text" style="width:90%;font-size: 1.2rem" id="url" name="url" value='.$viewserver.'></form></td><td> <a style="font-size: 0.9rem" href="https://github.com/janwillemstegink/hostingtool.nl/issues" target="_blank">issues on GitHub</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-htaccess/" target="_blank">conditional redirect in .htaccess</a> - <a style="font-size: 0.9rem" href="https://janwillemstegink.nl/" target="_blank">janwillemstegink.nl</a></td></tr>';
+<td><form action='.htmlentities($_SERVER['PHP_SELF']).' method="get"><label for="url">Paste a URL and press Enter</label><input type="text" style="width:90%;font-size: 1.2rem" id="url" name="url" value='.$viewserver.'></form></td><td> <a style="font-size: 0.9rem" href="https://github.com/janwillemstegink/hostingtool.nl/issues" target="_blank">issues on GitHub</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-htaccess/" target="_blank">safe conditional redirect</a> - <a style="font-size: 0.9rem" href="https://janwillemstegink.nl/" target="_blank">janwillemstegink.nl</a></td></tr>';
 $html_text .= '<tr><td colspan="3" style="cursor:pointer;font-size:1.0rem">Settings to optimize are colored orange.</td></tr>';
 $html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 $html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:0.9rem" onclick="SwitchDisplay(11)">About redirection from an alias +/-</button></td></tr>';
@@ -443,7 +443,8 @@ foreach ($xml1->xpath('//domain') as $item)	{
 	}	
 	$html_text .= '<tr id="511" style="display:none;vertical-align:top"><td colspan="2">'.$item->hsts_header.'</td><td colspan="1">'.$item->hsts_header_www.'</td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">server header +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">server header +/-</button></td></tr>';
-	$html_text .= '<tr id="521" style="display:none;vertical-align:top"><td colspan="2">'.$item->server_header.'</td><td colspan="1">'.$item->server_header_www.'</td></tr>';
+	$html_text .= '<tr id="521" style="display:none;vertical-align:top"><td colspan="3"><i>If unexpectedly insecure: The always directive in Apache ensures that a header is set even for error responses. By default, Nginx only sets headers for successful responses (2xx, 3xx).</i></td></tr>';
+	$html_text .= '<tr id="522" style="display:none;vertical-align:top"><td colspan="2">'.$item->server_header.'</td><td colspan="1">'.$item->server_header_www.'</td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(61)">transfer information +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(61)">transfer information +/-</button></td></tr>';
 	$html_text .= '<tr id="611" style="display:none;vertical-align:top"><td colspan="2">'.$item->transfer_information.'</td><td>'.$item->transfer_information_www.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
