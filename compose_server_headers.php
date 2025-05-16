@@ -597,13 +597,13 @@ else	{
 //}
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);	
+//curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_HEADER, 1);	
 curl_setopt($ch, CURLOPT_NOBODY, 1);
 curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
 curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 curl_setopt($ch, CURLOPT_VERBOSE, 1);
 //curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); // CURL_IPRESOLVE_V6, by default CURL_IPRESOLVE_WHATEVER
@@ -758,22 +758,22 @@ elseif (strlen($DNS_CNAME))	{
 	}
 	$arr_server_header = explode (",", $curl_server_header);
 	$server_header = '';
-	$hsts_header = 'The server header';
+	$hsts_header = '';
 	foreach($arr_server_header as $key1 => $value1) {
-		$server_header .= $key1 . "\n" . $value1 . "\n";	
+		$server_header .= $value1 . "\n";	
 		if (str_contains(strtolower($value1), 'strict-transport-security'))	{
-			$hsts_header .= ' contains HSTS';
+			$hsts_header .= 'HSTS active';
 			if (str_contains($value1, 'includeSubDomains'))	{
-				$hsts_header .= ', and for its subdomains';
+				$hsts_header .= ', incl. subdomains';
 			}
 			else	{
-				$hsts_header .= ', not for its subdomains';
+				$hsts_header .= ', no subdomains';
 			}
 			if (str_contains($value1, 'preload'))	{
-				$hsts_header .= ', with preload.' . "\n";
+				$hsts_header .= ', with complicating preload';
 			}
 			else	{
-				$hsts_header .= ', without preload.' . "\n";
+				$hsts_header .= ', no complicating preload';
 			}													 
 		}	
 	}
@@ -833,22 +833,22 @@ elseif (strlen($DNS_CNAME_www))	{
 	}	
 	$arr_server_header_www = explode (",", $curl_server_header_www);
 	$server_header_www = '';
-	$hsts_header_www = 'The server header';
+	$hsts_header_www = '';
 	foreach($arr_server_header_www as $key1 => $value1) {
-		$server_header_www .= $key1 . "\n" . $value1 . "\n";
+		$server_header_www .= $value1 . "\n";
 		if (str_contains(strtolower($value1), 'strict-transport-security'))	{				
-			$hsts_header_www .= ' contains HSTS';
+			$hsts_header_www .= 'HSTS active';
 			if (str_contains($value1, 'includeSubDomains'))	{
-				$hsts_header_www .= ', and for its subdomains';
+				$hsts_header_www .= ', incl. subdomains';
 			}
 			else	{
-				$hsts_header_www .= ', not for its subdomains';
+				$hsts_header_www .= ', no subdomains';
 			}
 			if (str_contains($value1, 'preload'))	{
-					$hsts_header_www .= ', with preload.' . "\n";
+					$hsts_header_www .= ', with complicating preload';
 			}
 			else	{
-				$hsts_header_www .= ', without preload.' . "\n";	
+				$hsts_header_www .= ', no complicating preload';	
 			}
 		}	
 	}

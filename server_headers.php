@@ -1,11 +1,14 @@
 <?php
 session_start();  // is needed with no PHP Generator Scriptcase
+set_time_limit(240);
+//ini_set('display_errors', 1);
+//error_reporting(E_ALL);
 echo '<!DOCTYPE html><html lang="en" style="font-size: 90%"><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta charset="UTF-8" />
 <meta http-equiv="x-ua-compatible" content="ie=edge" />
 <meta name="robots" content="index" />
-<title>Server Header Data</title>';
+<title>Server Header Lookup</title>';
 ?><script>
 	
 function SwitchDisplay(type) {
@@ -82,11 +85,11 @@ function SwitchDisplay(type) {
 		var pre = '44';
 		var max = 2
 	}
-	else if (type == 51)	{ // hsts headers
+	else if (type == 51)	{ // HSTS headers
 		var pre = '51';
 		var max = 1
 	}
-	else if (type == 52)	{ // server headers
+	else if (type == 52)	{ // HTTP headers
 		var pre = '52';
 		var max = 2
 	}
@@ -130,21 +133,20 @@ else	{
 }
 if (empty($_GET['url']))	{
 	$viewserver = 'url';
-	$defaultdisplay = 'table-row';
+	$retrieval = "No retrieval yet.";
 }
 else	{
 	$_GET['url'] = trim($_GET['url']);
 	$_GET['url'] = clean_url($_GET['url']);	
 	$_GET['url'] = rawurldecode($_GET['url']);
 	$viewserver = $_GET['url'];
-	$defaultdisplay = 'none';
 }
-
+$defaultdisplay = 'none';
 $html_text = '<body><div style="border-collapse:collapse; line-height:120%">
 <table style="font-family:Helvetica, Arial, sans-serif; font-size: 1rem; table-layout: fixed; width:1200px; overflow-wrap: break-word">
 <tr><th style="width:300px"></th><th style="width:300px"></th><th style="width:600px"></th></tr>';
-$html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:blue;font-weight:bold">Server Header Data</td>
-<td><form action='.htmlentities($_SERVER['PHP_SELF']).' method="get"><label for="url">Paste a URL and press Enter</label><input type="text" style="width:90%;font-size: 1.2rem" id="url" name="url" value='.$viewserver.'></form></td><td> <a style="font-size: 0.9rem" href="https://github.com/janwillemstegink/hostingtool.nl/issues" target="_blank">issues on GitHub</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-htaccess/" target="_blank">safe conditional redirect</a> - <a style="font-size: 0.9rem" href="https://janwillemstegink.nl/" target="_blank">janwillemstegink.nl</a></td></tr>';
+$html_text .= '<tr style="font-size: .8rem"><td style="font-size: 1.3rem;color:blue;font-weight:bold">Server Header Lookup</td>
+<td><form action='.htmlentities($_SERVER['PHP_SELF']).' method="get"><label for="url">Type a domain, then press Enter.</label><input type="text" style="width:90%;font-size: 1.2rem" id="url" name="url" value='.$viewserver.'></form></td><td> <a style="font-size: 0.9rem" href="https://github.com/janwillemstegink/hostingtool.nl/issues" target="_blank">issues on GitHub</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-htaccess/" target="_blank">safe conditional redirect</a> - <a style="font-size: 0.9rem" href="https://webhostingtech.nl/security-setup/set-up-security-headers/" target="_blank">defense-in-depth with "always"</a> - <a style="font-size: 0.9rem" href="https://janwillemstegink.nl/" target="_blank">janwillemstegink.nl</a></td></tr>';
 $html_text .= '<tr><td colspan="3" style="cursor:pointer;font-size:1.0rem">Settings to optimize are colored orange.</td></tr>';
 $html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 $html_text .= '<tr><td colspan="3"><button style="cursor:pointer;font-size:0.9rem" onclick="SwitchDisplay(11)">About redirection from an alias +/-</button></td></tr>';
@@ -173,11 +175,10 @@ $html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:0.9re
 $html_text .= '<tr id="141" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">For search engines in general, a no-indexing statement is necessary to clean up. For deletion in Google Search, even re-registration of the domain may be necessary.</td></tr>';
 $html_text .= '<tr id="142" style="display:'.$defaultdisplay.';font-style:italic"><td colspan="3">Note that robots.txt content - for more control over crawling - can block any processing by a search engine, such as the desired removal of search results.</td></tr>';
 $html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
-$html_text .= '<tr><td colspan="3" style="cursor:pointer;font-size:1.2rem">Analysis:</td></tr>';
 $html_text .= '</table>';
 echo $html_text;
 $html_text = '';
-if (strlen($viewserver) and $viewserver != 'url')	{	
+if (strlen($viewserver))	{	
 $html_text .= '<table style="font-family:Helvetica, Arial, sans-serif; font-size: 1rem; table-layout: fixed; width:1200px; overflow-wrap: break-word">
 <tr><th style="width:300px"></th><th style="width:300px"></th><th style="width:600px"></th></tr>';
 //$server_url = 'https://hostingtool.nl/compose_server_headers/index.php?url='.$viewserver;	
@@ -186,19 +187,37 @@ $server_url .= '://'. $_SERVER['HTTP_HOST'];
 $server_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);	
 $server_url = dirname($server_url);
 $hosting_url = $server_url.'/compose_server_headers/index.php?url='.$viewserver;	
-if (@get_headers($hosting_url))	{	
-	$xml1 = simplexml_load_file($hosting_url, "SimpleXMLElement", LIBXML_NOCDATA) or die("An entered url could not be read.");
+$ch = curl_init($hosting_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  // Return the response as a string
+curl_setopt($ch, CURLOPT_TIMEOUT, 240);  // Set the timeout to 240 seconds
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);  // Follow redirects (if any)
+$datetime = new DateTime('now', new DateTimeZone('UTC'));
+$time_stamp = $datetime->format('Y-m-d H:i:s');
+$retrieval = "Retrieved from " . $viewserver . " on " . $time_stamp . " UTC";
+$time_start = microtime(true);	
+$xml_content = curl_exec($ch);
+$time_end = microtime(true);
+$seconds = strval(round($time_end - $time_start, 0));
+$retrieval .= " in " . $seconds . " seconds.";	
+if ($xml_content === false) {
+    echo "cURL error: " . curl_error($ch);
 }
-if	(is_null($xml1))	{
-	$display_message = str_replace("'", "\'", "A result could not be retrieved.");	
-	echo "<script>alert('$display_message');</script>";
-	$reopen = $server_url.'/server_headers/index.php';
-	sc_redir($reopen);
+else {
+    // Output the raw XML content for debugging
+    //echo "<pre>" . htmlspecialchars($xml_content) . "</pre>";
+    $xml1 = simplexml_load_string($xml_content, "SimpleXMLElement", LIBXML_NOCDATA) or die("An entered URL could not be read.");
+}
+curl_close($ch);
+if (is_null($xml1)) {
+    $display_message = str_replace("'", "\'", "A result could not be retrieved.");
+    echo "<script>alert('$display_message');</script>";
+    $reopen = $server_url . '/server_headers/index.php';
+    sc_redir($reopen);
 }	
 foreach ($xml1->xpath('//domain') as $item)	{
-	simplexml_load_string($item->asXML());
-	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
+	simplexml_load_string($item->asXML());	
 	$html_text .= '<tr><td colspan="2" style="cursor:pointer;font-size:1.6rem">'.$item->url.'</td><td style="cursor:pointer;font-size:1.6rem">www.'.$item->url.'</td></tr>';
+	$html_text .= '<tr><td colspan="3">'.$retrieval.'</td></tr>';
 	$html_text .= '<tr><td><hr></td><td><hr></td><td><hr></td></tr>';
 	if ($item->http_code_notice == "1" )	{
 		$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem;background-color:#FFD580;border-color:#FFD580" onclick="SwitchDisplay(21)">HTTP response +/-</button></td>';
@@ -442,7 +461,7 @@ foreach ($xml1->xpath('//domain') as $item)	{
 		$html_text .= '<td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(51)">HSTS +/-</button></td></tr>';
 	}	
 	$html_text .= '<tr id="511" style="display:none;vertical-align:top"><td colspan="2">'.$item->hsts_header.'</td><td colspan="1">'.$item->hsts_header_www.'</td></tr>';
-	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">server header +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">server header +/-</button></td></tr>';
+	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">HTTP headers +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(52)">HTTP headers +/-</button></td></tr>';
 	$html_text .= '<tr id="521" style="display:none;vertical-align:top"><td colspan="3"><i>If unexpectedly insecure: The always directive in Apache ensures that a header is set even for error responses. By default, Nginx only sets headers for successful responses (2xx, 3xx).</i></td></tr>';
 	$html_text .= '<tr id="522" style="display:none;vertical-align:top"><td colspan="2">'.$item->server_header.'</td><td colspan="1">'.$item->server_header_www.'</td></tr>';
 	$html_text .= '<tr><td colspan="2"><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(61)">transfer information +/-</button></td><td><button style="cursor:pointer;font-size:1.05rem" onclick="SwitchDisplay(61)">transfer information +/-</button></td></tr>';
