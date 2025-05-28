@@ -12,7 +12,6 @@ else	{
 	die('allow_url_fopen does not work.'); 	
 }
 $datetime2 = new DateTime('now', new DateTimeZone('UTC'));
-$utc = $datetime2->format('Y-m-d H:i:s');
 if (empty($_GET['url']))	{
 	$viewserver = 'url';
 	$retrieval = "No retrieval yet.";
@@ -27,8 +26,9 @@ if (empty([ip]) or empty([block]))	{
 	[ip] = getClientIP();
 	[block] = get_block([ip]);
 }
-$sql = "INSERT INTO sh_log (utc, url, ip, block) VALUES ('$utc', '$viewserver', '[ip]', '[block]')";
-sc_exec_sql($sql);
+$log_file = "/home/admin/logging/server_header_tool_" . date("Ym") . ".txt";
+$log_line = $datetime2->format('Y-m-d H:i:s') . " UTC, " . $viewserver. ", " . [ip] . ", " . [block] . "\n";
+file_put_contents($log_file, $log_line, FILE_APPEND);
 echo '<!DOCTYPE html><html lang="en" style="font-size: 90%"><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta charset="UTF-8" />
@@ -539,13 +539,13 @@ function get_block($ip) {
             if (isset($entity['vcardArray'][1])) {
                 foreach ($entity['vcardArray'][1] as $vcardField) {
                     if ($vcardField[0] === 'fn') {
-                        $orgName .= $vcardField[3].'<br />';
+                        $orgName .= $vcardField[3].'; ';
                     }
 
                 }
             }
         }
     }
-	return (strlen($country)) ? $country . '<br />' . $orgName : $orgName;	
+	return (strlen($country)) ? $country . '; ' . $orgName : $orgName;	
 }
 ?>
